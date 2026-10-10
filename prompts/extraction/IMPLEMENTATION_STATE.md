@@ -1,10 +1,10 @@
 # extraction campaign — implementation state
 
-**Last updated:** 2026-10-10 · **Status: IN PROGRESS — 6 of 7 prompts written (01–06), 01 landed
+**Last updated:** 2026-10-10 · **Status: IN PROGRESS — 7 of 7 prompts written, 01 landed
 (`49f3ddf`) and reviewed, 02 landed (`b9f6dec`) and reviewed, 03 landed (`4e90a8a`) and
 reviewed; `v0.1.0` tagged; 04 landed (`0b6ffd2`) and reviewed, CI green; 05 landed (`eaef0ce`)
-and reviewed, CI green; `v0.2.0` tagged; 06 landed (`67f3f7e`) and reviewed.** G1 holds at SGK `b510bc9`, the import commit. The user took U1–U3 at set-up and U4–U5
-for 01, U6 and U9 for 02, U7 for 03, U8 and U11 for 04 and U10 and U12 for 06, all on 2026-10-10 and as recommended
+and reviewed, CI green; `v0.2.0` tagged; 06 landed (`67f3f7e`) and reviewed; 07 written.** G1 holds at SGK `b510bc9`, the import commit. The user took U1–U3 at set-up and U4–U5
+for 01, U6 and U9 for 02, U7 for 03, U8 and U11 for 04, U10 and U12 for 06 and U13 and U14 for 07, all on 2026-10-10 and as recommended
 (README §6.2; U9 as amended at 02's writing; U8 with two amendments); U8 and U11 are applied by 04.
 The package `raypoolkit` is at `0.2.0`, declaring Python `>=3.12` and `ray>=2.43`, with its test
 package excluded from the wheel and package data off, so that a stale `egg-info` manifest cannot
@@ -57,6 +57,8 @@ instruction on 2026-10-10 after CI passed there at both ends (run `38054782562`)
 | **U10** CPBH shim | none | **taken** 2026-10-10, for 06; no CPBH site at `52142d7` affected |
 | **U11** licence header | CPBH's and SI's header, on `RayWorkPool.py` only | **taken** 2026-10-10: on all four package modules; **applied** by 04 (`0b6ffd2`) |
 | **U12** order with DatastoreKit | U5 amended: a DatastoreKit-first adoption may rewrite the one `ShardedPool` import in `RayTools/RayWorkPool.py` | **taken** 2026-10-10, for 06 |
+| **U13** Ray smoke run | a script in `docs/extraction/`, a local `ray.init()` at both ends; not a test | **taken** 2026-10-10, for 07 |
+| **U14** the pin | cite the release record; rebuild the wheel offline; no network | **taken** 2026-10-10, for 07 |
 
 ## 1. Prompts
 
@@ -68,7 +70,7 @@ instruction on 2026-10-10 after CI passed there at both ends (run `38054782562`)
 | 04 | [`04-fix-the-inherited-faults.md`](04-fix-the-inherited-faults.md) | **landed** 2026-10-10 ([log](logs/04-fix-the-inherited-faults.md)), reviewed | `0b6ffd2` | 116 → 121 |
 | 05 | [`05-release-v0.2.0.md`](05-release-v0.2.0.md) | **landed** 2026-10-10 ([log](logs/05-release-v0.2.0.md)), reviewed; CI green; tagged `v0.2.0` | `eaef0ce` | 121 → 121 |
 | 06 | [`06-the-adoption-checklists.md`](06-the-adoption-checklists.md) | **landed** 2026-10-10 ([log](logs/06-the-adoption-checklists.md)), reviewed | `67f3f7e` | 121 → 121 |
-| 07 | `07-verification-and-close-out.md` | not written | — | — |
+| 07 | [`07-verification-and-close-out.md`](07-verification-and-close-out.md) | **written** 2026-10-10 | — | 121 → 121 |
 
 **Orchestrator notes:** [`orchestrator/prompt-01.md`](orchestrator/prompt-01.md) (`310db6e`),
 used for 01; [`orchestrator/prompt-02.md`](orchestrator/prompt-02.md) (`319099a`), used for 02;

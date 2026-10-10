@@ -3,15 +3,15 @@
 **Written:** 2026-10-10 by Claude Opus 5.5, at the user's request, from a read-only comparison of
 the three client projects' `RayWorkPool` copies made the same day (§0.2). The user took U1–U3 at
 set-up (§6.2), U4 and U5 on 2026-10-10, U6 and U9 the same day for 02, U7 the same day for 03,
-U8 (amended) and U11 the same day for 04, and U10 and U12 the same day for 06, each as
-recommended;
+U8 (amended) and U11 the same day for 04, U10 and U12 the same day for 06, and U13 and U14 the
+same day for 07, each as recommended;
 **prompt 01 has landed** (`49f3ddf`, 2026-10-10) and been reviewed, with G1 re-checked, and
 **prompt 02 has landed** (`b9f6dec`, 2026-10-10) and been reviewed, and **prompt 03 has landed**
 (`4e90a8a`, 2026-10-10) and been reviewed, and is tagged **`v0.1.0`**; **prompt 04 has landed**
 (`0b6ffd2`, 2026-10-10) and been reviewed, with CI green at both ends; **prompt 05 has landed**
 (`eaef0ce`, 2026-10-10) and been reviewed, and is tagged **`v0.2.0`**; **prompt 06 has landed**
-(`67f3f7e`, 2026-10-10) and been reviewed. Each prompt is written after the one before it has
-landed and been reviewed, against the tree it left.
+(`67f3f7e`, 2026-10-10) and been reviewed; **prompt 07 is written** (2026-10-10). Each prompt is
+written after the one before it has landed and been reviewed, against the tree it left.
 
 ## 0. Why this campaign exists
 
@@ -178,7 +178,7 @@ drive the pool with real refs and an in-process stand-in for `ray.wait` and `ray
 | 04 | [`04-fix-the-inherited-faults.md`](04-fix-the-inherited-faults.md) | Faults 1–5 of §0.2, each with a test the unfixed code fails, and 02's pinning tests inverted. The constructor's handler checks follow U8. The printed lines do not change. *(May be split into 04a and 04b when written, if fault 4's resolution changes what a client must pass.)* *(At writing: not split, since under U8 all 87 client call sites construct unchanged; it also closes `[01-a-kept-comment-names-the-datastore-service]` and `[02-the-constructor-does-not-check-its-sizes]`, adds U11's header to the four package modules, and retires `compare_with_source.py` at `v0.1.0`; the suite goes 116 → 121.)* | **landed** 2026-10-10 (`0b6ffd2`), reviewed; CI green at both ends |
 | 05 | [`05-release-v0.2.0.md`](05-release-v0.2.0.md) | `pyproject.toml` at `0.2.0`, `PROVENANCE.md` and `README.md`; both ends locally and in CI; **`v0.2.0`** tagged on its commit after green CI. *(At writing: it also closes `[03-a-stale-egg-info-manifest-ships-the-tests-in-a-wheel]`, with `include-package-data = false`, and re-runs 03's release check with the stale manifest in the export; the README gains a "Changes in `v0.2.0`" section for a client moving its pin; `PROVENANCE.md` keeps describing the import, as of `v0.1.0`, and gains a "Since `v0.1.0`" section; nothing under `raypoolkit/` changes, so the suite stays at 121.)* | **landed** 2026-10-10 (`eaef0ce`), reviewed; tagged **`v0.2.0`** after green CI |
 | 06 | [`06-the-adoption-checklists.md`](06-the-adoption-checklists.md) | `docs/adoption/`, one checklist per client, measured read-only at a named client commit and against `v0.2.0`: what it deletes (`RayTools/`); which imports it rewrites; its call sites, and what each must change (CPBH: the store/persist rename and its 14 lookup-only sites; any site U8 affects); its tests that depend on the pool's surface (SGK: §0.2); its documents that go stale (SI: `CLAUDE.md`'s protected list names `RayTools/`); its acceptance. Each says that adopting with DatastoreKit in one campaign is possible but not required. A script counts every client's imports and sites through `git` and `ast`. *(At writing: the clients are unchanged since planning (SGK `b510bc9`, CPBH `52142d7`, SI `7bb3efd`, each copy's blob as §0.2's); all 87 sites construct under `v0.2.0`, by the package's own constructor; no CPBH site passes a callable `store_handler`, so U10 changes nothing there; SI imports the private `_default_store_handler`, and its `main.py:729-730` sizes two batches by `len()`, which `v0.2.0` refuses at 0; SGK's `Datastore/tests/test_layer_is_generic.py` counts `RayTools/` as part of the datastore layer; SGK's `CLAUDE.md:70-73` says `RayTools/` is not frozen; and DatastoreKit's checklists rewrite the `ShardedPool` import in each frozen copy, which U12 settles. The script is `docs/adoption/measure_client_pools.py`.)* | **landed** 2026-10-10 (`67f3f7e`), reviewed |
-| 07 | `07-verification-and-close-out.md` | A verification document from the package at `v0.2.0` and the records of 01–06; the campaign closed. | not written |
+| 07 | `07-verification-and-close-out.md` | A verification document from the package at `v0.2.0` and the records of 01–06; the campaign closed. *(At writing: the document is `docs/extraction-verification.md`, in the form of DatastoreKit's; under U13 a script, `docs/extraction/ray_smoke_run.py`, runs the pool under a local Ray at both ends, which the planner probed; under U14 the pin is cited from the release record, and the wheel rebuilt offline; nothing under `raypoolkit/` changes, and the suite stays at 121.)* | **written** 2026-10-10 |
 
 **Order.** 01 → 02 → 03 → 04 → 05 → 06 → 07. 03 follows 02 so that `v0.1.0` is a release whose
 behaviour a suite pins: it is SGK's pool, unchanged. 04 follows 03 so that every fix is a
@@ -264,8 +264,8 @@ The project-wide ones in `CLAUDE.md`, plus:
 
 Each is put with a recommendation. **U1–U3 were taken by the user at set-up on 2026-10-10, U4 and
 U5 the same day for 01, U6 and U9 the same day for 02, U7 the same day for 03, U8 and U11 the
-same day for 04, and U10 and U12 the same day for 06, each as recommended (U8 with two amendments
-the user took)**; the
+same day for 04, U10 and U12 the same day for 06, and U13 and U14 the same day for 07, each as
+recommended (U8 with two amendments the user took)**; the
 recommendation below is the decision.
 The others are put when the prompt that needs them is written.
 
@@ -337,6 +337,17 @@ The others are put when the prompt that needs them is written.
   in `RayTools/`; (b) keep U5 strict, and require `raypoolkit` first or in the same campaign; (c)
   leave the order to each client, U5 permitting. *Recommended:* (a): the import is a type hint's,
   so the edit alters no behaviour, and every order stays possible. *Taken 2026-10-10, for 06: (a).*
+- **U13: a smoke run under real Ray** *(for 07)*. Until 07 the pool has run only against the
+  suite's in-process stand-in (U6). Options: a script in `docs/extraction/`, not a test, that
+  starts a local `ray.init()` with no cluster at both tested ends and drives the pool through its
+  paths; or no run, with "never run under real Ray" left as a known gap. *Recommended:* the script.
+  The suite stays free of Ray (`CLAUDE.md`). Probed at 07's writing: five steps pass at both ends,
+  Ray is left with no process, and the run fails with fault 2's or fault 3's fix reverted, but not
+  fault 1's (`ray.wait` returns the refs it was given). *Taken 2026-10-10, for 07: the script.*
+- **U14: the pin, installed again** *(for 07)*. The release record of `v0.2.0` already installed
+  the pin from GitHub and checked it. Options: cite that record, and rebuild the wheel offline from
+  `git archive v0.2.0`; or install the pin from GitHub again. *Recommended:* cite it, so that 07
+  uses no network. *Taken 2026-10-10, for 07: cite it.*
 
 ## 7. Gates outside this repository
 
