@@ -1,10 +1,10 @@
 # extraction campaign — implementation state
 
-**Last updated:** 2026-10-10 · **Status: IN PROGRESS — 5 of 7 prompts written (01–05), 01 landed
+**Last updated:** 2026-10-10 · **Status: IN PROGRESS — 6 of 7 prompts written (01–06), 01 landed
 (`49f3ddf`) and reviewed, 02 landed (`b9f6dec`) and reviewed, 03 landed (`4e90a8a`) and
 reviewed; `v0.1.0` tagged; 04 landed (`0b6ffd2`) and reviewed, CI green; 05 landed (`eaef0ce`)
-and reviewed, CI green; `v0.2.0` tagged.** G1 holds at SGK `b510bc9`, the import commit. The user took U1–U3 at set-up and U4–U5
-for 01, U6 and U9 for 02, U7 for 03 and U8 and U11 for 04, all on 2026-10-10 and as recommended
+and reviewed, CI green; `v0.2.0` tagged; 06 written.** G1 holds at SGK `b510bc9`, the import commit. The user took U1–U3 at set-up and U4–U5
+for 01, U6 and U9 for 02, U7 for 03, U8 and U11 for 04 and U10 and U12 for 06, all on 2026-10-10 and as recommended
 (README §6.2; U9 as amended at 02's writing; U8 with two amendments); U8 and U11 are applied by 04.
 The package `raypoolkit` is at `0.2.0`, declaring Python `>=3.12` and `ray>=2.43`, with its test
 package excluded from the wheel and package data off, so that a stale `egg-info` manifest cannot
@@ -46,13 +46,14 @@ instruction on 2026-10-10 after CI passed there at both ends (run `38054782562`)
 | **U2** source | SGK's copy, imported faithfully | **taken** 2026-10-10 |
 | **U3** dependency | none on `datastorekit`; the pool typed by a `Protocol` | **taken** 2026-10-10 |
 | **U4** module name | keep `RayWorkPool.py`; re-export the class from the root | **taken** 2026-10-10 |
-| **U5** freeze | no client edits its `RayTools/` until it adopts | **taken** 2026-10-10; in force from 01's commit |
+| **U5** freeze | no client edits its `RayTools/` until it adopts | **taken** 2026-10-10; in force from 01's commit; amended by U12 |
 | **U6** Ray stand-in | real `ObjectRef(bytes)`; `ray.wait` / `ray.get` replaced in-process | **taken** 2026-10-10 |
 | **U7** versions | Python ≥3.12, Ray ≥2.43; tested 3.12.15/2.43.0 and 3.13.16/2.55.1 | **taken** 2026-10-10 |
 | **U8** handler checks | defaults apply only with a compute handler (option b); `ValueError`; all four compute-path arguments checked | **taken** 2026-10-10, amended; **applied** by 04 (`0b6ffd2`) |
 | **U9** printed lines | pinned, wording and layout, against a scripted clock; the three consumer patterns checked | **taken** 2026-10-10, as amended |
-| **U10** CPBH shim | none | open, for 06 |
+| **U10** CPBH shim | none | **taken** 2026-10-10, for 06; no CPBH site at `52142d7` affected |
 | **U11** licence header | CPBH's and SI's header, on `RayWorkPool.py` only | **taken** 2026-10-10: on all four package modules; **applied** by 04 (`0b6ffd2`) |
+| **U12** order with DatastoreKit | U5 amended: a DatastoreKit-first adoption may rewrite the one `ShardedPool` import in `RayTools/RayWorkPool.py` | **taken** 2026-10-10, for 06 |
 
 ## 1. Prompts
 
@@ -63,7 +64,7 @@ instruction on 2026-10-10 after CI passed there at both ends (run `38054782562`)
 | 03 | [`03-supported-versions-and-ci.md`](03-supported-versions-and-ci.md) | **landed** 2026-10-10 ([log](logs/03-supported-versions-and-ci.md)), reviewed; tagged `v0.1.0` | `4e90a8a` | 116 → 116 |
 | 04 | [`04-fix-the-inherited-faults.md`](04-fix-the-inherited-faults.md) | **landed** 2026-10-10 ([log](logs/04-fix-the-inherited-faults.md)), reviewed | `0b6ffd2` | 116 → 121 |
 | 05 | [`05-release-v0.2.0.md`](05-release-v0.2.0.md) | **landed** 2026-10-10 ([log](logs/05-release-v0.2.0.md)), reviewed; CI green; tagged `v0.2.0` | `eaef0ce` | 121 → 121 |
-| 06 | `06-the-adoption-checklists.md` | not written | — | — |
+| 06 | [`06-the-adoption-checklists.md`](06-the-adoption-checklists.md) | **written** 2026-10-10 | — | 121 → 121 |
 | 07 | `07-verification-and-close-out.md` | not written | — | — |
 
 **Orchestrator notes:** [`orchestrator/prompt-01.md`](orchestrator/prompt-01.md) (`310db6e`),
@@ -469,6 +470,9 @@ user, in the order the review recommended, so that CI ran on 05's commit itself:
    installed package is the four modules and no `tests/`; from an empty directory with `-I`, the
    two public names import, `version` is `0.2.0`, `requires` is `['ray>=2.43']`,
    `ray.is_initialized()` is false, and `import raypoolkit.tests` raises `ModuleNotFoundError`.
+5. **`main` pushed.** The user then pushed `main` (`9a00f80`, the review, and `b2b6ab4`, this
+   record), and its run, `38076190172` on `b2b6ab4`, passed both jobs. Recorded with 06's
+   writing.
 
 ## 2. Gates outside this repository (README §7)
 

@@ -3,13 +3,15 @@
 **Written:** 2026-10-10 by Claude Opus 5.5, at the user's request, from a read-only comparison of
 the three client projects' `RayWorkPool` copies made the same day (§0.2). The user took U1–U3 at
 set-up (§6.2), U4 and U5 on 2026-10-10, U6 and U9 the same day for 02, U7 the same day for 03,
-and U8 (amended) and U11 the same day for 04, each as recommended;
+U8 (amended) and U11 the same day for 04, and U10 and U12 the same day for 06, each as
+recommended;
 **prompt 01 has landed** (`49f3ddf`, 2026-10-10) and been reviewed, with G1 re-checked, and
 **prompt 02 has landed** (`b9f6dec`, 2026-10-10) and been reviewed, and **prompt 03 has landed**
 (`4e90a8a`, 2026-10-10) and been reviewed, and is tagged **`v0.1.0`**; **prompt 04 has landed**
 (`0b6ffd2`, 2026-10-10) and been reviewed, with CI green at both ends; **prompt 05 has landed**
-(`eaef0ce`, 2026-10-10) and been reviewed, and is tagged **`v0.2.0`**. Each prompt is written after the one before it has landed and been reviewed, against
-the tree it left.
+(`eaef0ce`, 2026-10-10) and been reviewed, and is tagged **`v0.2.0`**; **prompt 06 is written**
+(2026-10-10). Each prompt is written after the one before it has landed and been reviewed,
+against the tree it left.
 
 ## 0. Why this campaign exists
 
@@ -175,7 +177,7 @@ drive the pool with real refs and an in-process stand-in for `ray.wait` and `ray
 | 03 | `03-supported-versions-and-ci.md` | Dependency ranges in `pyproject.toml` (U7). The suite runs at both ends locally, in fresh scratch venvs, and from an installed wheel that carries no test package. A GitHub Actions workflow runs it at both ends. `README.md` gains usage. 03 makes no tag and pushes nothing; **`v0.1.0`** is tagged on its commit once CI passes there. *(At writing: the wheel excludes `raypoolkit.tests`, and is built from a fresh `git archive` export, since a stale `build/` leaks the tests into it.)* | **landed** 2026-10-10 (`4e90a8a`), reviewed; tagged **`v0.1.0`** after green CI |
 | 04 | [`04-fix-the-inherited-faults.md`](04-fix-the-inherited-faults.md) | Faults 1–5 of §0.2, each with a test the unfixed code fails, and 02's pinning tests inverted. The constructor's handler checks follow U8. The printed lines do not change. *(May be split into 04a and 04b when written, if fault 4's resolution changes what a client must pass.)* *(At writing: not split, since under U8 all 87 client call sites construct unchanged; it also closes `[01-a-kept-comment-names-the-datastore-service]` and `[02-the-constructor-does-not-check-its-sizes]`, adds U11's header to the four package modules, and retires `compare_with_source.py` at `v0.1.0`; the suite goes 116 → 121.)* | **landed** 2026-10-10 (`0b6ffd2`), reviewed; CI green at both ends |
 | 05 | [`05-release-v0.2.0.md`](05-release-v0.2.0.md) | `pyproject.toml` at `0.2.0`, `PROVENANCE.md` and `README.md`; both ends locally and in CI; **`v0.2.0`** tagged on its commit after green CI. *(At writing: it also closes `[03-a-stale-egg-info-manifest-ships-the-tests-in-a-wheel]`, with `include-package-data = false`, and re-runs 03's release check with the stale manifest in the export; the README gains a "Changes in `v0.2.0`" section for a client moving its pin; `PROVENANCE.md` keeps describing the import, as of `v0.1.0`, and gains a "Since `v0.1.0`" section; nothing under `raypoolkit/` changes, so the suite stays at 121.)* | **landed** 2026-10-10 (`eaef0ce`), reviewed; tagged **`v0.2.0`** after green CI |
-| 06 | `06-the-adoption-checklists.md` | `docs/adoption/`, one checklist per client, measured read-only at a named client commit and against `v0.2.0`: what it deletes (`RayTools/`); which imports it rewrites; its call sites, and what each must change (CPBH: the store/persist rename and its 14 lookup-only sites; any site U8 affects); its tests that depend on the pool's surface (SGK: §0.2); its documents that go stale (SI: `CLAUDE.md`'s protected list names `RayTools/`); its acceptance. Each says that adopting with DatastoreKit in one campaign is possible but not required. A script counts every client's imports and sites through `git` and `ast`. | not written |
+| 06 | [`06-the-adoption-checklists.md`](06-the-adoption-checklists.md) | `docs/adoption/`, one checklist per client, measured read-only at a named client commit and against `v0.2.0`: what it deletes (`RayTools/`); which imports it rewrites; its call sites, and what each must change (CPBH: the store/persist rename and its 14 lookup-only sites; any site U8 affects); its tests that depend on the pool's surface (SGK: §0.2); its documents that go stale (SI: `CLAUDE.md`'s protected list names `RayTools/`); its acceptance. Each says that adopting with DatastoreKit in one campaign is possible but not required. A script counts every client's imports and sites through `git` and `ast`. *(At writing: the clients are unchanged since planning (SGK `b510bc9`, CPBH `52142d7`, SI `7bb3efd`, each copy's blob as §0.2's); all 87 sites construct under `v0.2.0`, by the package's own constructor; no CPBH site passes a callable `store_handler`, so U10 changes nothing there; SI imports the private `_default_store_handler`, and its `main.py:729-730` sizes two batches by `len()`, which `v0.2.0` refuses at 0; SGK's `Datastore/tests/test_layer_is_generic.py` counts `RayTools/` as part of the datastore layer; SGK's `CLAUDE.md:70-73` says `RayTools/` is not frozen; and DatastoreKit's checklists rewrite the `ShardedPool` import in each frozen copy, which U12 settles. The script is `docs/adoption/measure_client_pools.py`.)* | **written** 2026-10-10 |
 | 07 | `07-verification-and-close-out.md` | A verification document from the package at `v0.2.0` and the records of 01–06; the campaign closed. | not written |
 
 **Order.** 01 → 02 → 03 → 04 → 05 → 06 → 07. 03 follows 02 so that `v0.1.0` is a release whose
@@ -261,8 +263,9 @@ The project-wide ones in `CLAUDE.md`, plus:
 ### 6.2 Decisions this campaign needs
 
 Each is put with a recommendation. **U1–U3 were taken by the user at set-up on 2026-10-10, U4 and
-U5 the same day for 01, U6 and U9 the same day for 02, U7 the same day for 03, and U8 and U11
-the same day for 04, each as recommended (U8 with two amendments the user took)**; the
+U5 the same day for 01, U6 and U9 the same day for 02, U7 the same day for 03, U8 and U11 the
+same day for 04, and U10 and U12 the same day for 06, each as recommended (U8 with two amendments
+the user took)**; the
 recommendation below is the decision.
 The others are put when the prompt that needs them is written.
 
@@ -283,7 +286,8 @@ The others are put when the prompt that needs them is written.
   string targets to `mock.patch`, measured at Python 3.12.15 and 3.13.16. 01 pins this.)*
 - **U5: freeze the clients' copies** *(for 01)*. *Taken 2026-10-10:* from 01's writing until each client
   adopts, no client edits its `RayTools/`; a fix wanted in a client is made here and reaches it on
-  adoption. G1 (§7) is SGK's half of this.
+  adoption. G1 (§7) is SGK's half of this. *(Amended by U12, 2026-10-10: one edit is allowed, the
+  `ShardedPool` import, in a DatastoreKit-first adoption.)*
 - **U6: the suite's Ray stand-in** *(for 02)*. *Taken 2026-10-10:* work items are real
   `ray.ObjectRef(bytes)` instances, and the pool module's `ray.wait` and `ray.get` are replaced by
   an in-process stand-in that resolves them from a table, in a controllable order. Alternatives
@@ -315,13 +319,24 @@ The others are put when the prompt that needs them is written.
   case". Those lines are a transcription the pool cannot print verbatim; see §0.2's note.)*
 - **U10: no shim for CPBH** *(for 06)*. *Recommended:* CPBH renames its 3 compute sites'
   store-handler use on adoption if it overrides it (at HEAD it does not), and the package carries
-  no client's old meaning of `store_handler`.
+  no client's old meaning of `store_handler`. *Taken 2026-10-10, for 06. Measured at 06's writing,
+  CPBH `52142d7`: no site passes a callable `store_handler` (14 pass `None`, 3 leave it out), and
+  each constructs under `v0.2.0` with CPBH's behaviour and printed lines, so U10 changes no site
+  there; a callable `store_handler` added before adoption becomes `persist_handler`.*
 - **U11: the licence header** *(for 04, fault 5)*. Options: CPBH's and SI's 14-line Apache 2.0
   header (`# (c) University of Sussex 2026`, `# Created by David Seery`, then Apache's notice), on
   `RayWorkPool.py` only, or on all four package modules; or no header, as DatastoreKit has none.
   *Recommended:* the header on `RayWorkPool.py` only. *Taken 2026-10-10: the header, byte for byte
   from SI's copy, on all four package modules* (`RayWorkPool.py`, `_timing.py`, `contract.py`,
   `__init__.py`), not on the tests.
+- **U12: the order with DatastoreKit, and U5** *(for 06)*. DatastoreKit's checklists (at its
+  `v0.2.1`) list each client's `from Datastore.SQL.ShardedPool import ShardedPool` in
+  `RayTools/RayWorkPool.py` (SGK `:8`, CPBH and SI `:23`) as an import to rewrite, and U5 forbids
+  the edit until the client adopts `raypoolkit`. Options: (a) amend U5 so that a client adopting
+  DatastoreKit first may rewrite that one import to `datastorekit.SQL.ShardedPool`, and nothing else
+  in `RayTools/`; (b) keep U5 strict, and require `raypoolkit` first or in the same campaign; (c)
+  leave the order to each client, U5 permitting. *Recommended:* (a): the import is a type hint's,
+  so the edit alters no behaviour, and every order stays possible. *Taken 2026-10-10, for 06: (a).*
 
 ## 7. Gates outside this repository
 
