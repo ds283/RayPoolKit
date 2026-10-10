@@ -3,7 +3,7 @@
 **Last updated:** 2026-10-10 · **Status: IN PROGRESS — 5 of 7 prompts written (01–05), 01 landed
 (`49f3ddf`) and reviewed, 02 landed (`b9f6dec`) and reviewed, 03 landed (`4e90a8a`) and
 reviewed; `v0.1.0` tagged; 04 landed (`0b6ffd2`) and reviewed, CI green; 05 landed (`eaef0ce`)
-and reviewed.** G1 holds at SGK `b510bc9`, the import commit. The user took U1–U3 at set-up and U4–U5
+and reviewed, CI green; `v0.2.0` tagged.** G1 holds at SGK `b510bc9`, the import commit. The user took U1–U3 at set-up and U4–U5
 for 01, U6 and U9 for 02, U7 for 03 and U8 and U11 for 04, all on 2026-10-10 and as recommended
 (README §6.2; U9 as amended at 02's writing; U8 with two amendments); U8 and U11 are applied by 04.
 The package `raypoolkit` is at `0.2.0`, declaring Python `>=3.12` and `ray>=2.43`, with its test
@@ -11,15 +11,15 @@ package excluded from the wheel and package data off, so that a stale `egg-info`
 put the tests in a wheel (05). Since 04, faults 1–5 are fixed on `main`, with the constructor's
 sizes checked, each fix guarded by a test that `v0.1.0`'s module fails; `README.md` and
 `PROVENANCE.md` describe `v0.2.0` (05). `compare_with_source.py` is retired at `v0.1.0`. The suite is 121 tests, with no Ray cluster, passing at 3.12.15 / 2.43.0 and
-3.13.16 / 2.55.1 (in CI on `0b6ffd2` and `914070c`). No issue is open. The U5 freeze is in force.
+3.13.16 / 2.55.1 (in CI on `0b6ffd2`, `914070c` and `eaef0ce`). No issue is open. The U5 freeze is in force.
 
 **`v0.1.0` is released**: an annotated tag on 03's commit, `4e90a8a`, made at the user's
 instruction on 2026-10-10 after CI passed there at both ends (run `38054782562`), and pushed with
 `main` (README §5 rule 10). See *Release of `v0.1.0`*, below.
 
-**`v0.2.0` is ready to be tagged on 05's commit (`eaef0ce`) once CI passes there at both ends.**
-No tag has been made and nothing has been pushed (README §5 rule 10); if CI fails, no tag, and a fix
-prompt lands first.
+**`v0.2.0` is released**: an annotated tag on 05's commit, `eaef0ce`, made by the user on
+2026-10-10 after CI passed there at both ends (run `38075908457`), and pushed (README §5 rule
+10). It is the release the clients adopt. See *Release of `v0.2.0`*, below.
 
 **Campaign:** [`README.md`](README.md) ·
 **Source:** SecondaryGWKit's `RayTools/RayWorkPool.py`, blob `b4666fa` (G1) ·
@@ -62,7 +62,7 @@ prompt lands first.
 | 02 | [`02-the-test-suite.md`](02-the-test-suite.md) | **landed** 2026-10-10 ([log](logs/02-the-test-suite.md)), reviewed | `b9f6dec` | 3 → 116 |
 | 03 | [`03-supported-versions-and-ci.md`](03-supported-versions-and-ci.md) | **landed** 2026-10-10 ([log](logs/03-supported-versions-and-ci.md)), reviewed; tagged `v0.1.0` | `4e90a8a` | 116 → 116 |
 | 04 | [`04-fix-the-inherited-faults.md`](04-fix-the-inherited-faults.md) | **landed** 2026-10-10 ([log](logs/04-fix-the-inherited-faults.md)), reviewed | `0b6ffd2` | 116 → 121 |
-| 05 | [`05-release-v0.2.0.md`](05-release-v0.2.0.md) | **landed** 2026-10-10 ([log](logs/05-release-v0.2.0.md)), reviewed; `v0.2.0` ready to be tagged after green CI, no tag made | `eaef0ce` | 121 → 121 |
+| 05 | [`05-release-v0.2.0.md`](05-release-v0.2.0.md) | **landed** 2026-10-10 ([log](logs/05-release-v0.2.0.md)), reviewed; CI green; tagged `v0.2.0` | `eaef0ce` | 121 → 121 |
 | 06 | `06-the-adoption-checklists.md` | not written | — | — |
 | 07 | `07-verification-and-close-out.md` | not written | — | — |
 
@@ -452,6 +452,23 @@ local Ray, up while the note was written, was gone before dispatch; none was thi
 
 *Residue fixed in the follow-up commit.* "this commit" → `eaef0ce` on this board, in the log and
 in `prompts/INDEX.md`; README §2's status and header for 05; this review and the notes line.
+
+**Release of `v0.2.0` (2026-10-10).** Put to the user after the review of 05, and done by the
+user, in the order the review recommended, so that CI ran on 05's commit itself:
+1. **Push.** `git push origin eaef0ce:main` moved `origin/main` from `914070c` to `eaef0ce`.
+2. **CI.** The workflow's run `38075908457` on `eaef0ce` passed both jobs: `suite (low)`, Python
+   3.12.15 / Ray 2.43.0, `raypoolkit` installed at `0.2.0`, `Ran 121 tests … OK` and `black` "15
+   files would be left unchanged."; `suite (high)`, Python 3.13.16 / Ray 2.55.1, `Ran 121 tests …
+   OK`.
+3. **The tag.** `v0.2.0`, annotated (tag object `4e7eb15`, message "raypoolkit 0.2.0"), on
+   `eaef0ce`, made by the user and pushed. The review's follow-up (`9a00f80`) and this record had
+   not been pushed when this was written.
+4. **A client's install, checked.** `uv pip install --no-cache "raypoolkit @
+   git+https://github.com/ds283/RayPoolKit@v0.2.0" "ray==2.55.1"` into a fresh 3.13.16 venv:
+   `direct_url.json` records `requested_revision` `v0.2.0` and `commit_id` `eaef0ce…`; the
+   installed package is the four modules and no `tests/`; from an empty directory with `-I`, the
+   two public names import, `version` is `0.2.0`, `requires` is `['ray>=2.43']`,
+   `ray.is_initialized()` is false, and `import raypoolkit.tests` raises `ModuleNotFoundError`.
 
 ## 2. Gates outside this repository (README §7)
 
