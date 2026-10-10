@@ -1,7 +1,7 @@
 # Log — extraction prompt 03: supported versions and CI
 
-**Subject:** Declare the supported versions and add CI, ready for v0.1.0 · **Commit:** this
-commit · **Date:** 2026-10-10 · **Agent:** Claude Opus 5.5
+**Subject:** Declare the supported versions and add CI, ready for v0.1.0 · **Commit:** `4e90a8a` ·
+**Date:** 2026-10-10 · **Agent:** Claude Opus 5.5
 
 **Result: landed.** `pyproject.toml` declares `0.1.0`, `ray>=2.43` (no ceiling) and the exclusion
 of `raypoolkit.tests`; `.github/workflows/tests.yml` runs the suite at both ends of U7's range;
@@ -13,7 +13,7 @@ nothing under `raypoolkit/tests/`. (a)–(f) each fail as the prompt expects. No
 `raypoolkit/` or `docs/extraction/` changed; `compare_with_source.py` exits 0 with 02's counts.
 **One issue is opened** (§6, `[03-a-stale-egg-info-manifest-ships-the-tests-in-a-wheel]`), so the
 index goes from 7 to **8**. **No tag was made and nothing was pushed**: `v0.1.0` is ready to be
-tagged on this commit once CI passes there.
+tagged on `4e90a8a` once CI passes there.
 
 **Gate, re-checked at start.** `HEAD` was `e136eee` (the prompt written at `c73fc91`; `e136eee`
 adds only an orchestrator note), the tree clean, the only worktree this checkout, no tag,
@@ -83,7 +83,7 @@ CHOICE at the orchestrator's direction**.
    `test_printed_lines.TestProgressAndCompletion.test_a_lookup_only_run_notifying_on_every_pass`.
    They were taken from the lines that test compares, captured by running the test itself (§4.2),
    not composed. The README says the stamps, counts, times and rates are illustrative.
-8. **The breakage diffs to `pyproject.toml` are written against this commit's `pyproject.toml`**
+8. **The breakage diffs to `pyproject.toml` are written against `4e90a8a`'s `pyproject.toml`**
    and applied with `git apply` inside fresh exports (clarification 8); the repository's
    `pyproject.toml` was touched only by §2.1's edit. (b) and (c) are `uv pip install --dry-run`
    into a throwaway 3.12 venv.
@@ -95,14 +95,14 @@ Choices of this prompt's agent:
    install anyway (`Checked 1 package`), then `black --check`. **STRUCTURALLY REQUIRED**: §2.3 and
    §2.5 install `black` at different points.
 10. **Workflow steps with no local counterpart**: step 1 (`actions/checkout@v7`; the replay ran on
-    the working tree, which equals this commit's for every file the suite reads); step 2
+    the working tree, which equals `4e90a8a`'s for every file the suite reads); step 2
     (`actions/setup-python@v7`; stood in for by `uv venv --python /opt/local/bin/python3.1x`,
     MacPorts' builds, not the Actions builds); and step 3's `python -m pip install --upgrade pip`
     (a `uv` venv has no `pip`). **STRUCTURALLY REQUIRED**: GitHub cannot run here.
-11. **(a) and (b) are recorded as diffs to `.github/workflows/tests.yml`**, the file this commit
+11. **(a) and (b) are recorded as diffs to `.github/workflows/tests.yml`**, the file `4e90a8a`
     adds, each checked with `git apply --check` against it. What ran for (a) was the install
     command with `-e .` removed; for (b), the install command with the pin `ray==2.42.1`.
-    **IMPLEMENTATION CHOICE**, so that each is replayable from this commit.
+    **IMPLEMENTATION CHOICE**, so that each is replayable from `4e90a8a`.
 12. **(c)'s dry-run carries the low end's pin**, `-e <export> "ray==2.43.0"`, i.e. the low end's
     step 3 with (c) applied. **IMPLEMENTATION CHOICE.**
 13. **The release check is a script** (`$S/scripts/release_check.py`, not committed, reproduced in
@@ -718,7 +718,7 @@ so the refusal is the package's `ray>=2.43`.
 
 ### (c) The Python floor
 
-The diff, against this commit's `pyproject.toml`:
+The diff, against `4e90a8a`'s `pyproject.toml`:
 
 ```diff
 diff --git a/pyproject.toml b/pyproject.toml
@@ -834,7 +834,7 @@ RESULT: FAILED (10 pass, 3 fail)
 
 In `$S/export-e`, after (e)'s build had left `build/` and `raypoolkit.egg-info/` there:
 `git apply -R --check $S/diffs/e.diff && git apply -R $S/diffs/e.diff` (the exclusion restored;
-the export's `pyproject.toml` then equals this commit's, by `diff`); `build/lib/raypoolkit/tests/`
+the export's `pyproject.toml` then equals `4e90a8a`'s, by `diff`); `build/lib/raypoolkit/tests/`
 still held the ten files; `uv build --wheel --out-dir $S/dist-f $S/export-e`. The build added
 `raypoolkit/tests/__init__.py` and the nine other test files to the wheel. The wheel: 39,350 bytes,
 SHA-256 `a65837356de9c099c86fa2bea73343f926d7eafbc040357ab294cfc72f9a052a`, **19 entries, 10 under
@@ -860,7 +860,7 @@ RESULT: FAILED (10 pass, 3 fail)
    editable installs (clarification 1), still lists the ten files under `raypoolkit/tests/`,
    carried from the manifests written before the exclusion; a fresh export's lists none
    (`$S/export-1/raypoolkit.egg-info/SOURCES.txt`). Measured in scratch, never in the tree: a fresh
-   export of `HEAD`, with this commit's `pyproject.toml` and the repository's
+   export of `HEAD`, with `4e90a8a`'s `pyproject.toml` and the repository's
    `raypoolkit.egg-info/` copied in (`$S/export-g`), builds a wheel of **19 entries, 10 under
    `raypoolkit/tests/`**, shipped as package data of `raypoolkit`, with setuptools warning
    "Package 'raypoolkit.tests' is absent from the `packages` configuration". The same export with
@@ -894,12 +894,12 @@ proposed for 05). **Closed:** none. **Changed:** none. The index goes from 7 to 
 
 ## 8. State handed to the next prompt
 
-- `HEAD` is this commit. `raypoolkit/` is unchanged since `b9f6dec` (the package since `49f3ddf`).
+- `HEAD` is `4e90a8a`. `raypoolkit/` is unchanged since `b9f6dec` (the package since `49f3ddf`).
 - **`pyproject.toml`**: `raypoolkit` `0.1.0`, `requires-python = ">=3.12"`, `ray>=2.43`, the test
   package excluded from the distribution. `venv/` holds `0.1.0`, editable.
 - **Suite: 116 tests**, passing at 3.12.15 / 2.43.0 and 3.13.16 / 2.55.1 on macOS.
 - **CI**: `.github/workflows/tests.yml`, never run. It runs on the first push of `main`.
-- **`v0.1.0` is ready to be tagged on this commit once CI passes there at both ends.** No tag was
+- **`v0.1.0` is ready to be tagged on `4e90a8a` once CI passes there at both ends.** No tag was
   made and nothing was pushed (README §5 rule 10). If CI fails, a fix prompt lands first.
 - `compare_with_source.py` exits 0 with 02's counts; 04 is the first prompt that may change the
   module, and README §5 rule 8 ends with 03.

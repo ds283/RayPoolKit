@@ -1,16 +1,17 @@
 # extraction campaign — implementation state
 
 **Last updated:** 2026-10-10 · **Status: IN PROGRESS — 3 of 7 prompts written (01–03), 01 landed
-(`49f3ddf`) and reviewed, 02 landed (`b9f6dec`) and reviewed, 03 landed (this commit).** G1 holds
-at SGK `b510bc9`, the import commit. The user took U1–U3 at set-up and U4–U5 for 01, U6 and U9 for 02 and U7 for 03, all on
-2026-10-10 and as recommended (README §6.2; U9 as amended at 02's writing). The package
-`raypoolkit` is at `0.1.0`, declaring Python `>=3.12` and `ray>=2.43`, with its test package
-excluded from the wheel; `compare_with_source.py` exits 0; the suite is 116 tests, with no Ray
-cluster, passing at 3.12.15 / 2.43.0 and 3.13.16 / 2.55.1, and faults 1–5 are each pinned as they
-behave. 8 issues are open. The U5 freeze is in force.
+(`49f3ddf`) and reviewed, 02 landed (`b9f6dec`) and reviewed, 03 landed (`4e90a8a`) and
+reviewed.** G1 holds at SGK `b510bc9`, the import commit. The user took U1–U3 at set-up and U4–U5
+for 01, U6 and U9 for 02 and U7 for 03, all on 2026-10-10 and as recommended (README §6.2; U9 as
+amended at 02's writing). The package `raypoolkit` is at `0.1.0`, declaring Python `>=3.12` and
+`ray>=2.43`, with its test package excluded from the wheel; `compare_with_source.py` exits 0; the
+suite is 116 tests, with no Ray cluster, passing at 3.12.15 / 2.43.0 and 3.13.16 / 2.55.1, and
+faults 1–5 are each pinned as they behave. 8 issues are open. The U5 freeze is in force.
 
-**`v0.1.0` is ready to be tagged on 03's commit once CI (`.github/workflows/tests.yml`) passes
-there at both ends. No tag has been made, and nothing has been pushed** (README §5 rule 10).
+**`v0.1.0` is ready to be tagged on 03's commit, `4e90a8a`, once CI (`.github/workflows/tests.yml`)
+passes there at both ends. No tag has been made, and nothing has been pushed** (README §5 rule
+10). The push, the CI run and the tag are put to the user (the review of 03, below).
 
 **Campaign:** [`README.md`](README.md) ·
 **Source:** SecondaryGWKit's `RayTools/RayWorkPool.py`, blob `b4666fa` (G1) ·
@@ -50,14 +51,15 @@ there at both ends. No tag has been made, and nothing has been pushed** (README 
 |---|---|---|---|---|
 | 01 | [`01-import-the-pool.md`](01-import-the-pool.md) | **landed** 2026-10-10 ([log](logs/01-import-the-pool.md)), reviewed | `49f3ddf` | 0 → 3 |
 | 02 | [`02-the-test-suite.md`](02-the-test-suite.md) | **landed** 2026-10-10 ([log](logs/02-the-test-suite.md)), reviewed | `b9f6dec` | 3 → 116 |
-| 03 | [`03-supported-versions-and-ci.md`](03-supported-versions-and-ci.md) | **landed** 2026-10-10 ([log](logs/03-supported-versions-and-ci.md)) | this commit | 116 → 116 |
+| 03 | [`03-supported-versions-and-ci.md`](03-supported-versions-and-ci.md) | **landed** 2026-10-10 ([log](logs/03-supported-versions-and-ci.md)), reviewed | `4e90a8a` | 116 → 116 |
 | 04 | `04-fix-the-inherited-faults.md` | not written | — | — |
 | 05 | `05-release-v0.2.0.md` | not written | — | — |
 | 06 | `06-the-adoption-checklists.md` | not written | — | — |
 | 07 | `07-verification-and-close-out.md` | not written | — | — |
 
 **Orchestrator notes:** [`orchestrator/prompt-01.md`](orchestrator/prompt-01.md) (`310db6e`),
-used for 01; [`orchestrator/prompt-02.md`](orchestrator/prompt-02.md) (`319099a`), used for 02.
+used for 01; [`orchestrator/prompt-02.md`](orchestrator/prompt-02.md) (`319099a`), used for 02;
+[`orchestrator/prompt-03.md`](orchestrator/prompt-03.md) (`e136eee`), used for 03.
 
 **Orchestrator review of prompt 01 (2026-10-10).** Dispatched from `310db6e` to one Opus
 subagent, with the note's §0 facts, its one addition (breakage (h)) and its two recommendations.
@@ -188,6 +190,81 @@ checkout, and `git diff 49f3ddf -- raypoolkit/RayWorkPool.py` was empty. SGK's `
 
 *Residue fixed in the follow-up commit.* "this commit" → `b9f6dec` on this board, in the log and
 in `prompts/INDEX.md`; README §2's status and header for 02; this review and the notes line.
+
+**Orchestrator review of prompt 03 (2026-10-10).** Dispatched from `e136eee` to one Opus
+subagent, with the note's §0 facts and its eight clarifications. Reviewed against its commit
+`4e90a8a`, with nothing landed after it. **Every check of the note's §3 passed**, and acceptance
+1–5 are met. No stop condition fired.
+
+*At dispatch.* The note's gate held at `e136eee`. The tree was clean, the only worktree was this
+checkout, there was no tag, and `origin/main` was `97f9ff0`. The suite gave 116 and the check
+exited 0 at `c73fc91`, and `e136eee` touched only `prompts/`. No Ray process was up.
+
+*The checks.*
+1. **E1, scope.** `4e90a8a` touches 7 files: `pyproject.toml`, `.github/workflows/tests.yml`,
+   `README.md`, the log, this board, `prompts/INDEX.md` and the index. `git diff c73fc91 4e90a8a`
+   over `raypoolkit`, `docs/extraction`, `PROVENANCE.md`, `CLAUDE.md`, `LICENSE`, `.gitignore` and
+   the campaign README is empty. No tag; `git ls-remote origin` shows `main` at `97f9ff0` and no
+   tag; no `build/` or `dist/` in the repository.
+2. **E2, `pyproject.toml`.** Three changes: `version = "0.1.0"`, `"ray>=2.43"`, the `exclude` line.
+3. **E2, the suite.** `venv/`: `Ran 116 tests … OK`, `importlib.metadata` `0.1.0`,
+   `['ray>=2.43']`. In the orchestrator's own fresh `uv` venvs, the repository installed editable
+   in one resolve with the pins: 116, OK, at 3.12.15 / 2.43.0 and at 3.13.16 / 2.55.1. No Ray
+   process before or after.
+4. **E3, the distribution, rebuilt from the commit.** A `git archive 4e90a8a` export with no file
+   copied in builds `raypoolkit-0.1.0-py3-none-any.whl`, 12,016 bytes, the log's 9 entries; its
+   four modules are byte for byte the commit's, and its `METADATA` says `0.1.0`, `>=3.12`,
+   `ray>=2.43`. Its SHA-256 (`5bc9885…`) differs from the agent's (`875fe53…`), as the note
+   expected: the export's file times are the commit's. Installed into a fresh 3.13.16 / 2.55.1
+   venv and run from an empty directory with `-I`: every import of the prompt's §2.4 succeeds from
+   `site-packages`, `ray.is_initialized()` is false, and `import raypoolkit.tests` raises
+   `ModuleNotFoundError`.
+5. **E4, the workflow.** The comment, the three triggers, one job `suite` on `ubuntu-24.04`,
+   `fail-fast: false`, a matrix of two entries keyed `end` whose six values load as strings equal
+   to §2.3, the six steps with `@v7` for both actions, `black` on `low` only, `permissions:
+   contents: read`; nothing else. `yaml.safe_load` parses it.
+6. **E4, the replay.** Log §3.3 gives a command for each of steps 3–6 at both ends, and names the
+   steps with no local counterpart (deviation 10).
+7. **E5, the breakage.** The five diffs were extracted from the log's text, and each applies with
+   `git apply --check` at `4e90a8a`. Replayed in throwaway venvs and fresh exports of the commit:
+   (a) fails the guard's tests 2 and 3 and only those; (b) and (c) refuse, naming `ray>=2.43` and
+   `Python>=3.13`; (d) gives 5 entries and no module, and `import raypoolkit` fails; (e) ships 10
+   test files and `raypoolkit.tests` imports; (f)'s second wheel has 19 entries, 10 of them tests.
+   The orchestrator's own, `"ray>=2.56"` in an export, refuses `ray==2.55.1` at the high end. The
+   repository's `git status` was clean throughout.
+8. **E6, the README.** The constructor's 18 parameters, the defaults (the three handler defaults
+   by what their bodies do) and the handlers' arguments agree with the module; the claims spot-read
+   against it (the task builder's four returns, the available task's value unread, the persisted
+   object's `available` check, the validation warning on `is not True`, the strict `>`
+   notifications, `total_time`) hold. It states `persist_handler=None` for a lookup-only pool, the
+   pinned install line and the editable-install warning, the range with Ray's effective 2.45.0 on
+   3.13, and that newer releases are untested. The printed-line examples are lines of
+   `test_a_lookup_only_run_notifying_on_every_pass`, the progress line through that test's own
+   `progress(...)` helper. No fault is listed. Every relative link resolves to a tracked file.
+9. **The check and the formatter.** The check exits 0: 572 identical, 2 D-imp, 1 D-pool, 4 D-int,
+   12 declared files, 0 undeclared. `black --check raypoolkit docs` (25.1.0): 15 files unchanged.
+10. **E7, the records.** The log has every section of README §5.1 and each of the prompt's §4.5
+    additions, with §0's clarifications recorded as deviations 1–8. This board had the header, the
+    "ready to be tagged" line, 03's row and the new §3 issue; the index counts 8 rows, matching its
+    header; `prompts/INDEX.md`'s line says 03 landed.
+
+*Findings.*
+- **One issue opened by the agent, and kept:**
+  `[03-a-stale-egg-info-manifest-ships-the-tests-in-a-wheel]` (§3 below). The orchestrator
+  reproduced it: the repository's `raypoolkit.egg-info/` (its `SOURCES.txt` listing 10 test
+  files) copied into a fresh export of `4e90a8a` gives a wheel of 19 entries, 10 of them tests, with
+  setuptools' "absent from the `packages` configuration" warning; `include-package-data = false`
+  gives 9. A client's `git+…@v0.1.0` install builds from a fresh clone, so `v0.1.0` does not wait
+  for it.
+- **Two corrections to the note, from the log:** `pip freeze`'s editable line names the `HEAD` at
+  the time of the freeze, not of the install (log 03 §6.3); and `uv build` runs setuptools under
+  `uv`'s default Python, 3.14 here, which does not change a pure-Python wheel (§6.2).
+- **Not opened:** the README gives the protocol's method as `object_store(obj)`, as `contract.py`'s
+  docstring does, while its signature names the parameter `objects` (DatastoreKit's name). The pool
+  calls it positionally with one object, so nothing behaves differently.
+
+*Residue fixed in the follow-up commit.* "this commit" → `4e90a8a` on this board, in the log and
+in `prompts/INDEX.md`; README §2's status and header for 03; this review and the notes line.
 
 ## 2. Gates outside this repository (README §7)
 
