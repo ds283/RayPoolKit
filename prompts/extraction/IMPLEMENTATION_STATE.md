@@ -1,9 +1,10 @@
 # extraction campaign — implementation state
 
-**Last updated:** 2026-10-10 · **Status: IN PROGRESS — 7 of 7 prompts written, 01 landed
-(`49f3ddf`) and reviewed, 02 landed (`b9f6dec`) and reviewed, 03 landed (`4e90a8a`) and
-reviewed; `v0.1.0` tagged; 04 landed (`0b6ffd2`) and reviewed, CI green; 05 landed (`eaef0ce`)
-and reviewed, CI green; `v0.2.0` tagged; 06 landed (`67f3f7e`) and reviewed; 07 written.** G1 holds at SGK `b510bc9`, the import commit. The user took U1–U3 at set-up and U4–U5
+**Last updated:** 2026-10-10 · **Status: CLOSED (2026-10-10, by prompt 07) — all seven prompts
+landed: 01 (`49f3ddf`), 02 (`b9f6dec`), 03 (`4e90a8a`, tagged `v0.1.0`), 04 (`0b6ffd2`), 05
+(`eaef0ce`, tagged `v0.2.0`) and 06 (`67f3f7e`), each reviewed, and 07 (this commit), which
+verified the campaign in [`docs/extraction-verification.md`](../../docs/extraction-verification.md)
+and closed it. No issue is open; G2–G4 have not held (§2).** G1 holds at SGK `b510bc9`, the import commit. The user took U1–U3 at set-up and U4–U5
 for 01, U6 and U9 for 02, U7 for 03, U8 and U11 for 04, U10 and U12 for 06 and U13 and U14 for 07, all on 2026-10-10 and as recommended
 (README §6.2; U9 as amended at 02's writing; U8 with two amendments); U8 and U11 are applied by 04.
 The package `raypoolkit` is at `0.2.0`, declaring Python `>=3.12` and `ray>=2.43`, with its test
@@ -70,7 +71,7 @@ instruction on 2026-10-10 after CI passed there at both ends (run `38054782562`)
 | 04 | [`04-fix-the-inherited-faults.md`](04-fix-the-inherited-faults.md) | **landed** 2026-10-10 ([log](logs/04-fix-the-inherited-faults.md)), reviewed | `0b6ffd2` | 116 → 121 |
 | 05 | [`05-release-v0.2.0.md`](05-release-v0.2.0.md) | **landed** 2026-10-10 ([log](logs/05-release-v0.2.0.md)), reviewed; CI green; tagged `v0.2.0` | `eaef0ce` | 121 → 121 |
 | 06 | [`06-the-adoption-checklists.md`](06-the-adoption-checklists.md) | **landed** 2026-10-10 ([log](logs/06-the-adoption-checklists.md)), reviewed | `67f3f7e` | 121 → 121 |
-| 07 | [`07-verification-and-close-out.md`](07-verification-and-close-out.md) | **written** 2026-10-10 | — | 121 → 121 |
+| 07 | [`07-verification-and-close-out.md`](07-verification-and-close-out.md) | **landed** 2026-10-10 ([log](logs/07-verification-and-close-out.md)); the campaign closed | this commit | 121 → 121 |
 
 **Orchestrator notes:** [`orchestrator/prompt-01.md`](orchestrator/prompt-01.md) (`310db6e`),
 used for 01; [`orchestrator/prompt-02.md`](orchestrator/prompt-02.md) (`319099a`), used for 02;
@@ -576,6 +577,10 @@ notes line; and one citation, `docs/adoption/README.md` §2's `raypoolkit/__init
 | **G2** | not yet (SGK adopts `v0.2.0`). Checklist: [`docs/adoption/secondarygwkit.md`](../../docs/adoption/secondarygwkit.md), measured at SGK `b510bc9`; its item 8 is the acceptance |
 | **G3** | not yet (CPBH adopts `v0.2.0`). Checklist: [`docs/adoption/champbh.md`](../../docs/adoption/champbh.md), measured at CPBH `52142d7`; its item 8 is the acceptance |
 | **G4** | not yet (SI adopts `v0.2.0`, when it is next active). Checklist: [`docs/adoption/stochasticinstantons.md`](../../docs/adoption/stochasticinstantons.md), measured at SI `7bb3efd`; its item 8 is the acceptance |
+
+**After the close (2026-10-10, prompt 07).** The campaign closed with G2–G4 open; it does not wait
+for them (README §7). From the close, a gate is recorded on this board when it holds, in a records
+commit of its own.
 
 ## 3. Active and unresolved issues
 
