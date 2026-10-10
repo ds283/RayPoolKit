@@ -1,8 +1,8 @@
 # extraction campaign — implementation state
 
-**Last updated:** 2026-10-10 · **Status: IN PROGRESS — 4 of 7 prompts written (01–04), 01 landed
+**Last updated:** 2026-10-10 · **Status: IN PROGRESS — 5 of 7 prompts written (01–05), 01 landed
 (`49f3ddf`) and reviewed, 02 landed (`b9f6dec`) and reviewed, 03 landed (`4e90a8a`) and
-reviewed; `v0.1.0` tagged; 04 landed (`0b6ffd2`) and reviewed.** G1 holds at SGK `b510bc9`, the import
+reviewed; `v0.1.0` tagged; 04 landed (`0b6ffd2`) and reviewed, CI green; 05 written.** G1 holds at SGK `b510bc9`, the import
 commit. The user took U1–U3 at set-up and U4–U5 for 01, U6 and U9 for 02, U7 for 03 and U8 and
 U11 for 04, all on 2026-10-10 and as recommended (README §6.2; U9 as amended at 02's writing; U8
 with two amendments); U8 and U11 are applied by 04. The package `raypoolkit` is at `0.1.0`, declaring
@@ -10,7 +10,7 @@ Python `>=3.12` and `ray>=2.43`, with its test package excluded from the wheel. 
 1–5 are fixed on `main`, with the constructor's sizes checked, each fix guarded by a test that
 `v0.1.0`'s module fails; the fixes are unreleased until `v0.2.0` (05). `compare_with_source.py` is
 retired at `v0.1.0`. The suite is 121 tests, with no Ray cluster, passing at 3.12.15 / 2.43.0 and
-3.13.16 / 2.55.1. 1 issue is open. The U5 freeze is in force.
+3.13.16 / 2.55.1, in CI too. 1 issue is open, owned by 05. The U5 freeze is in force.
 
 **`v0.1.0` is released**: an annotated tag on 03's commit, `4e90a8a`, made at the user's
 instruction on 2026-10-10 after CI passed there at both ends (run `38054782562`), and pushed with
@@ -57,7 +57,7 @@ instruction on 2026-10-10 after CI passed there at both ends (run `38054782562`)
 | 02 | [`02-the-test-suite.md`](02-the-test-suite.md) | **landed** 2026-10-10 ([log](logs/02-the-test-suite.md)), reviewed | `b9f6dec` | 3 → 116 |
 | 03 | [`03-supported-versions-and-ci.md`](03-supported-versions-and-ci.md) | **landed** 2026-10-10 ([log](logs/03-supported-versions-and-ci.md)), reviewed; tagged `v0.1.0` | `4e90a8a` | 116 → 116 |
 | 04 | [`04-fix-the-inherited-faults.md`](04-fix-the-inherited-faults.md) | **landed** 2026-10-10 ([log](logs/04-fix-the-inherited-faults.md)), reviewed | `0b6ffd2` | 116 → 121 |
-| 05 | `05-release-v0.2.0.md` | not written | — | — |
+| 05 | [`05-release-v0.2.0.md`](05-release-v0.2.0.md) | **written** 2026-10-10 | — | 121 → 121 |
 | 06 | `06-the-adoption-checklists.md` | not written | — | — |
 | 07 | `07-verification-and-close-out.md` | not written | — | — |
 
@@ -360,6 +360,13 @@ repository's.
 *Residue fixed in the follow-up commit.* "this commit" → `0b6ffd2` on this board, in the log and
 in `prompts/INDEX.md`; README §2's status and header for 04; this review and the notes line.
 
+**CI on 04's commit (2026-10-10).** Put to the user after the review, and done by the user, in the
+order the review recommended: `git push origin 0b6ffd2:main` moved `origin/main` from `6b1ddfe` to
+`0b6ffd2`, and the workflow's run `38071307103` on it passed both jobs: `suite (low)`, Python 3.12
+/ Ray 2.43.0, `Ran 121 tests … OK` and `black` "15 files would be left unchanged."; `suite
+(high)`, Python 3.13 / Ray 2.55.1, `Ran 121 tests … OK`. Then `main` (`914070c`, the review) was
+pushed, and its run, `38071490036`, passed both jobs. No tag was made: `v0.2.0` is 05's.
+
 ## 2. Gates outside this repository (README §7)
 
 | Gate | Status |
@@ -377,8 +384,7 @@ The five `[00-…]` entries inherited from the source,
 
 ### `[03-a-stale-egg-info-manifest-ships-the-tests-in-a-wheel]`
 
-**Opened:** 2026-10-10, by 03 (log 03 §6.1). **Owner:** not assigned; proposed for 05, the next
-prompt that changes `pyproject.toml`.
+**Opened:** 2026-10-10, by 03 (log 03 §6.1). **Owner:** 05.
 
 **Where:** `pyproject.toml`'s `[tool.setuptools.packages.find]`, whose `exclude` keeps
 `raypoolkit.tests` out of the packages but not out of the package data; and the gitignored
@@ -402,6 +408,13 @@ test package, with its patched `ray.init` and second `PoolTestCase`.
 `LICENSE` reaches the wheel's `dist-info/licenses/` either way). Measured by 03 in a scratch export
 with the stale manifest: 9 entries and no warning. It changes `pyproject.toml`, so a prompt that
 says so makes it, with the release check re-run; 03 could not (its §2.1: "Nothing else").
+
+**Assigned (2026-10-10):** to 05, at the user's instruction when 05 was written: it is the next
+prompt that changes `pyproject.toml`, and the release `v0.2.0` should not stand on a setting a
+stale manifest defeats. Re-measured at 05's writing, at `914070c`: the repository's
+`raypoolkit.egg-info/SOURCES.txt` still lists the ten test files; a fresh export at `0.2.0` with it
+copied in builds 19 entries, 10 of them tests, without the setting, and 9 with it, with no
+"absent from" warning (prompt 05 §2.1).
 
 ## 4. Resolved issues
 
