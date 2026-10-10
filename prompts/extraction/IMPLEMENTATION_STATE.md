@@ -3,7 +3,7 @@
 **Last updated:** 2026-10-10 · **Status: IN PROGRESS — 6 of 7 prompts written (01–06), 01 landed
 (`49f3ddf`) and reviewed, 02 landed (`b9f6dec`) and reviewed, 03 landed (`4e90a8a`) and
 reviewed; `v0.1.0` tagged; 04 landed (`0b6ffd2`) and reviewed, CI green; 05 landed (`eaef0ce`)
-and reviewed, CI green; `v0.2.0` tagged; 06 written.** G1 holds at SGK `b510bc9`, the import commit. The user took U1–U3 at set-up and U4–U5
+and reviewed, CI green; `v0.2.0` tagged; 06 landed (this commit).** G1 holds at SGK `b510bc9`, the import commit. The user took U1–U3 at set-up and U4–U5
 for 01, U6 and U9 for 02, U7 for 03, U8 and U11 for 04 and U10 and U12 for 06, all on 2026-10-10 and as recommended
 (README §6.2; U9 as amended at 02's writing; U8 with two amendments); U8 and U11 are applied by 04.
 The package `raypoolkit` is at `0.2.0`, declaring Python `>=3.12` and `ray>=2.43`, with its test
@@ -12,6 +12,9 @@ put the tests in a wheel (05). Since 04, faults 1–5 are fixed on `main`, with 
 sizes checked, each fix guarded by a test that `v0.1.0`'s module fails; `README.md` and
 `PROVENANCE.md` describe `v0.2.0` (05). `compare_with_source.py` is retired at `v0.1.0`. The suite is 121 tests, with no Ray cluster, passing at 3.12.15 / 2.43.0 and
 3.13.16 / 2.55.1 (in CI on `0b6ffd2`, `914070c` and `eaef0ce`). No issue is open. The U5 freeze is in force.
+Since 06, `docs/adoption/` holds one adoption checklist per client, measured read-only at SGK
+`b510bc9`, CPBH `52142d7` and SI `7bb3efd` against `v0.2.0`, and `measure_client_pools.py`, by
+which all 87 client call sites construct under the package's own constructor.
 
 **`v0.1.0` is released**: an annotated tag on 03's commit, `4e90a8a`, made at the user's
 instruction on 2026-10-10 after CI passed there at both ends (run `38054782562`), and pushed with
@@ -64,7 +67,7 @@ instruction on 2026-10-10 after CI passed there at both ends (run `38054782562`)
 | 03 | [`03-supported-versions-and-ci.md`](03-supported-versions-and-ci.md) | **landed** 2026-10-10 ([log](logs/03-supported-versions-and-ci.md)), reviewed; tagged `v0.1.0` | `4e90a8a` | 116 → 116 |
 | 04 | [`04-fix-the-inherited-faults.md`](04-fix-the-inherited-faults.md) | **landed** 2026-10-10 ([log](logs/04-fix-the-inherited-faults.md)), reviewed | `0b6ffd2` | 116 → 121 |
 | 05 | [`05-release-v0.2.0.md`](05-release-v0.2.0.md) | **landed** 2026-10-10 ([log](logs/05-release-v0.2.0.md)), reviewed; CI green; tagged `v0.2.0` | `eaef0ce` | 121 → 121 |
-| 06 | [`06-the-adoption-checklists.md`](06-the-adoption-checklists.md) | **written** 2026-10-10 | — | 121 → 121 |
+| 06 | [`06-the-adoption-checklists.md`](06-the-adoption-checklists.md) | **landed** 2026-10-10 ([log](logs/06-the-adoption-checklists.md)) | this commit | 121 → 121 |
 | 07 | `07-verification-and-close-out.md` | not written | — | — |
 
 **Orchestrator notes:** [`orchestrator/prompt-01.md`](orchestrator/prompt-01.md) (`310db6e`),
@@ -479,9 +482,9 @@ user, in the order the review recommended, so that CI ran on 05's commit itself:
 | Gate | Status |
 |---|---|
 | **G1** | **holds** 2026-10-10, re-checked at 01's writing and again at its start: SGK `RayTools/RayWorkPool.py` is blob `b4666fa` at `b510bc9`, the import commit |
-| **G2** | not yet (SGK adopts `v0.2.0`) |
-| **G3** | not yet (CPBH adopts `v0.2.0`) |
-| **G4** | not yet (SI adopts `v0.2.0`) |
+| **G2** | not yet (SGK adopts `v0.2.0`). Checklist: [`docs/adoption/secondarygwkit.md`](../../docs/adoption/secondarygwkit.md), measured at SGK `b510bc9`; its item 8 is the acceptance |
+| **G3** | not yet (CPBH adopts `v0.2.0`). Checklist: [`docs/adoption/champbh.md`](../../docs/adoption/champbh.md), measured at CPBH `52142d7`; its item 8 is the acceptance |
+| **G4** | not yet (SI adopts `v0.2.0`, when it is next active). Checklist: [`docs/adoption/stochasticinstantons.md`](../../docs/adoption/stochasticinstantons.md), measured at SI `7bb3efd`; its item 8 is the acceptance |
 
 ## 3. Active and unresolved issues
 
