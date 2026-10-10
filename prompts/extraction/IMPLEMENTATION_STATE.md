@@ -1,11 +1,11 @@
 # extraction campaign — implementation state
 
 **Last updated:** 2026-10-10 · **Status: IN PROGRESS — 2 of 7 prompts written (01, 02), 01 landed
-(`49f3ddf`) and reviewed, 02 landed (this commit), not yet reviewed.** G1 holds at SGK `b510bc9`,
-the import commit. The user took U1–U3 at set-up and U4–U5 for 01 and U6 and U9 for 02, all on
+(`49f3ddf`) and reviewed, 02 landed (`b9f6dec`) and reviewed.** G1 holds at SGK `b510bc9`, the
+import commit. The user took U1–U3 at set-up and U4–U5 for 01 and U6 and U9 for 02, all on
 2026-10-10 and as recommended (README §6.2; U9 as amended at 02's writing). The package
 `raypoolkit` exists; `compare_with_source.py` exits 0; the suite is 116 tests, with no Ray cluster,
-and faults 1–5 are each pinned as they behave. The U5 freeze is in force.
+and faults 1–5 are each pinned as they behave. 7 issues are open. The U5 freeze is in force.
 
 **Campaign:** [`README.md`](README.md) ·
 **Source:** SecondaryGWKit's `RayTools/RayWorkPool.py`, blob `b4666fa` (G1) ·
@@ -44,7 +44,7 @@ and faults 1–5 are each pinned as they behave. The U5 freeze is in force.
 | # | Prompt | Status | Commit | Suite |
 |---|---|---|---|---|
 | 01 | [`01-import-the-pool.md`](01-import-the-pool.md) | **landed** 2026-10-10 ([log](logs/01-import-the-pool.md)), reviewed | `49f3ddf` | 0 → 3 |
-| 02 | [`02-the-test-suite.md`](02-the-test-suite.md) | **landed** 2026-10-10 ([log](logs/02-the-test-suite.md)) | this commit | 3 → 116 |
+| 02 | [`02-the-test-suite.md`](02-the-test-suite.md) | **landed** 2026-10-10 ([log](logs/02-the-test-suite.md)), reviewed | `b9f6dec` | 3 → 116 |
 | 03 | `03-supported-versions-and-ci.md` | not written | — | — |
 | 04 | `04-fix-the-inherited-faults.md` | not written | — | — |
 | 05 | `05-release-v0.2.0.md` | not written | — | — |
@@ -52,7 +52,7 @@ and faults 1–5 are each pinned as they behave. The U5 freeze is in force.
 | 07 | `07-verification-and-close-out.md` | not written | — | — |
 
 **Orchestrator notes:** [`orchestrator/prompt-01.md`](orchestrator/prompt-01.md) (`310db6e`),
-used for 01.
+used for 01; [`orchestrator/prompt-02.md`](orchestrator/prompt-02.md) (`319099a`), used for 02.
 
 **Orchestrator review of prompt 01 (2026-10-10).** Dispatched from `310db6e` to one Opus
 subagent, with the note's §0 facts, its one addition (breakage (h)) and its two recommendations.
@@ -119,6 +119,70 @@ checkout, and `raypoolkit` was not installed in `venv/`. SGK's `HEAD` was `b510b
 
 *Residue fixed in the follow-up commit.* "this commit" → `49f3ddf` on this board, in the log and
 in `prompts/INDEX.md`; README §2's status and header for 01; this review and the notes line.
+
+**Orchestrator review of prompt 02 (2026-10-10).** Dispatched from `319099a` to one Opus
+subagent, with the note's §0 facts and its seven clarifications and additions. Reviewed against its
+commit `b9f6dec`, with nothing landed after it. **Every check of the note's §3 passed**, and
+acceptance 1–3 are met. No stop condition fired.
+
+*At dispatch.* The note's gate held at `319099a`. The tree was clean, the only worktree was this
+checkout, and `git diff 49f3ddf -- raypoolkit/RayWorkPool.py` was empty. SGK's `HEAD` was
+`b510bc9`, with `RayTools/RayWorkPool.py` at blob `b4666fa`. No Ray process was up.
+
+*The checks.*
+1. **Scope.** `b9f6dec` touches 12 files: the eight new files under `raypoolkit/tests/`,
+   `compare_with_source.py`, the log, this board and `prompts/INDEX.md`. `git diff 49f3ddf b9f6dec`
+   over `RayWorkPool.py`, `_timing.py`, `contract.py`, `__init__.py` and `test_package_imports.py`
+   is empty.
+2. **E1, the stand-ins, by reading.** `standins.py` was read in full. `wait` applies Ray 2.43.0's
+   checks in Ray's order with Ray's types (single ref, list, negative `timeout`, elements, empty →
+   `([], [])`, duplicates, `num_returns`), records each call, honours `order` and `fresh_refs`, and
+   raises past a cap of 1,000 calls. `get` returns a pickle copy and names an unminted ref. The work
+   objects and the datastore pool are at module level and reach the stand-in through `active_ray()`.
+   `now()` reads the clock without advancing it. `PoolTestCase` patches the four string targets and
+   nothing else, asserts `ray.is_initialized()` false at tear-down, and has no `test_` method.
+3. **E2, by running.** Twice, in a fresh shell: `Ran 116 tests … OK`. Per module, by the loader:
+   3, 30, 12, 20, 22, 7, 17, 5, as logged. No Ray process before or after.
+4. **E3, the inventory, by reading.** The log's table has a row for each of §2.4's 41 IDs, and for
+   D1–D3, P0 and Z1–Z5. Six tests were read in full and reach their rows: L5, S4 with P1 (and P0),
+   R9 (`wait_calls == [(0, 0)]`), N3/N4, N5 (`test_the_available_rate_is_per_interval`) and X1.
+   The white-box seams are only §2.2's; X1 seeds `_data` under both `ref.hex` and `ref.hex()`
+   (deviation 12), which is within the seam.
+5. **E4, the log's mutations, by replaying.** All 96 diffs were extracted from the log's text and
+   replayed, one at a time, from a clean tree, each with the whole suite under a 300 s timeout. Each
+   of the 89 mutations and the stand-in diffs (s1) and (s2) failed **exactly** the set of tests the
+   log lists for it. E1–E4 passed, as logged. (s3) was applied and reverted without a run. No
+   timeout; the tree was clean after each; no Ray process afterwards.
+6. **E4, the orchestrator's own mutations.** (o1) `:482` `(idx, replacement_obj)` → `(idx, obj)`
+   fails 3 tests; (o2) `:419` without `and self._store_results` fails 1; (o3) `:555` `= now_time`
+   fails 8; (o4) `:286` without `contents=…` fails the 5 R6 tests, so R6's message is pinned whole.
+7. **E5, the faults.** `TestInheritedFaults` has the prompt's five names, each docstring naming its
+   board issue and saying it pins the fault. (m1) fails the fault-1 test alone, (m2) the fault-2
+   test and S4's identity test, (m3) the fault-3 test alone. §3 below has a dated "Pinned (02)" line
+   on each of faults 1–5.
+8. **E5, the printed lines.** The three patterns are the prompt's, character for character, and no
+   new test file names a client. The orchestrator re-rendered three of the agent's whole-run tests
+   (the compute-with-validation run, the per-interval available rate, the percentage run) on its own
+   scratch stand-in: each matches the agent's expected lines exactly, including `514.3/hr` and
+   `400/hr`, which the agent first derived wrongly by hand and corrected to the module (log §3.1).
+9. **E1 and E5, the stand-ins bite.** (s1) fails five tests, the all-`None` one with Ray's
+   `ValueError`; (s2) fails two, so no issue arises. (s3)'s account was checked by reading: only
+   `TestRayInitGuard` calls the real `ray.get` or `ray.wait`.
+10. **E6 and E7.** The check exits 0: 572 identical, 2 D-imp, 1 D-pool, 4 D-int, 12 declared files,
+    0 undeclared; its diff is the eight `NO_SOURCE` lines. The guard passes over the new modules.
+    `black --check raypoolkit docs` (25.1.0) is clean. The log has every section of README §5.1 and
+    the prompt's §4.3 additions.
+
+*Findings.*
+- **One issue opened by the review:** `[02-the-constructor-does-not-check-its-sizes]` (§3 below).
+  The agent recorded it as an observation only (log 02 §6.1), following the note's clarification 1,
+  which said "an observation for the log, not a branch to pin". The note did not mean "no issue",
+  and `CLAUDE.md`'s rule 4 asks for one; the wording was the orchestrator's.
+- **Not opened:** the four equivalent mutations (log 02 §5.3) are redundant or unobservable code,
+  not defects; the log records them for 04.
+
+*Residue fixed in the follow-up commit.* "this commit" → `b9f6dec` on this board, in the log and
+in `prompts/INDEX.md`; README §2's status and header for 02; this review and the notes line.
 
 ## 2. Gates outside this repository (README §7)
 
@@ -270,6 +334,26 @@ lower case, generically.
 *Next step.* 04, which rewrites the module's wording for
 `[00-messages-say-maker-and-the-module-has-no-licence-header]`, rewords the comment generically
 ("the datastore"). The printed lines are not affected.
+
+### `[02-the-constructor-does-not-check-its-sizes]`
+
+**Opened:** 2026-10-10, by the orchestrator's review of 02 (log 02 §6.1). **Owner:** 04, with
+U8's handler checks.
+
+**Package:** `raypoolkit/RayWorkPool.py:85-87` (the three sizes, unchecked); the loop at `:246`,
+the batch guard at `:250`, the inner loop at `:252`, and `num_returns` at `:315`.
+
+The constructor accepts any `create_batch_size`, `process_batch_size` and `max_task_queue`.
+Measured by the orchestrator on a scratch stand-in at 02's dispatch: with `max_task_queue=0` or
+`create_batch_size=0`, no task is ever built, so every pass calls `ray.wait([], num_returns=0)`,
+which returns `([], [])`, and `run()` never ends. With `process_batch_size=0` and work in flight,
+`num_returns` is 0 and `ray.wait` raises `ValueError`.
+
+*Impact.* None known at a client: the defaults are 5, 1 and 200. A caller who passes 0 hangs a
+driver with no message.
+
+*Next step.* 04 raises `ValueError` at construction for a size below 1, with a test for each, as
+part of the constructor checks U8 settles. No test pins the hang today (02 builds no such pool).
 
 ## 4. Resolved issues
 

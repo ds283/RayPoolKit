@@ -1,6 +1,6 @@
 # Log — extraction prompt 02: the test suite
 
-**Subject:** Pin RayWorkPool's behaviour with an in-process Ray stand-in · **Commit:** this commit ·
+**Subject:** Pin RayWorkPool's behaviour with an in-process Ray stand-in · **Commit:** `b9f6dec` ·
 **Date:** 2026-10-10 · **Agent:** Claude Opus 5.5
 
 **Result: landed.** Eight new files under `raypoolkit/tests/`: the stand-ins (`standins.py`) and
@@ -382,7 +382,7 @@ then the file's SHA-256 and `git status --porcelain --untracked-files=all` compa
 values before ("tree restored"). All 96 diffs were then replayed again by a `bash` loop (`--check`,
 apply, `-R --check`, `-R`, status unchanged after each: 96 replayed, 0 bad), and (m1) was re-run
 through the suite from `bash`, with the same result. None is committed. They were run on the final
-tree of this commit. "Failed" lists each failing test once (a test with several failing subtests
+tree of `b9f6dec`. "Failed" lists each failing test once (a test with several failing subtests
 is listed once).
 
 **Summary.** 89 mutations of `raypoolkit/RayWorkPool.py`: **89 caught, 0 hangs, 0 trees not
@@ -3020,7 +3020,7 @@ index stays at **6** open; `docs/OPEN_ISSUES.md` is unchanged.
 
 ## 8. State handed to the next prompt
 
-- `HEAD` is this commit. `raypoolkit/RayWorkPool.py` is unchanged since `49f3ddf`.
+- `HEAD` is `b9f6dec`. `raypoolkit/RayWorkPool.py` is unchanged since `49f3ddf`.
 - **Suite: 116 tests**, all passing, in about 2–5 s at Python 3.12.15 / Ray 2.43.0, with no Ray
   cluster. 03 runs it at both ends of U7's range. The stand-ins import only `ray`, `raypoolkit` and
   the standard library, and use `ray.ObjectRef(bytes)`, `ray.is_initialized()` and the auto-init

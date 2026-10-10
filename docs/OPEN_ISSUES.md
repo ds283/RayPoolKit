@@ -3,7 +3,7 @@
 One line per open issue, pointing at the board that holds it. The board is right if the two
 disagree. See `CLAUDE.md` for the maintenance rule.
 
-**Last updated:** 2026-10-10 · **6 open**, all on this repository's boards.
+**Last updated:** 2026-10-10 · **7 open**, all on this repository's boards.
 
 ## 1. By campaign
 
@@ -17,3 +17,4 @@ disagree. See `CLAUDE.md` for the maintenance rule.
 | `[00-the-constructor-checks-its-handlers-unevenly]` | Raises `RuntimeWarning` for a persist handler without compute, so lookup-only pools must pass `persist_handler=None`; no store-handler check *(04, U8)* |
 | `[00-messages-say-maker-and-the-module-has-no-licence-header]` | Cosmetic: "maker" in two messages; no licence header *(04)* |
 | `[01-a-kept-comment-names-the-datastore-service]` | A comment kept from SGK (`RayWorkPool.py:424`) names the client's `Datastore` service *(04)* |
+| `[02-the-constructor-does-not-check-its-sizes]` | A size below 1 is accepted: `max_task_queue=0` or `create_batch_size=0` makes `run()` loop for ever *(04, U8)* |
