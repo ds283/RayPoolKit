@@ -1,10 +1,11 @@
 # extraction campaign — implementation state
 
-**Last updated:** 2026-10-10 · **Status: IN PROGRESS — 3 of 7 prompts written (01–03), 01 landed
+**Last updated:** 2026-10-10 · **Status: IN PROGRESS — 4 of 7 prompts written (01–04), 01 landed
 (`49f3ddf`) and reviewed, 02 landed (`b9f6dec`) and reviewed, 03 landed (`4e90a8a`) and
-reviewed; `v0.1.0` tagged.** G1 holds at SGK `b510bc9`, the import commit. The user took U1–U3 at set-up and U4–U5
-for 01, U6 and U9 for 02 and U7 for 03, all on 2026-10-10 and as recommended (README §6.2; U9 as
-amended at 02's writing). The package `raypoolkit` is at `0.1.0`, declaring Python `>=3.12` and
+reviewed; `v0.1.0` tagged; 04 written.** G1 holds at SGK `b510bc9`, the import commit. The user
+took U1–U3 at set-up and U4–U5 for 01, U6 and U9 for 02, U7 for 03 and U8 and U11 for 04, all on
+2026-10-10 and as recommended (README §6.2; U9 as amended at 02's writing; U8 with two
+amendments). The package `raypoolkit` is at `0.1.0`, declaring Python `>=3.12` and
 `ray>=2.43`, with its test package excluded from the wheel; `compare_with_source.py` exits 0; the
 suite is 116 tests, with no Ray cluster, passing at 3.12.15 / 2.43.0 and 3.13.16 / 2.55.1, and
 faults 1–5 are each pinned as they behave. 8 issues are open. The U5 freeze is in force.
@@ -41,9 +42,10 @@ instruction on 2026-10-10 after CI passed there at both ends (run `38054782562`)
 | **U5** freeze | no client edits its `RayTools/` until it adopts | **taken** 2026-10-10; in force from 01's commit |
 | **U6** Ray stand-in | real `ObjectRef(bytes)`; `ray.wait` / `ray.get` replaced in-process | **taken** 2026-10-10 |
 | **U7** versions | Python ≥3.12, Ray ≥2.43; tested 3.12.15/2.43.0 and 3.13.16/2.55.1 | **taken** 2026-10-10 |
-| **U8** handler checks | defaults apply only with a compute handler (option b) | open, for 04 |
+| **U8** handler checks | defaults apply only with a compute handler (option b); `ValueError`; all four compute-path arguments checked | **taken** 2026-10-10, amended |
 | **U9** printed lines | pinned, wording and layout, against a scripted clock; the three consumer patterns checked | **taken** 2026-10-10, as amended |
 | **U10** CPBH shim | none | open, for 06 |
+| **U11** licence header | CPBH's and SI's header, on `RayWorkPool.py` only | **taken** 2026-10-10: on all four package modules |
 
 ## 1. Prompts
 
@@ -52,7 +54,7 @@ instruction on 2026-10-10 after CI passed there at both ends (run `38054782562`)
 | 01 | [`01-import-the-pool.md`](01-import-the-pool.md) | **landed** 2026-10-10 ([log](logs/01-import-the-pool.md)), reviewed | `49f3ddf` | 0 → 3 |
 | 02 | [`02-the-test-suite.md`](02-the-test-suite.md) | **landed** 2026-10-10 ([log](logs/02-the-test-suite.md)), reviewed | `b9f6dec` | 3 → 116 |
 | 03 | [`03-supported-versions-and-ci.md`](03-supported-versions-and-ci.md) | **landed** 2026-10-10 ([log](logs/03-supported-versions-and-ci.md)), reviewed; tagged `v0.1.0` | `4e90a8a` | 116 → 116 |
-| 04 | `04-fix-the-inherited-faults.md` | not written | — | — |
+| 04 | [`04-fix-the-inherited-faults.md`](04-fix-the-inherited-faults.md) | **written** 2026-10-10 | — | 116 → 121 |
 | 05 | `05-release-v0.2.0.md` | not written | — | — |
 | 06 | `06-the-adoption-checklists.md` | not written | — | — |
 | 07 | `07-verification-and-close-out.md` | not written | — | — |
@@ -389,6 +391,10 @@ construction until CPBH changes it.
 *Next step.* U8 is put when 04 is written; the recommendation (option b) makes the defaults apply
 only with a compute handler, so no existing site has to change.
 
+**Decided (2026-10-10):** U8 taken, option (b), with every argument check raising `ValueError`
+and the check covering `store_handler`, `persist_handler`, `validation_handler` and
+`label_builder`. 04 applies it (prompt 04 §2.4); all 87 client call sites construct under it.
+
 **Pinned (02, 2026-10-10):** `TestInheritedFaults.test_fault_persist_handler_without_compute_raises_runtime_warning`
 (also `test_construction.TestHandlerChecks.test_persist_handler_without_compute_handler_raises_runtime_warning`,
 with the message) and `TestInheritedFaults.test_fault_store_handler_none_with_compute_fails_at_first_compute`
@@ -416,6 +422,10 @@ are exception text.
 `…_persist_handler_without_compute_handler_raises_runtime_warning`, which compare each message
 whole (`COMPUTE_WITHOUT_PERSIST`, `PERSIST_WITHOUT_COMPUTE`). No test pins the absent header. 04
 changes the two constants.
+
+**Decided (2026-10-10):** U11 taken: CPBH's and SI's 14-line header, byte for byte, on all four
+package modules (`RayWorkPool.py`, `_timing.py`, `contract.py`, `__init__.py`), not the tests. 04
+adds it with a test that reads it (prompt 04 §2.6, §3.1).
 
 ### `[01-a-kept-comment-names-the-datastore-service]`
 
