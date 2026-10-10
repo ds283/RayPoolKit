@@ -19,7 +19,9 @@ RayPoolKit is the `RayWorkPool` work-queue layer shared by three client projects
 itself. It does not import `datastorekit` either: the pool it is handed is duck-typed, described
 by a `typing.Protocol`, and used only through the handlers and the default persist handler's
 `object_store` call. It names no client table, class, module or package, in code, strings,
-docstrings or comments.
+docstrings or comments, with two exceptions (taken by the user on 2026-10-10): a provenance note
+may name the source a definition was imported from, as `raypoolkit/_timing.py`'s docstring does;
+and the import guard names the client modules whose absence it checks.
 
 **A client's change is not made here, and this repository's change is not made in a client.** No
 prompt of a campaign here edits a client repository; a client adopts a release in a campaign of

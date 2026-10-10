@@ -2,8 +2,9 @@
 
 **Written:** 2026-10-10 by Claude Opus 5.5, at the user's request, from a read-only comparison of
 the three client projects' `RayWorkPool` copies made the same day (§0.2). The user took U1–U3 at
-set-up (§6.2), and U4 and U5 on 2026-10-10, each as recommended; **prompt 01 has landed**
-(`49f3ddf`, 2026-10-10) and been reviewed, with G1 re-checked. Each prompt is written after the one before it has landed and
+set-up (§6.2), U4 and U5 on 2026-10-10, and U6 and U9 the same day for 02, each as recommended;
+**prompt 01 has landed** (`49f3ddf`, 2026-10-10) and been reviewed, with G1 re-checked, and
+**prompt 02 is written** (2026-10-10). Each prompt is written after the one before it has landed and
 been reviewed, against the tree it left.
 
 ## 0. Why this campaign exists
@@ -93,6 +94,12 @@ Two consequences for adoption:
   SGK's `StageTracker`. Three `ComputeTargets/tests/` modules find pool constructions by
   `ast.Call` with `func.id == "RayWorkPool"`, and two more execute pieces of `main.py` with a
   stand-in bound to the name `RayWorkPool`, so the call must stay spelled `RayWorkPool(...)`.
+  *(Corrected at 02's writing, 2026-10-10: the six lines are a transcription "in the vocabulary
+  `RayWorkPool` prints", not verbatim output. SGK's recorded `var/runs/a3-pilot/run.out` shows the
+  pool prints no UTC offset (`datetime.now()` is naive) and always prints rates in the completed
+  segment, so the pool cannot print the six as they stand. What SGK's `StageTracker` depends on is
+  three patterns, for the banner, progress and completion lines, read at `b510bc9` from
+  `docs/gktk-remedial/scoped_pipeline_run.py:120-124`. U9 is amended to match.)*
 
 **Inherited faults** (all three copies, unless noted; line numbers are SGK's):
 1. **In-flight work is keyed on a bound method.** Every dictionary is keyed on `ref.hex`, the
@@ -160,7 +167,7 @@ drive the pool with real refs and an in-process stand-in for `ray.wait` and `ray
 | # | Prompt | Covers | Status |
 |---|---|---|---|
 | 01 | [`01-import-the-pool.md`](01-import-the-pool.md) | The package skeleton (`pyproject.toml`, `raypoolkit/`), SGK's `RayWorkPool.py` (blob `b4666fa`) under §4's names. The `ShardedPool` import is replaced by a `typing.Protocol` the hint names (U3); `format_time` and the `SECONDS_PER_*` constants are internalised byte for byte in `raypoolkit/_timing.py`. `PROVENANCE.md` records the source commit, the file map and the differences allowed. A guard test checks that the package imports only the standard library, `ray` and itself. **Acceptance:** <br>• `import raypoolkit` and `from raypoolkit import RayWorkPool` work in a fresh venv with no client on `sys.path`; <br>• a script, kept in `docs/extraction/`, compares the module with its SGK source and finds no difference beyond the allowed classes; its output is in the log. *(At writing: the import commit is SGK `b510bc9`; the protocol is `raypoolkit.contract.DatastorePool`; the guard has three tests, the third pinning U4's re-export, which shadows the submodule of the same name.)* | **landed** 2026-10-10 (`49f3ddf`), reviewed |
-| 02 | `02-the-test-suite.md` | An in-process stand-in for `ray.wait` / `ray.get` over real `ObjectRef`s (U6), and stand-in work objects and pool. Tests that pin every path through `run()`: lookup-only; available with and without an availability handler; compute → store → persist → validate; the post handler at each of its five exits; `store_results` ordering and replacement; a task builder returning one ref, a `{"ref", "compute_payload"}` dict, a sequence, or `None`; `label_builder`; the constructor's checks and every error raised; the in-flight cap and batch sizes. The printed lines are pinned against a frozen clock (U9). Faults 1–4 are each pinned *as they behave*, by a test named for the fault, which 04 inverts. **Acceptance:** each branch of `run()` and each constructor check is reached by a test that a named mutation fails. | not written |
+| 02 | [`02-the-test-suite.md`](02-the-test-suite.md) | An in-process stand-in for `ray.wait` / `ray.get` over real `ObjectRef`s (U6), and stand-in work objects and pool. Tests that pin every path through `run()`: lookup-only; available with and without an availability handler; compute → store → persist → validate; the post handler at each of its five exits; `store_results` ordering and replacement; a task builder returning one ref, a `{"ref", "compute_payload"}` dict, a sequence, or `None`; `label_builder`; the constructor's checks and every error raised; the in-flight cap and batch sizes. The printed lines are pinned against a frozen clock (U9). Faults 1–4 are each pinned *as they behave*, by a test named for the fault, which 04 inverts. **Acceptance:** each branch of `run()` and each constructor check is reached by a test that a named mutation fails. *(At writing: the stand-ins are `raypoolkit/tests/standins.py` (`StandinRay`, `ScriptedClock`, `PoolTestCase`); the inventory has 41 rows, one unreachable; `ray.init` is patched in every test, since `RAY_ENABLE_AUTO_CONNECT` cannot be set before `ray` is imported; Ray's `wait` contract was read at 2.43.0, 2.53.0 and 2.55.1 and is the same.)* | **written** 2026-10-10 |
 | 03 | `03-supported-versions-and-ci.md` | Dependency ranges in `pyproject.toml` (U7). The suite runs at both ends locally, in fresh scratch venvs, and from an installed wheel that carries no test package. A GitHub Actions workflow runs it at both ends. `README.md` gains usage. 03 makes no tag and pushes nothing; **`v0.1.0`** is tagged on its commit once CI passes there. | not written |
 | 04 | `04-fix-the-inherited-faults.md` | Faults 1–5 of §0.2, each with a test the unfixed code fails, and 02's pinning tests inverted. The constructor's handler checks follow U8. The printed lines do not change. *(May be split into 04a and 04b when written, if fault 4's resolution changes what a client must pass.)* | not written |
 | 05 | `05-release-v0.2.0.md` | `pyproject.toml` at `0.2.0`, `PROVENANCE.md` and `README.md`; both ends locally and in CI; **`v0.2.0`** tagged on its commit after green CI. | not written |
@@ -249,8 +256,8 @@ The project-wide ones in `CLAUDE.md`, plus:
 
 ### 6.2 Decisions this campaign needs
 
-Each is put with a recommendation. **U1–U3 were taken by the user at set-up on 2026-10-10, and
-U4 and U5 the same day for 01, each as recommended**; the recommendation below is the decision.
+Each is put with a recommendation. **U1–U3 were taken by the user at set-up on 2026-10-10, U4 and
+U5 the same day for 01, and U6 and U9 the same day for 02, each as recommended**; the recommendation below is the decision.
 The others are put when the prompt that needs them is written.
 
 - **U1: the name and the repository.** *Taken:* RayPoolKit, package `raypoolkit`, a public GitHub
@@ -271,7 +278,7 @@ The others are put when the prompt that needs them is written.
 - **U5: freeze the clients' copies** *(for 01)*. *Taken 2026-10-10:* from 01's writing until each client
   adopts, no client edits its `RayTools/`; a fix wanted in a client is made here and reaches it on
   adoption. G1 (§7) is SGK's half of this.
-- **U6: the suite's Ray stand-in** *(for 02)*. *Recommended:* work items are real
+- **U6: the suite's Ray stand-in** *(for 02)*. *Taken 2026-10-10:* work items are real
   `ray.ObjectRef(bytes)` instances, and the pool module's `ray.wait` and `ray.get` are replaced by
   an in-process stand-in that resolves them from a table, in a controllable order. Alternatives
   rejected: a local Ray cluster (the suite would need one, against `CLAUDE.md`); `local_mode`
@@ -287,8 +294,11 @@ The others are put when the prompt that needs them is written.
   raise only on an explicit, unusable combination. *Recommended:* (b). Every existing call site
   keeps working (SGK's and SI's explicit `None`s are still accepted), and CPBH's 14 lookup-only
   sites then need no change on adoption.
-- **U9: pin the printed lines** *(for 02)*. *Recommended:* yes, every line's wording and layout,
-  against a frozen clock and timer, including SGK's six pinned lines as a case.
+- **U9: pin the printed lines** *(for 02)*. *Taken 2026-10-10, as amended at 02's writing:* yes,
+  every line's wording and layout, against a scripted clock and a naive frozen `datetime`; and the
+  pool's actual lines are checked against the three patterns a consumer parses (banner, progress,
+  completion), without naming the consumer. *(As first put: "including SGK's six pinned lines as a
+  case". Those lines are a transcription the pool cannot print verbatim; see §0.2's note.)*
 - **U10: no shim for CPBH** *(for 06)*. *Recommended:* CPBH renames its 3 compute sites'
   store-handler use on adoption if it overrides it (at HEAD it does not), and the package carries
   no client's old meaning of `store_handler`.

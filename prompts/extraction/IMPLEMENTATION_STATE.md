@@ -1,8 +1,9 @@
 # extraction campaign — implementation state
 
-**Last updated:** 2026-10-10 · **Status: IN PROGRESS — 1 of 7 prompts written (01), 01 landed
+**Last updated:** 2026-10-10 · **Status: IN PROGRESS — 2 of 7 prompts written (01, 02), 01 landed
 (`49f3ddf`) and reviewed.** G1 holds at SGK `b510bc9`, the import commit. The user took U1–U3 at set-up and
-U4–U5 for 01, all on 2026-10-10 and as recommended (README §6.2). The package `raypoolkit` exists;
+U4–U5 for 01 and U6 and U9 for 02, all on 2026-10-10 and as recommended (README §6.2; U9 as
+amended at 02's writing). The package `raypoolkit` exists;
 `compare_with_source.py` exits 0; the suite is 3 tests. The U5 freeze is in force.
 
 **Campaign:** [`README.md`](README.md) ·
@@ -31,10 +32,10 @@ U4–U5 for 01, all on 2026-10-10 and as recommended (README §6.2). The package
 | **U3** dependency | none on `datastorekit`; the pool typed by a `Protocol` | **taken** 2026-10-10 |
 | **U4** module name | keep `RayWorkPool.py`; re-export the class from the root | **taken** 2026-10-10 |
 | **U5** freeze | no client edits its `RayTools/` until it adopts | **taken** 2026-10-10; in force from 01's commit |
-| **U6** Ray stand-in | real `ObjectRef(bytes)`; `ray.wait` / `ray.get` replaced in-process | open, for 02 |
+| **U6** Ray stand-in | real `ObjectRef(bytes)`; `ray.wait` / `ray.get` replaced in-process | **taken** 2026-10-10 |
 | **U7** versions | Python ≥3.12, Ray ≥2.43; tested 3.12.15/2.43.0 and 3.13.16/2.55.1 | open, for 03 |
 | **U8** handler checks | defaults apply only with a compute handler (option b) | open, for 04 |
-| **U9** printed lines | pinned, wording and layout, against a frozen clock | open, for 02 |
+| **U9** printed lines | pinned, wording and layout, against a scripted clock; the three consumer patterns checked | **taken** 2026-10-10, as amended |
 | **U10** CPBH shim | none | open, for 06 |
 
 ## 1. Prompts
@@ -42,7 +43,7 @@ U4–U5 for 01, all on 2026-10-10 and as recommended (README §6.2). The package
 | # | Prompt | Status | Commit | Suite |
 |---|---|---|---|---|
 | 01 | [`01-import-the-pool.md`](01-import-the-pool.md) | **landed** 2026-10-10 ([log](logs/01-import-the-pool.md)), reviewed | `49f3ddf` | 0 → 3 |
-| 02 | `02-the-test-suite.md` | not written | — | — |
+| 02 | [`02-the-test-suite.md`](02-the-test-suite.md) | **written** 2026-10-10 | — | 3 → N |
 | 03 | `03-supported-versions-and-ci.md` | not written | — | — |
 | 04 | `04-fix-the-inherited-faults.md` | not written | — | — |
 | 05 | `05-release-v0.2.0.md` | not written | — | — |
@@ -113,6 +114,7 @@ checkout, and `raypoolkit` was not installed in `venv/`. SGK's `HEAD` was `b510b
   prompt: `_timing.py`'s docstring names SGK's `utilities.py` (D-int), and the guard's
   `FORBIDDEN_ROOTS` names `Datastore`, `RayTools` and `utilities` (§2.7 test 2). Whether
   `CLAUDE.md` excepts provenance and guard text, or 04 rewords them, is the user's decision.
+  **Taken 2026-10-10, at 02's writing:** `CLAUDE.md` excepts both; nothing is opened.
 
 *Residue fixed in the follow-up commit.* "this commit" → `49f3ddf` on this board, in the log and
 in `prompts/INDEX.md`; README §2's status and header for 01; this review and the notes line.
