@@ -1,6 +1,6 @@
 # Log — extraction prompt 07: verification and close-out
 
-**Subject:** Verify the extraction campaign and close it · **Commit:** this commit ·
+**Subject:** Verify the extraction campaign and close it · **Commit:** `1ae1a49` ·
 **Date:** 2026-10-10 · **Agent:** Claude Opus 5.5
 
 **Result: landed; the campaign is closed.** `docs/extraction-verification.md` verifies the package
@@ -1360,11 +1360,11 @@ its §1.1 heading says the campaign is closed.
   commit of its own.
 - `raypoolkit/` is `eaef0ce`'s (`v0.2.0`). **Suite: 121**, at both ends. `black --check raypoolkit
   docs`: 17 files.
-- `docs/extraction-verification.md` is additive from this commit (`CLAUDE.md` rule 6): a later
+- `docs/extraction-verification.md` is additive from `1ae1a49` (`CLAUDE.md` rule 6): a later
   measurement is a new dated subsection.
 - `docs/extraction/ray_smoke_run.py` runs from a checkout or export with the tests in the tree, with
   no Ray up; it is not a test and not in CI.
 - No tag was made and nothing was pushed. Local `main` is ahead of `origin/main` (`787507a`) by
-  `ff265ee` and this commit.
+  `ff265ee` and `1ae1a49`.
 - The drivers, venvs, exports, the wheel and the outputs (`<scratch>`) are not committed; every
   diff they applied is in §4, exactly as applied.

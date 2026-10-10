@@ -2,7 +2,7 @@
 
 **Last updated:** 2026-10-10 · **Status: CLOSED (2026-10-10, by prompt 07) — all seven prompts
 landed: 01 (`49f3ddf`), 02 (`b9f6dec`), 03 (`4e90a8a`, tagged `v0.1.0`), 04 (`0b6ffd2`), 05
-(`eaef0ce`, tagged `v0.2.0`) and 06 (`67f3f7e`), each reviewed, and 07 (this commit), which
+(`eaef0ce`, tagged `v0.2.0`) and 06 (`67f3f7e`), each reviewed, and 07 (`1ae1a49`), reviewed, which
 verified the campaign in [`docs/extraction-verification.md`](../../docs/extraction-verification.md)
 and closed it. No issue is open; G2–G4 have not held (§2).** G1 holds at SGK `b510bc9`, the import commit. The user took U1–U3 at set-up and U4–U5
 for 01, U6 and U9 for 02, U7 for 03, U8 and U11 for 04, U10 and U12 for 06 and U13 and U14 for 07, all on 2026-10-10 and as recommended
@@ -71,14 +71,15 @@ instruction on 2026-10-10 after CI passed there at both ends (run `38054782562`)
 | 04 | [`04-fix-the-inherited-faults.md`](04-fix-the-inherited-faults.md) | **landed** 2026-10-10 ([log](logs/04-fix-the-inherited-faults.md)), reviewed | `0b6ffd2` | 116 → 121 |
 | 05 | [`05-release-v0.2.0.md`](05-release-v0.2.0.md) | **landed** 2026-10-10 ([log](logs/05-release-v0.2.0.md)), reviewed; CI green; tagged `v0.2.0` | `eaef0ce` | 121 → 121 |
 | 06 | [`06-the-adoption-checklists.md`](06-the-adoption-checklists.md) | **landed** 2026-10-10 ([log](logs/06-the-adoption-checklists.md)), reviewed | `67f3f7e` | 121 → 121 |
-| 07 | [`07-verification-and-close-out.md`](07-verification-and-close-out.md) | **landed** 2026-10-10 ([log](logs/07-verification-and-close-out.md)); the campaign closed | this commit | 121 → 121 |
+| 07 | [`07-verification-and-close-out.md`](07-verification-and-close-out.md) | **landed** 2026-10-10 ([log](logs/07-verification-and-close-out.md)); reviewed; the campaign closed | `1ae1a49` | 121 → 121 |
 
 **Orchestrator notes:** [`orchestrator/prompt-01.md`](orchestrator/prompt-01.md) (`310db6e`),
 used for 01; [`orchestrator/prompt-02.md`](orchestrator/prompt-02.md) (`319099a`), used for 02;
 [`orchestrator/prompt-03.md`](orchestrator/prompt-03.md) (`e136eee`), used for 03;
 [`orchestrator/prompt-04.md`](orchestrator/prompt-04.md) (`a7d9252`), used for 04;
 [`orchestrator/prompt-05.md`](orchestrator/prompt-05.md) (`1868b6e`), used for 05;
-[`orchestrator/prompt-06.md`](orchestrator/prompt-06.md) (`deffdc2`), used for 06.
+[`orchestrator/prompt-06.md`](orchestrator/prompt-06.md) (`deffdc2`), used for 06;
+[`orchestrator/prompt-07.md`](orchestrator/prompt-07.md) (`ff265ee`), used for 07.
 
 **Orchestrator review of prompt 01 (2026-10-10).** Dispatched from `310db6e` to one Opus
 subagent, with the note's §0 facts, its one addition (breakage (h)) and its two recommendations.
@@ -568,6 +569,91 @@ process was up.
 in `prompts/INDEX.md`; README §2's status and header for 06, and G2's note; this review and the
 notes line; and one citation, `docs/adoption/README.md` §2's `raypoolkit/__init__.py:16-18` →
 `:16-19`, since `__all__` is `:19`.
+
+**Orchestrator review of prompt 07 (2026-10-10).** Dispatched from `ff265ee` to one Opus
+subagent, with the note's §0 facts and its fourteen clarifications and additions. Reviewed against
+its commit `1ae1a49`, with nothing landed after it. **Every check of the note's §3 passed**, and
+acceptance 1–6 are met. No stop condition fired.
+
+*At dispatch.* The note's gate held at `ff265ee`. `origin/main` was `787507a`, and run
+`38086076394` on it had passed both jobs. The tree was clean, the only worktree was this checkout,
+`git diff eaef0ce -- raypoolkit pyproject.toml` was empty, and the suite gave 121. The clients were
+at SGK `b510bc9`, CPBH `52142d7` and SI `7bb3efd`, each with its `RayWorkPool` blob. No Ray process
+was up by either pattern of the note's clarification 5.
+
+*The checks.*
+1. **E1, scope.** `1ae1a49` touches 7 files: the document, the smoke script, the log, this board,
+   the campaign README, `prompts/INDEX.md` and the index. `git diff ff265ee 1ae1a49` over
+   `raypoolkit`, `pyproject.toml`, `README.md`, `PROVENANCE.md`, `docs/adoption`,
+   `compare_with_source.py`, `.github`, `CLAUDE.md`, `LICENSE` and `.gitignore` is empty. The tags
+   and `origin` are unchanged; the only worktree is this checkout. No environment text is in the
+   commit (log 07 §2, deviation 23).
+2. **E7, the clients.** Each client's `HEAD`, `status --porcelain` hash, stash count and blob equal
+   the note's.
+3. **E2, the script, by reading.** Read whole. `RAY_USAGE_STATS_ENABLED` is assigned `"0"` before
+   `ray` or `raypoolkit` is imported. The mock check and the refusal (`ray.is_initialized()`, then
+   the prompt's `pgrep`) come before `ray.init`, exiting 2, and print each process's id and first
+   word only. The five steps are each in their own `try`, asserting only values the script built;
+   step 5's count comes from `expected_passes`, a model of the loop's counting, at
+   `process_batch_size=2`. `ray.shutdown()` is in a `finally`; the exit is 0 or 1. It imports the
+   standard library, `ray` and `raypoolkit` only.
+4. **E3, by running.** In the orchestrator's own offline venvs (3.12.15 / 2.43.0 and 3.13.16 /
+   2.55.1), with its own `git archive 1ae1a49` export installed editable: exit 0 at each end, every
+   step `PASS`, `raypoolkit.__file__` under the export. The whole runs took 7.7 s at the low end,
+   and 10.5 s and 8.8 s on two runs at the high end, where step 5 gave 15 progress lines both times.
+   Both process patterns were empty before and after. Each run made one session directory, whose
+   `dashboard.log` says "Usage reporting is disabled." with `UsageStatsHead` the only module loaded.
+5. **E4, the breakage.** (a)–(c) were extracted from the log's text and replayed on the
+   orchestrator's export at the high end, each passing `git apply --check` and `-R --check`, with
+   the module's SHA-256 restored after each. (a) fails step 3 alone ("store_id None for items
+   [0, 1, 2, 3, 4]"), exit 1. (b) fails step 1 alone with `TypeError … has no len()
+   [RayWorkPool.py:178]`, exit 1. (c) passes every step, exit 0. For (d), a bounded holder of the
+   orchestrator's own was used: the script refused with exit 2 and made no session directory, and
+   both patterns were empty after the holder stopped.
+6. **E6, the release.** The offline wheel from `git archive v0.2.0` is 13,565 bytes with the 9
+   entries and no "absent from" line, and its four modules are byte-equal to `eaef0ce`'s.
+7. **E5, the document, by reading.** Read whole: the twelve sections under the prompt's names,
+   with the head naming `v0.2.0`, `eaef0ce` and the empty diff. Recounted from the records:
+   - the 30 commits by class (1 started, 1 plan, 7 written, 7 notes, 6 prompts, 6 reviews, 2
+     release records);
+   - the 8 issues of this board's §4 and the 14 decisions of README §6.2;
+   - log 01's 9 deviation entries, and log 04's 19 (18 numbered and the drift paragraph);
+   - the observations of logs 03 (6) and 06 (7), with their dispositions.
+   Each matches. The `path:line`s cited in §6 and §4.5 (`test_inherited_faults.py:44`, `:103`,
+   `:124`, `:141`, `:158`, `:177`; `test_run_paths.py:277`, `:405`; `test_construction.py:96`;
+   `test_printed_lines.py:371`; `standins.py:111`, `:182`, `:243`; `RayWorkPool.py:136-142`,
+   `:464`, `:612-615`) read as cited at `eaef0ce`.
+8. **E5, the sources.** All 13 links resolve; the 8 external ones are runs of
+   `github.com/ds283/RayPoolKit`, each `success` on the commit the table gives. §11.1's commands were
+   run as written. The check at `v0.1.0` exits 0 with `RESULT: OK` (572 identical, 2 D-imp, 1
+   D-pool, 4 D-int, 0 undeclared), and its worktree is removed after. The high-end suite gives 121.
+   `measure_client_pools.py` matches each checklist's appendix.
+9. **The suite and `black`.** `venv/`: `Ran 121 tests … OK`, with no Ray up. `black --check
+   raypoolkit docs` (25.1.0): 17 files unchanged.
+10. **E7, the records and the close.** The log has every section of README §5.1 and the prompt's
+    §5 item 6 additions, with the note's clarifications as deviations 1–14 (2 STRUCTURALLY
+    REQUIRED) and the agent's 15–23. This board's header says **CLOSED**, and it has 07's row and
+    §2's dated line. The README has the header, 07's row and §7's line. `prompts/INDEX.md` says
+    closed with 0 open issues. The index has its date, the closed §1.1 heading and 0 open.
+
+*Findings.*
+- **None opened.** The fault-1 probe (c) is a finding of the document (its §4.5 and §10), not a
+  defect: the package is right, and the stand-in's test guards it.
+- **The agent's deviation 23 (UNINTENDED DRIFT) is accepted.** Its first-draft refusal printed
+  whole `pgrep -lf` lines. On macOS a `ray::` process's title can carry the process's environment,
+  and that text reached a scratch output file. The file was deleted, nothing of it was committed,
+  and the committed script and drivers print ids and first words only. Later notes that record
+  Ray's processes should print no more than that (log 07 §5, observation 2).
+- **One record added**: run `38055185065` on `6b1ddfe`, green, which no earlier record named
+  (the document's §2.3).
+- **The prompt's deviation figures were word counts**, as it warned. The document counts 102
+  entries (8 / 89 / 5) and says why the figures differ. Its §8 is right, and the prompt is not
+  rewritten.
+
+*Residue fixed in the follow-up commit.* "this commit" → `1ae1a49` on this board, in the log and
+in `prompts/INDEX.md`, where 07 is now also marked reviewed; README §2's status and header for 07;
+this review and the notes line. The document's own "the commit that adds this document" is true as
+written, and is kept, since the document is additive.
 
 ## 2. Gates outside this repository (README §7)
 
