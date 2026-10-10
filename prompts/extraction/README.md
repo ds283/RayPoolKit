@@ -2,9 +2,11 @@
 
 **Written:** 2026-10-10 by Claude Opus 5.5, at the user's request, from a read-only comparison of
 the three client projects' `RayWorkPool` copies made the same day (§0.2). The user took U1–U3 at
-set-up (§6.2), U4 and U5 on 2026-10-10, and U6 and U9 the same day for 02, each as recommended;
+set-up (§6.2), U4 and U5 on 2026-10-10, U6 and U9 the same day for 02, and U7 the same day for
+03, each as recommended;
 **prompt 01 has landed** (`49f3ddf`, 2026-10-10) and been reviewed, with G1 re-checked, and
-**prompt 02 has landed** (`b9f6dec`, 2026-10-10) and been reviewed. Each prompt is written after
+**prompt 02 has landed** (`b9f6dec`, 2026-10-10) and been reviewed, and **prompt 03 is written**
+(2026-10-10). Each prompt is written after
 the one before it has landed and been reviewed, against the tree it left.
 
 ## 0. Why this campaign exists
@@ -168,7 +170,7 @@ drive the pool with real refs and an in-process stand-in for `ray.wait` and `ray
 |---|---|---|---|
 | 01 | [`01-import-the-pool.md`](01-import-the-pool.md) | The package skeleton (`pyproject.toml`, `raypoolkit/`), SGK's `RayWorkPool.py` (blob `b4666fa`) under §4's names. The `ShardedPool` import is replaced by a `typing.Protocol` the hint names (U3); `format_time` and the `SECONDS_PER_*` constants are internalised byte for byte in `raypoolkit/_timing.py`. `PROVENANCE.md` records the source commit, the file map and the differences allowed. A guard test checks that the package imports only the standard library, `ray` and itself. **Acceptance:** <br>• `import raypoolkit` and `from raypoolkit import RayWorkPool` work in a fresh venv with no client on `sys.path`; <br>• a script, kept in `docs/extraction/`, compares the module with its SGK source and finds no difference beyond the allowed classes; its output is in the log. *(At writing: the import commit is SGK `b510bc9`; the protocol is `raypoolkit.contract.DatastorePool`; the guard has three tests, the third pinning U4's re-export, which shadows the submodule of the same name.)* | **landed** 2026-10-10 (`49f3ddf`), reviewed |
 | 02 | [`02-the-test-suite.md`](02-the-test-suite.md) | An in-process stand-in for `ray.wait` / `ray.get` over real `ObjectRef`s (U6), and stand-in work objects and pool. Tests that pin every path through `run()`: lookup-only; available with and without an availability handler; compute → store → persist → validate; the post handler at each of its five exits; `store_results` ordering and replacement; a task builder returning one ref, a `{"ref", "compute_payload"}` dict, a sequence, or `None`; `label_builder`; the constructor's checks and every error raised; the in-flight cap and batch sizes. The printed lines are pinned against a frozen clock (U9). Faults 1–4 are each pinned *as they behave*, by a test named for the fault, which 04 inverts. **Acceptance:** each branch of `run()` and each constructor check is reached by a test that a named mutation fails. *(At writing: the stand-ins are `raypoolkit/tests/standins.py` (`StandinRay`, `ScriptedClock`, `PoolTestCase`); the inventory has 41 rows, one unreachable; `ray.init` is patched in every test, since `RAY_ENABLE_AUTO_CONNECT` cannot be set before `ray` is imported; Ray's `wait` contract was read at 2.43.0, 2.53.0 and 2.55.1 and is the same.)* | **landed** 2026-10-10 (`b9f6dec`), reviewed |
-| 03 | `03-supported-versions-and-ci.md` | Dependency ranges in `pyproject.toml` (U7). The suite runs at both ends locally, in fresh scratch venvs, and from an installed wheel that carries no test package. A GitHub Actions workflow runs it at both ends. `README.md` gains usage. 03 makes no tag and pushes nothing; **`v0.1.0`** is tagged on its commit once CI passes there. | not written |
+| 03 | `03-supported-versions-and-ci.md` | Dependency ranges in `pyproject.toml` (U7). The suite runs at both ends locally, in fresh scratch venvs, and from an installed wheel that carries no test package. A GitHub Actions workflow runs it at both ends. `README.md` gains usage. 03 makes no tag and pushes nothing; **`v0.1.0`** is tagged on its commit once CI passes there. *(At writing: the wheel excludes `raypoolkit.tests`, and is built from a fresh `git archive` export, since a stale `build/` leaks the tests into it.)* | **written** 2026-10-10 |
 | 04 | `04-fix-the-inherited-faults.md` | Faults 1–5 of §0.2, each with a test the unfixed code fails, and 02's pinning tests inverted. The constructor's handler checks follow U8. The printed lines do not change. *(May be split into 04a and 04b when written, if fault 4's resolution changes what a client must pass.)* | not written |
 | 05 | `05-release-v0.2.0.md` | `pyproject.toml` at `0.2.0`, `PROVENANCE.md` and `README.md`; both ends locally and in CI; **`v0.2.0`** tagged on its commit after green CI. | not written |
 | 06 | `06-the-adoption-checklists.md` | `docs/adoption/`, one checklist per client, measured read-only at a named client commit and against `v0.2.0`: what it deletes (`RayTools/`); which imports it rewrites; its call sites, and what each must change (CPBH: the store/persist rename and its 14 lookup-only sites; any site U8 affects); its tests that depend on the pool's surface (SGK: §0.2); its documents that go stale (SI: `CLAUDE.md`'s protected list names `RayTools/`); its acceptance. Each says that adopting with DatastoreKit in one campaign is possible but not required. A script counts every client's imports and sites through `git` and `ast`. | not written |
@@ -257,7 +259,8 @@ The project-wide ones in `CLAUDE.md`, plus:
 ### 6.2 Decisions this campaign needs
 
 Each is put with a recommendation. **U1–U3 were taken by the user at set-up on 2026-10-10, U4 and
-U5 the same day for 01, and U6 and U9 the same day for 02, each as recommended**; the recommendation below is the decision.
+U5 the same day for 01, U6 and U9 the same day for 02, and U7 the same day for 03, each as
+recommended**; the recommendation below is the decision.
 The others are put when the prompt that needs them is written.
 
 - **U1: the name and the repository.** *Taken:* RayPoolKit, package `raypoolkit`, a public GitHub
@@ -284,9 +287,11 @@ The others are put when the prompt that needs them is written.
   rejected: a local Ray cluster (the suite would need one, against `CLAUDE.md`); `local_mode`
   (deprecated and absent at the high end); fake ref classes (the pool tests `isinstance(…,
   ObjectRef)`).
-- **U7: the supported versions** *(for 03)*. *Recommended:* `requires-python = ">=3.12"`,
+- **U7: the supported versions** *(for 03)*. *Taken 2026-10-10:* `requires-python = ">=3.12"`,
   `ray>=2.43`, tested at Python 3.12.15 / Ray 2.43.0 and Python 3.13.16 / Ray 2.55.1, as
-  DatastoreKit's.
+  DatastoreKit's. *(At 03's writing: no Ray before 2.45.0 has a Python 3.13 wheel, so on 3.13 the
+  floor is in effect 2.45.0; Python 3.14 and Ray 2.59.0 are inside the range and untested. The
+  suite passes at both tested ends in fresh venvs.)*
 - **U8: the constructor's handler checks** *(for 04)*. Options: (a) keep raising when a persist
   handler is set without a compute handler, but as `ValueError`, and add the missing store-handler
   check; (b) make the default persist and store handlers apply only when a compute handler is
