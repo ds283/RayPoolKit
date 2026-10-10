@@ -4,12 +4,13 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "raypoolkit"
-version = "0.1.0.dev0"
+version = "0.1.0"
 description = "A Ray work queue (RayWorkPool) that drives lookup, compute, store and validation tasks"
 requires-python = ">=3.12"
 dependencies = [
-    "ray",
+    "ray>=2.43",
 ]
 
 [tool.setuptools.packages.find]
 include = ["raypoolkit*"]
+exclude = ["raypoolkit.tests", "raypoolkit.tests.*"]

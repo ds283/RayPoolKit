@@ -1,11 +1,16 @@
 # extraction campaign — implementation state
 
 **Last updated:** 2026-10-10 · **Status: IN PROGRESS — 3 of 7 prompts written (01–03), 01 landed
-(`49f3ddf`) and reviewed, 02 landed (`b9f6dec`) and reviewed.** G1 holds at SGK `b510bc9`, the
-import commit. The user took U1–U3 at set-up and U4–U5 for 01, U6 and U9 for 02 and U7 for 03, all on
+(`49f3ddf`) and reviewed, 02 landed (`b9f6dec`) and reviewed, 03 landed (this commit).** G1 holds
+at SGK `b510bc9`, the import commit. The user took U1–U3 at set-up and U4–U5 for 01, U6 and U9 for 02 and U7 for 03, all on
 2026-10-10 and as recommended (README §6.2; U9 as amended at 02's writing). The package
-`raypoolkit` exists; `compare_with_source.py` exits 0; the suite is 116 tests, with no Ray cluster,
-and faults 1–5 are each pinned as they behave. 7 issues are open. The U5 freeze is in force.
+`raypoolkit` is at `0.1.0`, declaring Python `>=3.12` and `ray>=2.43`, with its test package
+excluded from the wheel; `compare_with_source.py` exits 0; the suite is 116 tests, with no Ray
+cluster, passing at 3.12.15 / 2.43.0 and 3.13.16 / 2.55.1, and faults 1–5 are each pinned as they
+behave. 8 issues are open. The U5 freeze is in force.
+
+**`v0.1.0` is ready to be tagged on 03's commit once CI (`.github/workflows/tests.yml`) passes
+there at both ends. No tag has been made, and nothing has been pushed** (README §5 rule 10).
 
 **Campaign:** [`README.md`](README.md) ·
 **Source:** SecondaryGWKit's `RayTools/RayWorkPool.py`, blob `b4666fa` (G1) ·
@@ -45,7 +50,7 @@ and faults 1–5 are each pinned as they behave. 7 issues are open. The U5 freez
 |---|---|---|---|---|
 | 01 | [`01-import-the-pool.md`](01-import-the-pool.md) | **landed** 2026-10-10 ([log](logs/01-import-the-pool.md)), reviewed | `49f3ddf` | 0 → 3 |
 | 02 | [`02-the-test-suite.md`](02-the-test-suite.md) | **landed** 2026-10-10 ([log](logs/02-the-test-suite.md)), reviewed | `b9f6dec` | 3 → 116 |
-| 03 | [`03-supported-versions-and-ci.md`](03-supported-versions-and-ci.md) | **written** 2026-10-10 | — | 116 → 116 |
+| 03 | [`03-supported-versions-and-ci.md`](03-supported-versions-and-ci.md) | **landed** 2026-10-10 ([log](logs/03-supported-versions-and-ci.md)) | this commit | 116 → 116 |
 | 04 | `04-fix-the-inherited-faults.md` | not written | — | — |
 | 05 | `05-release-v0.2.0.md` | not written | — | — |
 | 06 | `06-the-adoption-checklists.md` | not written | — | — |
@@ -354,6 +359,34 @@ driver with no message.
 
 *Next step.* 04 raises `ValueError` at construction for a size below 1, with a test for each, as
 part of the constructor checks U8 settles. No test pins the hang today (02 builds no such pool).
+
+### `[03-a-stale-egg-info-manifest-ships-the-tests-in-a-wheel]`
+
+**Opened:** 2026-10-10, by 03 (log 03 §6.1). **Owner:** not assigned; proposed for 05, the next
+prompt that changes `pyproject.toml`.
+
+**Where:** `pyproject.toml`'s `[tool.setuptools.packages.find]`, whose `exclude` keeps
+`raypoolkit.tests` out of the packages but not out of the package data; and the gitignored
+`raypoolkit.egg-info/` at the repository root, which every editable install rewrites.
+
+setuptools reads an existing `raypoolkit.egg-info/SOURCES.txt` and merges it into the new one. The
+repository's copy still lists the ten files under `raypoolkit/tests/`, carried from the manifests
+written before 03's exclusion; a fresh export's lists none. Measured by 03 in scratch, never in the
+tree: a fresh `git archive` export with 03's `pyproject.toml` and the repository's
+`raypoolkit.egg-info/` copied in builds a wheel of 19 entries, 10 under `raypoolkit/tests/`,
+shipped as package data of `raypoolkit` (`include-package-data` defaults to on), with setuptools
+warning "Package 'raypoolkit.tests' is absent from the `packages` configuration". The exclusion
+does not prevent it.
+
+*Impact.* None on a client: a `git+…@v0.1.0` install builds from a fresh clone, which has no
+`egg-info` (it is gitignored), as 03's release check did (9 entries). It is a second route for
+03's hazard 2: a wheel built in a working tree, which `CLAUDE.md` and 03 already forbid, ships the
+test package, with its patched `ray.init` and second `PoolTestCase`.
+
+*Next step.* Set `[tool.setuptools]` `include-package-data = false` (the package has no data files;
+`LICENSE` reaches the wheel's `dist-info/licenses/` either way). Measured by 03 in a scratch export
+with the stale manifest: 9 entries and no warning. It changes `pyproject.toml`, so a prompt that
+says so makes it, with the release check re-run; 03 could not (its §2.1: "Nothing else").
 
 ## 4. Resolved issues
 

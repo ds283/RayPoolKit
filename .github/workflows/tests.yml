@@ -1,0 +1,52 @@
+name: tests
+
+# The suite at both ends of the supported range (README "Supported versions").
+# The equivalence check under docs/extraction/ reads the source repository and runs locally only.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  suite:
+    name: suite (${{ matrix.end }})
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - end: low
+            python: "3.12.15"
+            ray: "2.43.0"
+          - end: high
+            python: "3.13.16"
+            ray: "2.55.1"
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ matrix.python }}
+
+      - name: Install the package, editable, with the pin
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e . "ray==${{ matrix.ray }}"
+
+      - name: Versions
+        run: |
+          python -c "import sys, ray; print('python', sys.version); print('ray', ray.__version__)"
+
+      - name: The suite
+        run: python -m unittest discover -s raypoolkit/tests -t .
+
+      - name: black
+        if: matrix.end == 'low'
+        run: |
+          python -m pip install black==25.1.0
+          black --check raypoolkit docs
