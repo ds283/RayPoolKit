@@ -1,6 +1,6 @@
 # Log — extraction prompt 06: the adoption checklists
 
-**Subject:** Write the adoption checklists and their measuring script · **Commit:** this commit ·
+**Subject:** Write the adoption checklists and their measuring script · **Commit:** `67f3f7e` ·
 **Date:** 2026-10-10 · **Agent:** Claude Opus 5.5
 
 **Result: landed.** `docs/adoption/` holds the README, the three checklists
@@ -1779,13 +1779,13 @@ unchanged.
 
 ## 11. State handed to the next prompt
 
-- `HEAD` is this commit. `raypoolkit/` is unchanged since `0b6ffd2` (`git diff eaef0ce --
+- `HEAD` is `67f3f7e`. `raypoolkit/` is unchanged since `0b6ffd2` (`git diff eaef0ce --
   raypoolkit` empty); `pyproject.toml`, `README.md` and `PROVENANCE.md` are `v0.2.0`'s.
 - **Suite: 121 tests**, passing in `venv/` (3.12.15 / 2.43.0).
 - **`docs/adoption/`**: the README, the three checklists and `measure_client_pools.py`, which 07
   cites. Its figures at `b510bc9`, `52142d7` and `7bb3efd` are §3.2's.
 - The board's gates G2–G4 point at the checklists; none holds yet.
 - No tag was made and nothing was pushed. Local `main` is ahead of `origin/main` (`b2b6ab4`) by
-  `a1d64ea`, `deffdc2` and this commit.
+  `a1d64ea`, `deffdc2` and `67f3f7e`.
 - The drivers, the fixture and the outputs (`$S/`) are not committed; every diff they applied is in
   §8, exactly as applied.

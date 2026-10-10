@@ -3,7 +3,7 @@
 **Last updated:** 2026-10-10 · **Status: IN PROGRESS — 6 of 7 prompts written (01–06), 01 landed
 (`49f3ddf`) and reviewed, 02 landed (`b9f6dec`) and reviewed, 03 landed (`4e90a8a`) and
 reviewed; `v0.1.0` tagged; 04 landed (`0b6ffd2`) and reviewed, CI green; 05 landed (`eaef0ce`)
-and reviewed, CI green; `v0.2.0` tagged; 06 landed (this commit).** G1 holds at SGK `b510bc9`, the import commit. The user took U1–U3 at set-up and U4–U5
+and reviewed, CI green; `v0.2.0` tagged; 06 landed (`67f3f7e`) and reviewed.** G1 holds at SGK `b510bc9`, the import commit. The user took U1–U3 at set-up and U4–U5
 for 01, U6 and U9 for 02, U7 for 03, U8 and U11 for 04 and U10 and U12 for 06, all on 2026-10-10 and as recommended
 (README §6.2; U9 as amended at 02's writing; U8 with two amendments); U8 and U11 are applied by 04.
 The package `raypoolkit` is at `0.2.0`, declaring Python `>=3.12` and `ray>=2.43`, with its test
@@ -67,14 +67,15 @@ instruction on 2026-10-10 after CI passed there at both ends (run `38054782562`)
 | 03 | [`03-supported-versions-and-ci.md`](03-supported-versions-and-ci.md) | **landed** 2026-10-10 ([log](logs/03-supported-versions-and-ci.md)), reviewed; tagged `v0.1.0` | `4e90a8a` | 116 → 116 |
 | 04 | [`04-fix-the-inherited-faults.md`](04-fix-the-inherited-faults.md) | **landed** 2026-10-10 ([log](logs/04-fix-the-inherited-faults.md)), reviewed | `0b6ffd2` | 116 → 121 |
 | 05 | [`05-release-v0.2.0.md`](05-release-v0.2.0.md) | **landed** 2026-10-10 ([log](logs/05-release-v0.2.0.md)), reviewed; CI green; tagged `v0.2.0` | `eaef0ce` | 121 → 121 |
-| 06 | [`06-the-adoption-checklists.md`](06-the-adoption-checklists.md) | **landed** 2026-10-10 ([log](logs/06-the-adoption-checklists.md)) | this commit | 121 → 121 |
+| 06 | [`06-the-adoption-checklists.md`](06-the-adoption-checklists.md) | **landed** 2026-10-10 ([log](logs/06-the-adoption-checklists.md)), reviewed | `67f3f7e` | 121 → 121 |
 | 07 | `07-verification-and-close-out.md` | not written | — | — |
 
 **Orchestrator notes:** [`orchestrator/prompt-01.md`](orchestrator/prompt-01.md) (`310db6e`),
 used for 01; [`orchestrator/prompt-02.md`](orchestrator/prompt-02.md) (`319099a`), used for 02;
 [`orchestrator/prompt-03.md`](orchestrator/prompt-03.md) (`e136eee`), used for 03;
 [`orchestrator/prompt-04.md`](orchestrator/prompt-04.md) (`a7d9252`), used for 04;
-[`orchestrator/prompt-05.md`](orchestrator/prompt-05.md) (`1868b6e`), used for 05.
+[`orchestrator/prompt-05.md`](orchestrator/prompt-05.md) (`1868b6e`), used for 05;
+[`orchestrator/prompt-06.md`](orchestrator/prompt-06.md) (`deffdc2`), used for 06.
 
 **Orchestrator review of prompt 01 (2026-10-10).** Dispatched from `310db6e` to one Opus
 subagent, with the note's §0 facts, its one addition (breakage (h)) and its two recommendations.
@@ -476,6 +477,94 @@ user, in the order the review recommended, so that CI ran on 05's commit itself:
 5. **`main` pushed.** The user then pushed `main` (`9a00f80`, the review, and `b2b6ab4`, this
    record), and its run, `38076190172` on `b2b6ab4`, passed both jobs. Recorded with 06's
    writing.
+
+**Orchestrator review of prompt 06 (2026-10-10).** Dispatched from `deffdc2` to one Opus
+subagent, with the note's §0 facts and its fourteen clarifications and additions. Reviewed against
+its commit `67f3f7e`, with nothing landed after it. **Every check of the note's §3 passed**, and
+acceptance 1–5 are met. No stop condition fired.
+
+*At dispatch.* The note's gate held at `deffdc2`. The tree was clean, the only worktree was this
+checkout, `git diff eaef0ce -- raypoolkit` was empty, and the suite gave 121. The clients were at
+SGK `b510bc9`, CPBH `52142d7` and SI `7bb3efd`, each with the planned `RayWorkPool` blob. No Ray
+process was up.
+
+*The checks.*
+1. **E1, scope.** `67f3f7e` touches 8 files: the five new files under `docs/adoption/`, the log,
+   this board and `prompts/INDEX.md`. `git diff a1d64ea 67f3f7e` over `raypoolkit`,
+   `docs/extraction`, `.github`, `README.md`, `PROVENANCE.md`, `pyproject.toml`, `CLAUDE.md`,
+   `LICENSE`, `.gitignore`, the campaign README and the index is empty. The tags are `v0.1.0`
+   and `v0.2.0`, and `origin/main` is still `b2b6ab4`.
+2. **E6, the clients.** Each client's `HEAD`, `status --porcelain` hash, stash count and
+   `RayWorkPool` blob are equal before dispatch and after the review.
+3. **E2, the script, by reading.** Read whole. It reads a client through `git ls-tree -r` and
+   `git show <commit>:<path>` (with `rev-parse --verify` for the commit), skips datastore suffixes
+   unread, and walks every node, so nested imports and attribute calls are found; positional
+   arguments are mapped onto the constructor's parameters by position. The verdict passes `None`,
+   a distinct callable or nothing for each handler, and the three checked sizes, and constructs
+   `raypoolkit.RayWorkPool` with no `title`; there is no restated rule. Output is sorted; exit 2
+   on an unreadable client or commit. It imports `ray` as well as `raypoolkit`, for the reported
+   `ray.is_initialized()`; the log states it, and `ray` is the package's dependency, so it is
+   accepted.
+4. **E3, by running.** Each client twice from the repository root: `cmp`-equal, exit 0; `--json`
+   parses; `--commit 0000000` exits 2. The figures equal the orchestrator's own: imports 7, 3, 3;
+   literals 8, 0, 0; sites 54 (44 / 6 / 4), 17 (14 / 3 / 0), 16 (12 / 4 / 0); `store_results=True`
+   39, 13, 11; every verdict "constructs"; flags 0, 0 and 5 on 4 calls; non-`.py` lines 196, 43,
+   89; test modules 7, 0, 0. Each checklist's appendix is byte-equal to the script's Markdown.
+5. **E4, the fixture, re-made.** The orchestrator's own fixture, read through `--repository`,
+   gave each case of the prompt's §3.3 with its verdict, including the nested import and the
+   `import_module` call. (o1), an absent `compute_handler` passed as `None`, makes SGK's
+   `main.py:1940` and `:4146` stop constructing (`ValueError`, validation handler and label
+   builder), so the absent/`None` distinction is what keeps them right. (o2): an attribute call
+   `raypoolkit_alias.RayWorkPool(...)` is found, and positional handlers (`RayWorkPool(p, t, f,
+   None)` and `(p, t, f, None, None, f)`) are classified by position, the second refused for its
+   persist handler.
+6. **E4, the breakage.** (a)–(d) were extracted from the log's text and replayed on the committed
+   script against the orchestrator's fixture, each passing `git apply --check` and `-R --check`:
+   (a) reports the label-builder call "constructs"; (b) misses the nested import; (c) reports an
+   uncommitted edit of the fixture as a further call, which the committed script ignores; (d) gives
+   the same bytes on two runs and reorders the verdicts and the spelling table against the
+   committed run. The script's SHA-256 after each equals the log's.
+7. **E5, the checklists.** The adoption README and the three checklists were read whole: nine
+   items each, in order, under the prompt's names, each opening with the full SHA, branch, date and
+   subject. Over forty `path:line`s were read at their commits, among them SGK's
+   `requirements.txt:74`, `main.py:297`, `:505`, `:520`, `:2974`, `:3265`, the persist path
+   (`ShardedPool.py:3328`, `:3418`, `Datastore.py:598`, the factory's `:172`, `:174`) and
+   `GkSourcePolicyData.py:519`, `:574-575`, `:584-586`, the five test modules' lines and
+   `inventory.py:382`, `:418-421`, `:1350`; CPBH's copy at `:79-80`, `:104-112`, `:182`, `:219`,
+   `:436`, `:446`, `:565` and `architecture-summary.md:165`, `:585`; SI's `main.py:410`, `:670`,
+   `:1211`, `config/model_list.py:18-32`, `:65-78`, `:110-113`, its copy's `:109-117`, `:575` and
+   `CLAUDE.md:91-95`; and the package's `:79-84`, `:109-113`, `:206`, `:213`, `:250`, `:329-333`,
+   `:529-530`, `:584-585`, `:588`, `:600`, `:606`. Each says what the checklist says, but one
+   (below). SI's empty-`model_list` reading, SGK's `:3247` reading and CPBH's U10 paragraph hold.
+8. **E5, the order with DatastoreKit.** The adoption README's §5 table is the prompt's §0.6; each
+   item 7 names the `RayTools/` import's line and links that client's DatastoreKit checklist at
+   `v0.2.1`; SGK's item 6 says what `test_layer_is_generic.py` needs in each order, by line.
+9. **Links, `black`, the suite.** All 40 links in `docs/adoption/` resolve, relative ones to
+   tracked files and headings, and the four external ones to files at DatastoreKit's `v0.2.1`.
+   `black --check raypoolkit docs` (25.1.0): 16 files unchanged. The suite: `Ran 121 tests … OK`.
+   No Ray process before or after.
+10. **E7, the records.** The log has every section of README §5.1 and the prompt's §4.5
+    additions, with the note's clarifications as deviations 1–14 (1 and 6 STRUCTURALLY REQUIRED).
+    This board had the header, 06's row and G2–G4 pointing at the checklists; the index is 0 open,
+    matching its header; `prompts/INDEX.md` said 06 landed.
+
+*Findings.*
+- **None opened.**
+- **A correction to the note.** Its clarification 2 said every site is titled; 28, 12 and 10 sites
+  pass `title=None`. The agent's deviation 15 splits the count, and is accepted as STRUCTURALLY
+  REQUIRED. The note's "CPBH has no `origin` remote" is right, but its remote is named `github`
+  (log 06 §9, observation 6).
+- **The agent's deviations 25 and 26** (four read-only commands outside the note's list, and
+  first runs before a comment fix, their output byte-equal to the committed script's) are
+  accepted: nothing was written to another repository, and no checklist fact rests on them.
+- **The plan's G2 says "the six pinned lines"** (README §7; log 06 §9, observation 1). It is the
+  plan's wording, not a defect of the package or a checklist; it is corrected in place with a
+  dated note, as README §0.2 was at 02's writing.
+
+*Residue fixed in the follow-up commit.* "this commit" → `67f3f7e` on this board, in the log and
+in `prompts/INDEX.md`; README §2's status and header for 06, and G2's note; this review and the
+notes line; and one citation, `docs/adoption/README.md` §2's `raypoolkit/__init__.py:16-18` →
+`:16-19`, since `__all__` is `:19`.
 
 ## 2. Gates outside this repository (README §7)
 

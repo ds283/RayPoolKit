@@ -68,7 +68,7 @@ The package pins nothing of a client's: **each client keeps its own Ray pin.**
   stays reachable for a `from` import of a module-level name, `from raypoolkit.RayWorkPool import
   <name>`, and through `importlib.import_module("raypoolkit.RayWorkPool")` ([`PROVENANCE.md`](../../PROVENANCE.md),
   "New here"). **Every name in it other than `RayWorkPool` and `DatastorePool` is private**: those
-  two are the package's public names (`raypoolkit/__init__.py:16-18`).
+  two are the package's public names (`raypoolkit/__init__.py:16-19`).
 - The constructor's `pool` is typed as `raypoolkit.DatastorePool`, a `typing.Protocol` with one
   method, `object_store`, which a client's `ShardedPool` satisfies. It is a type hint, not checked
   at run time. `raypoolkit` does not depend on `datastorekit` (decision U3), so the two are adopted
