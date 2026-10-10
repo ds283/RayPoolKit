@@ -9,20 +9,51 @@ floods Ray's object store, and reports progress and rates as it drains.
 
 ## Status
 
+**`v0.2.0`** is the release the client projects adopt. It is `v0.1.0` with the faults inherited
+from SecondaryGWKit's copy fixed, and the constructor's arguments checked. Each fault's fix is
+guarded by a test that `v0.1.0`'s module fails, in a test suite that needs no Ray cluster. What
+changed for a caller is listed under [Changes in `v0.2.0`](#changes-in-v020), below; the issues,
+with where each sat and how it was fixed, are in §4 (Resolved issues) of the campaign's status
+board, [`prompts/extraction/IMPLEMENTATION_STATE.md`](prompts/extraction/IMPLEMENTATION_STATE.md).
+The plan for the package, and for its client projects to depend on one copy of the pool, is
+[`prompts/extraction/README.md`](prompts/extraction/README.md).
+
 **`v0.1.0`** is the `RayTools/RayWorkPool.py` of
 [SecondaryGWKit](https://github.com/ds283/SecondaryGWKit) at its commit `b510bc9`, moved here with
-its behaviour unchanged. [`PROVENANCE.md`](PROVENANCE.md) gives the file map and the only
-differences allowed. Its behaviour is pinned by a test suite that needs no Ray cluster.
-
-The faults inherited with it are kept in `v0.1.0` exactly as they behave, each pinned by a test,
-and are fixed in `v0.2.0`. They are listed, with where each sits, on the campaign's status board,
-[`prompts/extraction/IMPLEMENTATION_STATE.md`](prompts/extraction/IMPLEMENTATION_STATE.md). The
-plan for the package, and for its client projects to depend on one copy of the pool, is
-[`prompts/extraction/README.md`](prompts/extraction/README.md).
+its behaviour unchanged ([`PROVENANCE.md`](PROVENANCE.md)).
 
 RayPoolKit does not depend on [DatastoreKit](https://github.com/ds283/DatastoreKit), the
 datastore layer extracted from the same projects. A `RayWorkPool` is handed any pool object its
 handlers understand; the default persist handler calls only its `object_store` method.
+
+## Changes in `v0.2.0`
+
+For a client moving its pin from `v0.1.0`:
+
+- **The constructor checks its arguments, and raises `ValueError` for any it refuses**, naming the
+  argument: with no compute handler, a store handler, persist handler, validation handler or label
+  builder given explicitly; with one, `store_handler=None` or `persist_handler=None`; and a size
+  below 1 (see [Which handlers a pool needs](#which-handlers-a-pool-needs)). Two of these were
+  refused by `v0.1.0` with other types: an explicit persist handler with no compute handler raised
+  `RuntimeWarning` (as an exception), and a compute handler with `persist_handler=None` raised
+  `RuntimeError`.
+- **A pool with no compute handler needs only `compute_handler=None`.** The default store and
+  persist handlers apply only with a compute handler, so `persist_handler=None` is no longer
+  needed. `store_handler=None` and `persist_handler=None` are still accepted, and the pool prints
+  the same lines either way.
+- **Newly refused at construction:** a store handler, validation handler or label builder given
+  with no compute handler (`v0.1.0` accepted it and never called it); a compute handler with
+  `store_handler=None` (`v0.1.0` constructed, and `run()` raised `TypeError` at the first completed
+  compute); and a `create_batch_size`, `process_batch_size` or `max_task_queue` below 1 (`v0.1.0`
+  constructed, and `run()` then never returned, or raised from `ray.wait`).
+- **The post handler after a persist is given the persisted object**, when there is no validation
+  handler: the object in `results`, with its `store_id`. `v0.1.0` gave it the local copy from
+  before the persist.
+- **`store_results=True` accepts any iterable `task_list`**, a generator included; `v0.1.0` raised
+  `TypeError` for one without `len()`.
+- **In-flight work is keyed on each ref's value**, so the pool no longer depends on `ray.wait`
+  returning the very objects it was given.
+- **The printed lines are unchanged**, in wording and layout.
 
 ## Supported versions
 
@@ -45,7 +76,7 @@ handlers understand; the default persist handler calls only its `object_store` m
 A client depends on a tagged release, pinned in its `requirements.txt`:
 
 ```text
-raypoolkit @ git+https://github.com/ds283/RayPoolKit@v0.1.0
+raypoolkit @ git+https://github.com/ds283/RayPoolKit@v0.2.0
 ```
 
 An editable install (`pip install -e`) is for developing this package, never for a client's
@@ -69,8 +100,8 @@ handler; only the default persist handler calls anything on it. The protocol is 
 is not checked at run time, so a pool whose handlers need nothing of it may be given any object.
 
 **The work.**
-- `task_list`: the work items, in order. It is consumed into a list at construction; pass a
-  sequence when `store_results=True`.
+- `task_list`: the work items, in order, as any iterable. It is consumed into a list at
+  construction.
 - `task_builder(item)`: called once for each item, and returns one of:
   1. an `ObjectRef`, the item's lookup task;
   2. a dict `{"ref": <ObjectRef>, "compute_payload": <anything>}`, where `"compute_payload"` is
@@ -96,7 +127,7 @@ is not checked at run time, so a pool whose handlers need nothing of it may be g
 `label_builder` (default `None`) is called with the object before its compute task is built; a
 label that is not `None` is passed to the compute handler as `label=`.
 
-**The sizes**, with their defaults:
+**The sizes**, with their defaults; each must be at least 1:
 - `create_batch_size=5`: how many work items have their tasks built in one pass, when there is
   room;
 - `process_batch_size=1`: how many completed tasks one pass asks `ray.wait` for and handles;
@@ -144,13 +175,24 @@ label that is not `None` is passed to the compute handler as `label=`.
   replacement if it returned one;
 - `total_time` (with a `title`) is the run's duration in seconds.
 
-### A pool with no compute handler must pass `persist_handler=None`
+### Which handlers a pool needs
 
-As of `v0.1.0`, the constructor raises `RuntimeWarning` (as an exception) when a persist handler is
-set without a compute handler. The default persist handler is not `None`, so **a lookup-only pool
-passes `compute_handler=None` and `persist_handler=None` both**, or the constructor raises. (A
-compute handler with `persist_handler=None` raises `RuntimeError`.) This is the board's
-`[00-the-constructor-checks-its-handlers-unevenly]`.
+The constructor checks the handlers against whether the pool has a compute handler, and checks the
+sizes. It raises `ValueError` for any argument it refuses, naming the argument.
+
+- **With a compute handler** (the default, or the caller's own), the store and persist handlers
+  default to the ones in the table above. Either may be replaced, but neither may be `None`:
+  `store_handler=None` or `persist_handler=None` raises `ValueError`, whose message says to leave
+  the argument out to use the default.
+- **Without one** (`compute_handler=None`), the pool has no compute path, and neither default
+  applies. The four arguments used only on that path, `store_handler`, `persist_handler`,
+  `validation_handler` and `label_builder`, must be left out or `None`; anything else raises
+  `ValueError`, whose message says the argument would never be called. So a lookup-only pool
+  passes `compute_handler=None` and needs nothing more; `store_handler=None` and
+  `persist_handler=None` are accepted and change nothing. `available_handler` and `post_handler`
+  are used on the lookup path, and may be given either way.
+- **The sizes:** a `create_batch_size`, `process_batch_size` or `max_task_queue` below 1 raises
+  `ValueError`, whose message gives the value.
 
 ### The printed lines are part of the interface
 
@@ -208,8 +250,11 @@ the suite. CI runs the suite at both tested ends, and `black --check raypoolkit 
 
 The equivalence check, [`docs/extraction/compare_with_source.py`](docs/extraction/compare_with_source.py),
 compares the package with its source in SecondaryGWKit's repository, which it reads through `git`
-at a local path. So it runs locally only, not in CI.
+at a local path. It was retired at `v0.1.0`: it describes that tag, and fails by design on a later
+tree. It runs locally only, not in CI, from a `git worktree` of `v0.1.0`;
+[`PROVENANCE.md`](PROVENANCE.md) gives the commands.
 
 ## Licence
 
-Apache License 2.0; see [`LICENSE`](LICENSE).
+Apache License 2.0; see [`LICENSE`](LICENSE). The four package modules carry the Apache 2.0
+header.

@@ -2,19 +2,24 @@
 
 **Last updated:** 2026-10-10 · **Status: IN PROGRESS — 5 of 7 prompts written (01–05), 01 landed
 (`49f3ddf`) and reviewed, 02 landed (`b9f6dec`) and reviewed, 03 landed (`4e90a8a`) and
-reviewed; `v0.1.0` tagged; 04 landed (`0b6ffd2`) and reviewed, CI green; 05 written.** G1 holds at SGK `b510bc9`, the import
-commit. The user took U1–U3 at set-up and U4–U5 for 01, U6 and U9 for 02, U7 for 03 and U8 and
-U11 for 04, all on 2026-10-10 and as recommended (README §6.2; U9 as amended at 02's writing; U8
-with two amendments); U8 and U11 are applied by 04. The package `raypoolkit` is at `0.1.0`, declaring
-Python `>=3.12` and `ray>=2.43`, with its test package excluded from the wheel. Since 04, faults
-1–5 are fixed on `main`, with the constructor's sizes checked, each fix guarded by a test that
-`v0.1.0`'s module fails; the fixes are unreleased until `v0.2.0` (05). `compare_with_source.py` is
-retired at `v0.1.0`. The suite is 121 tests, with no Ray cluster, passing at 3.12.15 / 2.43.0 and
-3.13.16 / 2.55.1, in CI too. 1 issue is open, owned by 05. The U5 freeze is in force.
+reviewed; `v0.1.0` tagged; 04 landed (`0b6ffd2`) and reviewed, CI green; 05 landed (this
+commit).** G1 holds at SGK `b510bc9`, the import commit. The user took U1–U3 at set-up and U4–U5
+for 01, U6 and U9 for 02, U7 for 03 and U8 and U11 for 04, all on 2026-10-10 and as recommended
+(README §6.2; U9 as amended at 02's writing; U8 with two amendments); U8 and U11 are applied by 04.
+The package `raypoolkit` is at `0.2.0`, declaring Python `>=3.12` and `ray>=2.43`, with its test
+package excluded from the wheel and package data off, so that a stale `egg-info` manifest cannot
+put the tests in a wheel (05). Since 04, faults 1–5 are fixed on `main`, with the constructor's
+sizes checked, each fix guarded by a test that `v0.1.0`'s module fails; `README.md` and
+`PROVENANCE.md` describe `v0.2.0` (05). `compare_with_source.py` is retired at `v0.1.0`. The suite is 121 tests, with no Ray cluster, passing at 3.12.15 / 2.43.0 and
+3.13.16 / 2.55.1 (in CI on `0b6ffd2` and `914070c`). No issue is open. The U5 freeze is in force.
 
 **`v0.1.0` is released**: an annotated tag on 03's commit, `4e90a8a`, made at the user's
 instruction on 2026-10-10 after CI passed there at both ends (run `38054782562`), and pushed with
 `main` (README §5 rule 10). See *Release of `v0.1.0`*, below.
+
+**`v0.2.0` is ready to be tagged on 05's commit (this commit) once CI passes there at both ends.**
+No tag has been made and nothing has been pushed (README §5 rule 10); if CI fails, no tag, and a fix
+prompt lands first.
 
 **Campaign:** [`README.md`](README.md) ·
 **Source:** SecondaryGWKit's `RayTools/RayWorkPool.py`, blob `b4666fa` (G1) ·
@@ -57,7 +62,7 @@ instruction on 2026-10-10 after CI passed there at both ends (run `38054782562`)
 | 02 | [`02-the-test-suite.md`](02-the-test-suite.md) | **landed** 2026-10-10 ([log](logs/02-the-test-suite.md)), reviewed | `b9f6dec` | 3 → 116 |
 | 03 | [`03-supported-versions-and-ci.md`](03-supported-versions-and-ci.md) | **landed** 2026-10-10 ([log](logs/03-supported-versions-and-ci.md)), reviewed; tagged `v0.1.0` | `4e90a8a` | 116 → 116 |
 | 04 | [`04-fix-the-inherited-faults.md`](04-fix-the-inherited-faults.md) | **landed** 2026-10-10 ([log](logs/04-fix-the-inherited-faults.md)), reviewed | `0b6ffd2` | 116 → 121 |
-| 05 | [`05-release-v0.2.0.md`](05-release-v0.2.0.md) | **written** 2026-10-10 | — | 121 → 121 |
+| 05 | [`05-release-v0.2.0.md`](05-release-v0.2.0.md) | **landed** 2026-10-10 ([log](logs/05-release-v0.2.0.md)); `v0.2.0` ready to be tagged after green CI, no tag made | this commit | 121 → 121 |
 | 06 | `06-the-adoption-checklists.md` | not written | — | — |
 | 07 | `07-verification-and-close-out.md` | not written | — | — |
 
@@ -378,43 +383,10 @@ pushed, and its run, `38071490036`, passed both jobs. No tag was made: `v0.2.0` 
 
 ## 3. Active and unresolved issues
 
-The five `[00-…]` entries inherited from the source,
+None. The five `[00-…]` entries inherited from the source,
 `[01-a-kept-comment-names-the-datastore-service]` and
-`[02-the-constructor-does-not-check-its-sizes]` were closed by 04 and are in §4.
-
-### `[03-a-stale-egg-info-manifest-ships-the-tests-in-a-wheel]`
-
-**Opened:** 2026-10-10, by 03 (log 03 §6.1). **Owner:** 05.
-
-**Where:** `pyproject.toml`'s `[tool.setuptools.packages.find]`, whose `exclude` keeps
-`raypoolkit.tests` out of the packages but not out of the package data; and the gitignored
-`raypoolkit.egg-info/` at the repository root, which every editable install rewrites.
-
-setuptools reads an existing `raypoolkit.egg-info/SOURCES.txt` and merges it into the new one. The
-repository's copy still lists the ten files under `raypoolkit/tests/`, carried from the manifests
-written before 03's exclusion; a fresh export's lists none. Measured by 03 in scratch, never in the
-tree: a fresh `git archive` export with 03's `pyproject.toml` and the repository's
-`raypoolkit.egg-info/` copied in builds a wheel of 19 entries, 10 under `raypoolkit/tests/`,
-shipped as package data of `raypoolkit` (`include-package-data` defaults to on), with setuptools
-warning "Package 'raypoolkit.tests' is absent from the `packages` configuration". The exclusion
-does not prevent it.
-
-*Impact.* None on a client: a `git+…@v0.1.0` install builds from a fresh clone, which has no
-`egg-info` (it is gitignored), as 03's release check did (9 entries). It is a second route for
-03's hazard 2: a wheel built in a working tree, which `CLAUDE.md` and 03 already forbid, ships the
-test package, with its patched `ray.init` and second `PoolTestCase`.
-
-*Next step.* Set `[tool.setuptools]` `include-package-data = false` (the package has no data files;
-`LICENSE` reaches the wheel's `dist-info/licenses/` either way). Measured by 03 in a scratch export
-with the stale manifest: 9 entries and no warning. It changes `pyproject.toml`, so a prompt that
-says so makes it, with the release check re-run; 03 could not (its §2.1: "Nothing else").
-
-**Assigned (2026-10-10):** to 05, at the user's instruction when 05 was written: it is the next
-prompt that changes `pyproject.toml`, and the release `v0.2.0` should not stand on a setting a
-stale manifest defeats. Re-measured at 05's writing, at `914070c`: the repository's
-`raypoolkit.egg-info/SOURCES.txt` still lists the ten test files; a fresh export at `0.2.0` with it
-copied in builds 19 entries, 10 of them tests, without the setting, and 9 with it, with no
-"absent from" warning (prompt 05 §2.1).
+`[02-the-constructor-does-not-check-its-sizes]` were closed by 04, and
+`[03-a-stale-egg-info-manifest-ships-the-tests-in-a-wheel]` by 05; all are in §4.
 
 ## 4. Resolved issues
 
@@ -625,3 +597,50 @@ part of the constructor checks U8 settles. No test pins the hang today (02 build
 `process_batch_size` and `max_task_queue` below 1 raises `ValueError` ("<name> must be at least 1,
 not <value>"). Guarded by C7, `test_construction.TestSizeChecks.test_a_size_below_one_raises_value_error`.
 (r8) fails it, and so does `v0.1.0`'s module (log 04 §4).
+
+### `[03-a-stale-egg-info-manifest-ships-the-tests-in-a-wheel]`
+
+**Opened:** 2026-10-10, by 03 (log 03 §6.1). **Owner:** 05.
+
+**Where:** `pyproject.toml`'s `[tool.setuptools.packages.find]`, whose `exclude` keeps
+`raypoolkit.tests` out of the packages but not out of the package data; and the gitignored
+`raypoolkit.egg-info/` at the repository root, which every editable install rewrites.
+
+setuptools reads an existing `raypoolkit.egg-info/SOURCES.txt` and merges it into the new one. The
+repository's copy still lists the ten files under `raypoolkit/tests/`, carried from the manifests
+written before 03's exclusion; a fresh export's lists none. Measured by 03 in scratch, never in the
+tree: a fresh `git archive` export with 03's `pyproject.toml` and the repository's
+`raypoolkit.egg-info/` copied in builds a wheel of 19 entries, 10 under `raypoolkit/tests/`,
+shipped as package data of `raypoolkit` (`include-package-data` defaults to on), with setuptools
+warning "Package 'raypoolkit.tests' is absent from the `packages` configuration". The exclusion
+does not prevent it.
+
+*Impact.* None on a client: a `git+…@v0.1.0` install builds from a fresh clone, which has no
+`egg-info` (it is gitignored), as 03's release check did (9 entries). It is a second route for
+03's hazard 2: a wheel built in a working tree, which `CLAUDE.md` and 03 already forbid, ships the
+test package, with its patched `ray.init` and second `PoolTestCase`.
+
+*Next step.* Set `[tool.setuptools]` `include-package-data = false` (the package has no data files;
+`LICENSE` reaches the wheel's `dist-info/licenses/` either way). Measured by 03 in a scratch export
+with the stale manifest: 9 entries and no warning. It changes `pyproject.toml`, so a prompt that
+says so makes it, with the release check re-run; 03 could not (its §2.1: "Nothing else").
+
+**Assigned (2026-10-10):** to 05, at the user's instruction when 05 was written: it is the next
+prompt that changes `pyproject.toml`, and the release `v0.2.0` should not stand on a setting a
+stale manifest defeats. Re-measured at 05's writing, at `914070c`: the repository's
+`raypoolkit.egg-info/SOURCES.txt` still lists the ten test files; a fresh export at `0.2.0` with it
+copied in builds 19 entries, 10 of them tests, without the setting, and 9 with it, with no
+"absent from" warning (prompt 05 §2.1).
+
+**Resolved (05, 2026-10-10):** `pyproject.toml` gains `[tool.setuptools]`
+`include-package-data = false`, before `[tool.setuptools.packages.find]`, whose `exclude` stays.
+Measured by 05's release check (log 05 §3.3), each wheel built with `uv build --wheel` (no `-q`)
+from a fresh `git archive` export with 05's `pyproject.toml`: (R1), the export as it is, and (R2),
+the export with the repository's `raypoolkit.egg-info/` copied in (its `SOURCES.txt` listing the
+10 test files), each give `raypoolkit-0.2.0-py3-none-any.whl`, 13,565 bytes, **9 entries, none
+under `raypoolkit/tests/`**, and no "absent from" line in the build log; (R2)'s wheel, installed
+into a fresh 3.13.16 / 2.55.1 venv, passes every check of 03 §2.4 at `0.2.0`, and
+`import raypoolkit.tests` raises `ModuleNotFoundError`. Breakage (a), the table removed with the
+stale manifest, gives 19 entries, 10 of them tests, and the warning (2 "absent from" lines); (b),
+the table kept and the `exclude` removed, ships the tests as packages (log 05 §5). The stale
+manifest itself is left alone: setuptools still merges it, and none of its files reaches the wheel.

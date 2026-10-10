@@ -37,9 +37,9 @@ SGK's history, reachable through the import commit. The import was made by
 
 ## The differences allowed
 
-`raypoolkit/RayWorkPool.py` equals its source at `b510bc9` except for these classes of difference
-(prompt 01 §2.4), and `raypoolkit/_timing.py` holds its four definitions as D-int states. Nothing
-else differs.
+At `v0.1.0`, `raypoolkit/RayWorkPool.py` equals its source at `b510bc9` except for these classes
+of difference (prompt 01 §2.4), and `raypoolkit/_timing.py` holds its four definitions as D-int
+states. Nothing else differs.
 
 - **D-imp, the import rewrite.** Two whole `from … import …` statements, and no others:
   `from Datastore.SQL.ShardedPool import ShardedPool` → `from raypoolkit.contract import
@@ -54,22 +54,42 @@ else differs.
   black-clean and the rewritten lines are no longer than their sources. So the check has no D-fmt
   rule, and the package module's line numbers are SGK's.
 
-The module keeps SGK's comments, docstrings and messages as they are.
+At `v0.1.0`, the module keeps SGK's comments, docstrings and messages as they are.
 
 ## Re-running the check
 
-From the repository root, in the venv:
+The check was retired at `v0.1.0` (prompt 04 §2.8). It describes that tag, and on any later tree it
+fails by design, since the package has changed in its own right ("Since `v0.1.0`", below).
+It is run from a `git worktree` of the tag, kept in a scratch directory outside the repository,
+with the repository's venv. From the repository root, with `<scratch>` standing for that
+directory:
 
 ```bash
-./venv/bin/python docs/extraction/compare_with_source.py
+REPO=$(pwd)
+git worktree add --detach <scratch>/raypoolkit-v0.1.0 v0.1.0
+cd <scratch>/raypoolkit-v0.1.0
+"$REPO"/venv/bin/python docs/extraction/compare_with_source.py
+cd "$REPO"
+git worktree remove <scratch>/raypoolkit-v0.1.0
 ```
 
-It checks that `RayTools/RayWorkPool.py` at the import commit is still blob `b4666fa`, reads each
+The script finds the package from its own path, so it checks the worktree's tree, `v0.1.0`'s. It
+checks that `RayTools/RayWorkPool.py` at the import commit is still blob `b4666fa`, reads each
 source with `git -C /Users/ds283/Documents/Code/SecondaryGWKit show b510bc9:<path>`, and accounts
 for every line on which the package differs: each class above is a rule applied to the source line,
 and a line no rule maps, or any line added or deleted, fails the check. Every `.py` file under
 `raypoolkit/` must be a file with a source or a declared new file. It exits 0 only when all of that
-holds. The rules are described in the script's docstring.
+holds, as it does at `v0.1.0`. The rules are described in the script's docstring.
+
+## Since `v0.1.0`
+
+From `v0.2.0`, `raypoolkit/RayWorkPool.py` is this repository's own module, and changes to it are
+made by this repository's campaigns. `v0.2.0`'s changes are prompt 04's (`0b6ffd2`), listed in its
+log, [`prompts/extraction/logs/04-fix-the-inherited-faults.md`](prompts/extraction/logs/04-fix-the-inherited-faults.md),
+and in §4 of the campaign's status board,
+[`prompts/extraction/IMPLEMENTATION_STATE.md`](prompts/extraction/IMPLEMENTATION_STATE.md); the
+README's "Changes in `v0.2.0`" ([`README.md`](README.md)) says what they mean for a caller. SGK's
+copy stays frozen until SGK adopts a release (below).
 
 ## The freeze (decision U5)
 
