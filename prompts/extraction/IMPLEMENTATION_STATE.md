@@ -1,10 +1,11 @@
 # extraction campaign — implementation state
 
 **Last updated:** 2026-10-10 · **Status: IN PROGRESS — 2 of 7 prompts written (01, 02), 01 landed
-(`49f3ddf`) and reviewed.** G1 holds at SGK `b510bc9`, the import commit. The user took U1–U3 at set-up and
-U4–U5 for 01 and U6 and U9 for 02, all on 2026-10-10 and as recommended (README §6.2; U9 as
-amended at 02's writing). The package `raypoolkit` exists;
-`compare_with_source.py` exits 0; the suite is 3 tests. The U5 freeze is in force.
+(`49f3ddf`) and reviewed, 02 landed (this commit), not yet reviewed.** G1 holds at SGK `b510bc9`,
+the import commit. The user took U1–U3 at set-up and U4–U5 for 01 and U6 and U9 for 02, all on
+2026-10-10 and as recommended (README §6.2; U9 as amended at 02's writing). The package
+`raypoolkit` exists; `compare_with_source.py` exits 0; the suite is 116 tests, with no Ray cluster,
+and faults 1–5 are each pinned as they behave. The U5 freeze is in force.
 
 **Campaign:** [`README.md`](README.md) ·
 **Source:** SecondaryGWKit's `RayTools/RayWorkPool.py`, blob `b4666fa` (G1) ·
@@ -43,7 +44,7 @@ amended at 02's writing). The package `raypoolkit` exists;
 | # | Prompt | Status | Commit | Suite |
 |---|---|---|---|---|
 | 01 | [`01-import-the-pool.md`](01-import-the-pool.md) | **landed** 2026-10-10 ([log](logs/01-import-the-pool.md)), reviewed | `49f3ddf` | 0 → 3 |
-| 02 | [`02-the-test-suite.md`](02-the-test-suite.md) | **written** 2026-10-10 | — | 3 → N |
+| 02 | [`02-the-test-suite.md`](02-the-test-suite.md) | **landed** 2026-10-10 ([log](logs/02-the-test-suite.md)) | this commit | 3 → 116 |
 | 03 | `03-supported-versions-and-ci.md` | not written | — | — |
 | 04 | `04-fix-the-inherited-faults.md` | not written | — | — |
 | 05 | `05-release-v0.2.0.md` | not written | — | — |
@@ -156,6 +157,11 @@ completed task a `KeyError`.
 *Next step.* 04 keys the dictionaries on the ref itself (or `ref.hex()`), with a test whose
 stand-in `ray.wait` returns equal but distinct refs.
 
+**Pinned (02, 2026-10-10):** `raypoolkit/tests/test_inherited_faults.py`,
+`TestInheritedFaults.test_fault_in_flight_work_is_keyed_on_a_bound_method`, as it behaves: with the
+stand-in's `fresh_refs`, the first completed lookup raises `KeyError` from `self._data[ref.hex]`.
+Changing all 26 keys to `.hex()` fails this test and no other (log 02 §5.2). 04 inverts it.
+
 ### `[00-a-post-handler-after-persist-gets-the-unpersisted-object]`
 
 **Opened:** 2026-10-10, at planning. **Owner:** 04.
@@ -175,6 +181,12 @@ today. A post handler there that read `store_id` would see `None`.
 *Next step.* 04 passes `replacement_obj`, with a test that a post handler after a persist sees the
 replacement. 06's checklists re-measure the sites.
 
+**Pinned (02, 2026-10-10):** `TestInheritedFaults.test_fault_post_handler_after_persist_gets_the_unpersisted_object`:
+at exit 4 the post handler is given an object whose `store_id` is `None`, while `results` holds the
+persisted one. Passing `replacement_obj` at `:490` fails it and S4's identity test,
+`test_run_paths.TestComputeStoreValidate.test_without_a_validation_handler_a_completed_store_exits_to_the_post_handler`.
+04 inverts both.
+
 ### `[00-store-results-sizes-from-len-of-the-task-list]`
 
 **Opened:** 2026-10-10, at planning. **Owner:** 04.
@@ -190,6 +202,10 @@ not trace every `task_list` argument to its type (06 does). The constructor othe
 iterable.
 
 *Next step.* 04 sizes from `self._num_total_items`, with a test that passes a generator.
+
+**Pinned (02, 2026-10-10):** `TestInheritedFaults.test_fault_store_results_sizes_from_len_of_the_task_list`: a
+generator `task_list` with `store_results=True` raises `TypeError` at `:138`; without it, it runs.
+Sizing from `self._num_total_items` fails this test alone. 04 inverts it.
 
 ### `[00-the-constructor-checks-its-handlers-unevenly]`
 
@@ -211,6 +227,12 @@ construction until CPBH changes it.
 *Next step.* U8 is put when 04 is written; the recommendation (option b) makes the defaults apply
 only with a compute handler, so no existing site has to change.
 
+**Pinned (02, 2026-10-10):** `TestInheritedFaults.test_fault_persist_handler_without_compute_raises_runtime_warning`
+(also `test_construction.TestHandlerChecks.test_persist_handler_without_compute_handler_raises_runtime_warning`,
+with the message) and `TestInheritedFaults.test_fault_store_handler_none_with_compute_fails_at_first_compute`
+(`TypeError` from `self._store_handler(obj, self._pool)` once the first compute completes). 04
+inverts them under U8.
+
 ### `[00-messages-say-maker-and-the-module-has-no-licence-header]`
 
 **Opened:** 2026-10-10, at planning. **Owner:** 04.
@@ -226,6 +248,12 @@ messages say "handler").
 are exception text.
 
 *Next step.* 04 rewrites the two messages and adds the header the repository's licence calls for.
+
+**Pinned (02, 2026-10-10):** by `raypoolkit/tests/test_construction.py`'s message assertions,
+`TestHandlerChecks.test_compute_handler_without_persist_handler_raises_runtime_error` and
+`…_persist_handler_without_compute_handler_raises_runtime_warning`, which compare each message
+whole (`COMPUTE_WITHOUT_PERSIST`, `PERSIST_WITHOUT_COMPUTE`). No test pins the absent header. 04
+changes the two constants.
 
 ### `[01-a-kept-comment-names-the-datastore-service]`
 

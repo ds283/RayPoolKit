@@ -8,4 +8,4 @@ right.
 
 | Campaign | Status | Opened → last board update | Owns | Open issues |
 |---|---|---|---|---|
-| [`extraction`](extraction/IMPLEMENTATION_STATE.md) | **in progress**: 2 of 7 written (01, 02), 01 landed (`49f3ddf`: the package imported, suite 3) and reviewed; G1 holds (import commit SGK `b510bc9`, blob `b4666fa`); U1–U6 and U9 taken 2026-10-10; U5 freeze in force | 2026-10-10 → 2026-10-10 | moving SGK's `RayWorkPool` into `raypoolkit`; a test suite with no Ray cluster; fixing the inherited faults; releases `v0.1.0` and `v0.2.0`; the clients' adoption checklists | §1.1; 6 |
+| [`extraction`](extraction/IMPLEMENTATION_STATE.md) | **in progress**: 2 of 7 written (01, 02), 01 landed (`49f3ddf`: the package imported, suite 3) and reviewed, 02 landed (this commit: the test suite with no Ray cluster, suite 116, faults 1–5 pinned); G1 holds (import commit SGK `b510bc9`, blob `b4666fa`); U1–U6 and U9 taken 2026-10-10; U5 freeze in force | 2026-10-10 → 2026-10-10 | moving SGK's `RayWorkPool` into `raypoolkit`; a test suite with no Ray cluster; fixing the inherited faults; releases `v0.1.0` and `v0.2.0`; the clients' adoption checklists | §1.1; 6 |

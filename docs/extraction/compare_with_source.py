@@ -105,6 +105,14 @@ NO_SOURCE = {
     "raypoolkit/contract.py": "01 §2.3: the DatastorePool protocol",
     "raypoolkit/tests/__init__.py": "01 §2.2: empty",
     "raypoolkit/tests/test_package_imports.py": "01 §2.7: the import guard",
+    "raypoolkit/tests/standins.py": "02 §2.1: the Ray, clock, work-object and pool stand-ins",
+    "raypoolkit/tests/test_standins.py": "02 §2.1: the stand-ins' own tests",
+    "raypoolkit/tests/test_construction.py": "02 §2.3: the constructor",
+    "raypoolkit/tests/test_task_builder.py": "02 §2.3: the task builder's outcomes",
+    "raypoolkit/tests/test_run_paths.py": "02 §2.3: the paths through the dispatch loop",
+    "raypoolkit/tests/test_scheduling.py": "02 §2.3: the queue and batch sizes",
+    "raypoolkit/tests/test_printed_lines.py": "02 §2.3: the printed lines (U9)",
+    "raypoolkit/tests/test_inherited_faults.py": "02 §2.3: faults 1-4, pinned as they behave",
 }
 
 
