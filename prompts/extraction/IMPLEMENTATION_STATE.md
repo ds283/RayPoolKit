@@ -1,7 +1,8 @@
 # extraction campaign — implementation state
 
-**Last updated:** 2026-10-10 · **Status: PLANNED — 0 of 7 prompts written.** G1 holds at SGK
-`b510bc9`. The user took U1–U3 at set-up on 2026-10-10 (README §6.2).
+**Last updated:** 2026-10-10 · **Status: IN PROGRESS — 1 of 7 prompts written (01), none landed.**
+G1 holds at SGK `b510bc9`, the import commit. The user took U1–U3 at set-up and U4–U5 for 01, all
+on 2026-10-10 and as recommended (README §6.2).
 
 **Campaign:** [`README.md`](README.md) ·
 **Source:** SecondaryGWKit's `RayTools/RayWorkPool.py`, blob `b4666fa` (G1) ·
@@ -27,8 +28,8 @@
 | **U1** name | RayPoolKit / `raypoolkit`, public `ds283/RayPoolKit` | **taken** 2026-10-10 |
 | **U2** source | SGK's copy, imported faithfully | **taken** 2026-10-10 |
 | **U3** dependency | none on `datastorekit`; the pool typed by a `Protocol` | **taken** 2026-10-10 |
-| **U4** module name | keep `RayWorkPool.py`; re-export the class from the root | open, for 01 |
-| **U5** freeze | no client edits its `RayTools/` until it adopts | open, for 01 |
+| **U4** module name | keep `RayWorkPool.py`; re-export the class from the root | **taken** 2026-10-10 |
+| **U5** freeze | no client edits its `RayTools/` until it adopts | **taken** 2026-10-10; in force from 01's commit |
 | **U6** Ray stand-in | real `ObjectRef(bytes)`; `ray.wait` / `ray.get` replaced in-process | open, for 02 |
 | **U7** versions | Python ≥3.12, Ray ≥2.43; tested 3.12.15/2.43.0 and 3.13.16/2.55.1 | open, for 03 |
 | **U8** handler checks | defaults apply only with a compute handler (option b) | open, for 04 |
@@ -39,7 +40,7 @@
 
 | # | Prompt | Status | Commit | Suite |
 |---|---|---|---|---|
-| 01 | `01-import-the-pool.md` | not written | — | — |
+| 01 | [`01-import-the-pool.md`](01-import-the-pool.md) | **written** 2026-10-10 | — | 0 → 3 expected |
 | 02 | `02-the-test-suite.md` | not written | — | — |
 | 03 | `03-supported-versions-and-ci.md` | not written | — | — |
 | 04 | `04-fix-the-inherited-faults.md` | not written | — | — |
@@ -51,7 +52,7 @@
 
 | Gate | Status |
 |---|---|
-| **G1** | **holds** 2026-10-10: SGK `RayTools/RayWorkPool.py` is blob `b4666fa` at `b510bc9` |
+| **G1** | **holds** 2026-10-10, re-checked at 01's writing: SGK `RayTools/RayWorkPool.py` is blob `b4666fa` at `b510bc9`, the import commit |
 | **G2** | not yet (SGK adopts `v0.2.0`) |
 | **G3** | not yet (CPBH adopts `v0.2.0`) |
 | **G4** | not yet (SI adopts `v0.2.0`) |

@@ -2,8 +2,9 @@
 
 **Written:** 2026-10-10 by Claude Opus 5.5, at the user's request, from a read-only comparison of
 the three client projects' `RayWorkPool` copies made the same day (§0.2). The user took U1–U3 at
-set-up (§6.2). **No prompt is written yet.** Each prompt is written after the one before it has
-landed and been reviewed, against the tree it left.
+set-up (§6.2), and U4 and U5 on 2026-10-10, each as recommended; **prompt 01 is written**
+(2026-10-10), with G1 re-checked. Each prompt is written after the one before it has landed and
+been reviewed, against the tree it left.
 
 ## 0. Why this campaign exists
 
@@ -158,7 +159,7 @@ drive the pool with real refs and an in-process stand-in for `ray.wait` and `ray
 
 | # | Prompt | Covers | Status |
 |---|---|---|---|
-| 01 | `01-import-the-pool.md` | The package skeleton (`pyproject.toml`, `raypoolkit/`), SGK's `RayWorkPool.py` (blob `b4666fa`) under §4's names. The `ShardedPool` import is replaced by a `typing.Protocol` the hint names (U3); `format_time` and the `SECONDS_PER_*` constants are internalised byte for byte in `raypoolkit/_timing.py`. `PROVENANCE.md` records the source commit, the file map and the differences allowed. A guard test checks that the package imports only the standard library, `ray` and itself. **Acceptance:** <br>• `import raypoolkit` and `from raypoolkit import RayWorkPool` work in a fresh venv with no client on `sys.path`; <br>• a script, kept in `docs/extraction/`, compares the module with its SGK source and finds no difference beyond the allowed classes; its output is in the log. | not written |
+| 01 | [`01-import-the-pool.md`](01-import-the-pool.md) | The package skeleton (`pyproject.toml`, `raypoolkit/`), SGK's `RayWorkPool.py` (blob `b4666fa`) under §4's names. The `ShardedPool` import is replaced by a `typing.Protocol` the hint names (U3); `format_time` and the `SECONDS_PER_*` constants are internalised byte for byte in `raypoolkit/_timing.py`. `PROVENANCE.md` records the source commit, the file map and the differences allowed. A guard test checks that the package imports only the standard library, `ray` and itself. **Acceptance:** <br>• `import raypoolkit` and `from raypoolkit import RayWorkPool` work in a fresh venv with no client on `sys.path`; <br>• a script, kept in `docs/extraction/`, compares the module with its SGK source and finds no difference beyond the allowed classes; its output is in the log. *(At writing: the import commit is SGK `b510bc9`; the protocol is `raypoolkit.contract.DatastorePool`; the guard has three tests, the third pinning U4's re-export, which shadows the submodule of the same name.)* | **written** 2026-10-10 |
 | 02 | `02-the-test-suite.md` | An in-process stand-in for `ray.wait` / `ray.get` over real `ObjectRef`s (U6), and stand-in work objects and pool. Tests that pin every path through `run()`: lookup-only; available with and without an availability handler; compute → store → persist → validate; the post handler at each of its five exits; `store_results` ordering and replacement; a task builder returning one ref, a `{"ref", "compute_payload"}` dict, a sequence, or `None`; `label_builder`; the constructor's checks and every error raised; the in-flight cap and batch sizes. The printed lines are pinned against a frozen clock (U9). Faults 1–4 are each pinned *as they behave*, by a test named for the fault, which 04 inverts. **Acceptance:** each branch of `run()` and each constructor check is reached by a test that a named mutation fails. | not written |
 | 03 | `03-supported-versions-and-ci.md` | Dependency ranges in `pyproject.toml` (U7). The suite runs at both ends locally, in fresh scratch venvs, and from an installed wheel that carries no test package. A GitHub Actions workflow runs it at both ends. `README.md` gains usage. 03 makes no tag and pushes nothing; **`v0.1.0`** is tagged on its commit once CI passes there. | not written |
 | 04 | `04-fix-the-inherited-faults.md` | Faults 1–5 of §0.2, each with a test the unfixed code fails, and 02's pinning tests inverted. The constructor's handler checks follow U8. The printed lines do not change. *(May be split into 04a and 04b when written, if fault 4's resolution changes what a client must pass.)* | not written |
@@ -248,8 +249,9 @@ The project-wide ones in `CLAUDE.md`, plus:
 
 ### 6.2 Decisions this campaign needs
 
-Each is put with a recommendation. **U1–U3 were taken by the user at set-up on 2026-10-10, each
-as recommended.** The others are put when the prompt that needs them is written.
+Each is put with a recommendation. **U1–U3 were taken by the user at set-up on 2026-10-10, and
+U4 and U5 the same day for 01, each as recommended**; the recommendation below is the decision.
+The others are put when the prompt that needs them is written.
 
 - **U1: the name and the repository.** *Taken:* RayPoolKit, package `raypoolkit`, a public GitHub
   repository `ds283/RayPoolKit` (as DatastoreKit's D3), checked out at
@@ -259,11 +261,14 @@ as recommended.** The others are put when the prompt that needs them is written.
 - **U3: no dependency on `datastorekit`.** *Taken:* the pool is duck-typed, described by a small
   `typing.Protocol` (`object_store`), and `format_time` is internalised. The two packages version
   independently, and a client may adopt either first.
-- **U4: the module name** *(for 01)*. *Recommended:* keep `RayWorkPool.py` as the module name, as
+- **U4: the module name** *(for 01)*. *Taken 2026-10-10:* keep `RayWorkPool.py` as the module name, as
   DatastoreKit kept its modules' names (its U5), and re-export the class from the package root so
   that clients write `from raypoolkit import RayWorkPool`. SGK's AST tests (§0.2) need only that
-  the call is spelled `RayWorkPool(...)`.
-- **U5: freeze the clients' copies** *(for 01)*. *Recommended:* from 01's writing until each client
+  the call is spelled `RayWorkPool(...)`. *(At 01's writing: the re-export makes the package
+  attribute `raypoolkit.RayWorkPool` the class, shadowing the submodule; the module stays reachable
+  through `sys.modules`, `importlib.import_module`, `from raypoolkit.RayWorkPool import …` and
+  string targets to `mock.patch`, measured at Python 3.12.15 and 3.13.16. 01 pins this.)*
+- **U5: freeze the clients' copies** *(for 01)*. *Taken 2026-10-10:* from 01's writing until each client
   adopts, no client edits its `RayTools/`; a fix wanted in a client is made here and reaches it on
   adoption. G1 (§7) is SGK's half of this.
 - **U6: the suite's Ray stand-in** *(for 02)*. *Recommended:* work items are real
