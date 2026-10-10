@@ -2,8 +2,8 @@
 
 **Last updated:** 2026-10-10 · **Status: IN PROGRESS — 5 of 7 prompts written (01–05), 01 landed
 (`49f3ddf`) and reviewed, 02 landed (`b9f6dec`) and reviewed, 03 landed (`4e90a8a`) and
-reviewed; `v0.1.0` tagged; 04 landed (`0b6ffd2`) and reviewed, CI green; 05 landed (this
-commit).** G1 holds at SGK `b510bc9`, the import commit. The user took U1–U3 at set-up and U4–U5
+reviewed; `v0.1.0` tagged; 04 landed (`0b6ffd2`) and reviewed, CI green; 05 landed (`eaef0ce`)
+and reviewed.** G1 holds at SGK `b510bc9`, the import commit. The user took U1–U3 at set-up and U4–U5
 for 01, U6 and U9 for 02, U7 for 03 and U8 and U11 for 04, all on 2026-10-10 and as recommended
 (README §6.2; U9 as amended at 02's writing; U8 with two amendments); U8 and U11 are applied by 04.
 The package `raypoolkit` is at `0.2.0`, declaring Python `>=3.12` and `ray>=2.43`, with its test
@@ -17,7 +17,7 @@ sizes checked, each fix guarded by a test that `v0.1.0`'s module fails; `README.
 instruction on 2026-10-10 after CI passed there at both ends (run `38054782562`), and pushed with
 `main` (README §5 rule 10). See *Release of `v0.1.0`*, below.
 
-**`v0.2.0` is ready to be tagged on 05's commit (this commit) once CI passes there at both ends.**
+**`v0.2.0` is ready to be tagged on 05's commit (`eaef0ce`) once CI passes there at both ends.**
 No tag has been made and nothing has been pushed (README §5 rule 10); if CI fails, no tag, and a fix
 prompt lands first.
 
@@ -62,14 +62,15 @@ prompt lands first.
 | 02 | [`02-the-test-suite.md`](02-the-test-suite.md) | **landed** 2026-10-10 ([log](logs/02-the-test-suite.md)), reviewed | `b9f6dec` | 3 → 116 |
 | 03 | [`03-supported-versions-and-ci.md`](03-supported-versions-and-ci.md) | **landed** 2026-10-10 ([log](logs/03-supported-versions-and-ci.md)), reviewed; tagged `v0.1.0` | `4e90a8a` | 116 → 116 |
 | 04 | [`04-fix-the-inherited-faults.md`](04-fix-the-inherited-faults.md) | **landed** 2026-10-10 ([log](logs/04-fix-the-inherited-faults.md)), reviewed | `0b6ffd2` | 116 → 121 |
-| 05 | [`05-release-v0.2.0.md`](05-release-v0.2.0.md) | **landed** 2026-10-10 ([log](logs/05-release-v0.2.0.md)); `v0.2.0` ready to be tagged after green CI, no tag made | this commit | 121 → 121 |
+| 05 | [`05-release-v0.2.0.md`](05-release-v0.2.0.md) | **landed** 2026-10-10 ([log](logs/05-release-v0.2.0.md)), reviewed; `v0.2.0` ready to be tagged after green CI, no tag made | `eaef0ce` | 121 → 121 |
 | 06 | `06-the-adoption-checklists.md` | not written | — | — |
 | 07 | `07-verification-and-close-out.md` | not written | — | — |
 
 **Orchestrator notes:** [`orchestrator/prompt-01.md`](orchestrator/prompt-01.md) (`310db6e`),
 used for 01; [`orchestrator/prompt-02.md`](orchestrator/prompt-02.md) (`319099a`), used for 02;
 [`orchestrator/prompt-03.md`](orchestrator/prompt-03.md) (`e136eee`), used for 03;
-[`orchestrator/prompt-04.md`](orchestrator/prompt-04.md) (`a7d9252`), used for 04.
+[`orchestrator/prompt-04.md`](orchestrator/prompt-04.md) (`a7d9252`), used for 04;
+[`orchestrator/prompt-05.md`](orchestrator/prompt-05.md) (`1868b6e`), used for 05.
 
 **Orchestrator review of prompt 01 (2026-10-10).** Dispatched from `310db6e` to one Opus
 subagent, with the note's §0 facts, its one addition (breakage (h)) and its two recommendations.
@@ -371,6 +372,86 @@ order the review recommended: `git push origin 0b6ffd2:main` moved `origin/main`
 / Ray 2.43.0, `Ran 121 tests … OK` and `black` "15 files would be left unchanged."; `suite
 (high)`, Python 3.13 / Ray 2.55.1, `Ran 121 tests … OK`. Then `main` (`914070c`, the review) was
 pushed, and its run, `38071490036`, passed both jobs. No tag was made: `v0.2.0` is 05's.
+
+**Orchestrator review of prompt 05 (2026-10-10).** Dispatched from `1868b6e` to one Opus
+subagent, with the note's §0 facts and its eight clarifications. Reviewed against its commit
+`eaef0ce`, with nothing landed after it. **Every check of the note's §3 passed**, and acceptance
+1–4 are met. No stop condition fired.
+
+*At dispatch.* The note's gate held at `1868b6e`. The tree was clean, the only worktree was this
+checkout, `git diff 0b6ffd2 -- raypoolkit pyproject.toml README.md PROVENANCE.md` was empty,
+`git tag` was `v0.1.0` alone and `origin/main` was `914070c`. The suite gave 121 at `f839209`. The
+repository's `raypoolkit.egg-info/SOURCES.txt` listed the ten test files. A DatastoreKit session's
+local Ray, up while the note was written, was gone before dispatch; none was this repository's.
+
+*The checks.*
+1. **E1, scope.** `eaef0ce` touches 7 files: `pyproject.toml`, `README.md`, `PROVENANCE.md`, the
+   log, this board, `prompts/INDEX.md` and the index. `git diff f839209 eaef0ce` over
+   `raypoolkit`, `docs/extraction`, `.github`, `CLAUDE.md`, `LICENSE`, `.gitignore` and the
+   campaign README is empty. No tag was made, `origin` is unchanged, there is no `build/` or
+   `dist/`, and the only worktree is this checkout.
+2. **E2, `pyproject.toml`.** Two changes: `version = "0.2.0"`, and `[tool.setuptools]`
+   `include-package-data = false` before `[tool.setuptools.packages.find]`, whose `exclude` stays.
+3. **E3, the suite.** `venv/`: `Ran 121 tests … OK`, by module construction 15, inherited faults
+   6, package imports 3, printed lines 18, run paths 22, scheduling 7, stand-ins 30, task builder
+   20; `importlib.metadata` gives `0.2.0` and `['ray>=2.43']`. The orchestrator's own fresh `uv`
+   venv at 3.13.16 / 2.55.1, the repository editable in one resolve: 121, OK. No Ray process
+   before or after.
+4. **E4, the distribution, re-built from `eaef0ce`.** Two fresh `git archive eaef0ce` exports,
+   built with `uv build --wheel` and no `-q`: (R1') as exported, and (R2') with the repository's
+   `raypoolkit.egg-info/` copied in (`Version: 0.2.0`, its `SOURCES.txt` still listing the ten test
+   files). Each gives `raypoolkit-0.2.0-py3-none-any.whl`, 13,565 bytes, the 9 entries of the log,
+   none under `raypoolkit/tests/`, and no "absent from" line; the four modules in each are
+   byte-equal to the commit's. (R2') installed into a fresh 3.13.16 / 2.55.1 venv and run from an
+   empty directory with `-I`: the package imports from `site-packages`, `version` is `0.2.0`,
+   `requires` is `['ray>=2.43']`, `ray.is_initialized()` is false, and `import raypoolkit.tests`
+   raises `ModuleNotFoundError`.
+5. **E5, the breakage.** (a)–(c) were extracted from the log's text and replayed in fresh exports
+   of `eaef0ce`, each passing `git apply --check` and, once applied, `-R --check`: (a) with the
+   stale manifest gives 42,737 bytes, 19 entries, 10 under `raypoolkit/tests/` and 2 "absent from"
+   lines; (b) gives 19 entries, 10 tests, and its wheel's `raypoolkit.tests` imports from
+   `site-packages` in a throwaway venv; (c) gives `raypoolkit-0.1.0-py3-none-any.whl`. The
+   orchestrator's own (o1), `include-package-data = true` with the stale manifest, fails as (a)
+   does (19 entries, 10 tests, 2 "absent from" lines), so it is the setting's value, not the
+   table's presence, that closes the issue. The repository's `git status` stayed clean.
+6. **E6, the README.** Read whole. "Changes in `v0.2.0`" does not repeat the prompt's "silently
+   ignored" bullet (clarification 1): it says that `v0.1.0` already refused an explicit persist
+   handler with no compute handler (`RuntimeWarning`) and a compute handler with
+   `persist_handler=None` (`RuntimeError`). The orchestrator's own probe constructed each case
+   against `v0.1.0`'s module and `eaef0ce`'s, and every "was" and "now" in the section matches. On
+   `v0.1.0`: the default or an explicit persist handler with no compute handler raises
+   `RuntimeWarning`; an explicit store handler, validation handler or label builder with no
+   compute handler constructs, as do `store_handler=None` with a compute handler and
+   `create_batch_size=0`; a compute handler with `persist_handler=None` raises `RuntimeError`; a
+   generator with `store_results=True` raises `TypeError`. On `eaef0ce`: every refusal is
+   `ValueError`, and the lookup-only default and the generator construct. "Which handlers a pool
+   needs" replaces the old section, gives types and the gist of each message, and names no issue.
+   The pin is `@v0.2.0`, "pass a sequence" is gone, the sizes are "at least 1", and Developing and
+   Licence are as §2.2 asks. The printed-line examples are unchanged. Every relative link in both
+   files resolves in the commit, and both in-page anchors match their headings.
+7. **E6, `PROVENANCE.md`.** The diff makes `:40-42` and `:57` statements of `v0.1.0`, rewrites
+   "Re-running the check" for a worktree of the tag, and adds "Since `v0.1.0`" before "The freeze".
+   The file map, the classes, "New here" and the freeze are unchanged. Its commands were run as
+   written, with the worktree in the scratchpad: exit 0, with 572 identical lines, 2 D-imp, 1
+   D-pool and 4 D-int; the worktree was removed after.
+8. **No behaviour moved.** `git diff 0b6ffd2 eaef0ce -- raypoolkit` is empty.
+9. **`black --check raypoolkit docs`** (25.1.0): 15 files unchanged.
+10. **E7, the records.** The log has every section of README §5.1 and the prompt's §4.4 additions,
+    with §0's clarifications as deviations 1–8 (1 STRUCTURALLY REQUIRED). This board had the header
+    with the "ready to be tagged" line, 05's row, §3 empty and the issue in §4 with a dated
+    **Resolved (05)** line. The index counts 0 rows, matching its header; `prompts/INDEX.md`'s line
+    says 05 landed.
+
+*Findings.*
+- **None opened.** The agent's observations are kept as observations: "New here" in
+  `PROVENANCE.md` lists only 01's files, and the D-fmt bullet's "line numbers are SGK's" now reads
+  as of `v0.1.0`; both are records of the import. The stale manifest is still merged by setuptools
+  but no longer reaches a wheel.
+- **The agent's deviation 9**, "each fault's fix is guarded" in place of "each fix is guarded", is
+  accepted as STRUCTURALLY REQUIRED: 04's reworded comment has no test.
+
+*Residue fixed in the follow-up commit.* "this commit" → `eaef0ce` on this board, in the log and
+in `prompts/INDEX.md`; README §2's status and header for 05; this review and the notes line.
 
 ## 2. Gates outside this repository (README §7)
 

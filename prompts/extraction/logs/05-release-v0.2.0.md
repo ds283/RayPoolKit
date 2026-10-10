@@ -1,6 +1,6 @@
 # Log — extraction prompt 05: release `v0.2.0`
 
-**Subject:** Prepare v0.2.0 and keep a stale manifest out of the wheel · **Commit:** this commit ·
+**Subject:** Prepare v0.2.0 and keep a stale manifest out of the wheel · **Commit:** `eaef0ce` ·
 **Date:** 2026-10-10 · **Agent:** Claude Opus 5.5
 
 **Result: landed.** `pyproject.toml` says `0.2.0` and gains `[tool.setuptools]`
@@ -15,7 +15,7 @@ passes twice: (R1) a fresh export, and (R2) a fresh export with the repository's
 `raypoolkit.egg-info/` copied in; each wheel has **9 entries, none under `raypoolkit/tests/`**, and
 each build log has **0** "absent from" lines. (a)–(c) each fail as the prompt says. **One issue is
 closed and none opened**, so the index goes from 1 to **0**. **No tag was made and nothing was
-pushed**: `v0.2.0` is ready to be tagged on this commit once CI passes there at both ends.
+pushed**: `v0.2.0` is ready to be tagged on `eaef0ce` once CI passes there at both ends.
 
 **Gate, re-checked at start.** `HEAD` was `1868b6e` (the orchestration note, touching only
 `prompts/extraction/orchestrator/`; the prompt was written at `f839209`, 04's review at `914070c`).
@@ -101,7 +101,7 @@ REQUIRED**.
    the brief allows the check's read of SGK only from a worktree of `v0.1.0`.
 6. **"New here, with no source" in `PROVENANCE.md` is left as it is** (clarification 6): §6,
    observation 1.
-7. **Each breakage diff is against this commit's `pyproject.toml`**, applied with `git apply` run
+7. **Each breakage diff is against `eaef0ce`'s `pyproject.toml`**, applied with `git apply` run
    inside its own fresh export (`$S` is not inside a repository), each checked with `git apply
    --check` before and `git apply -R --check` after (clarification 7). The repository's
    `pyproject.toml` was touched only by §2.1's edit.
@@ -633,7 +633,7 @@ asserts it (each exists, by the loader, and passed in every run of §3.1), and b
 
 ## 5. The deliberate-breakage record (prompt §3.6)
 
-Each diff is against this commit's `pyproject.toml`, exactly as applied, made with `diff -u` from
+Each diff is against `eaef0ce`'s `pyproject.toml`, exactly as applied, made with `diff -u` from
 edited copies in `$S/mk/` and saved in `$S/diffs/`. Each was applied with `git apply` run in its
 own fresh export (`bash $S/scripts/build.sh <label> <manifest> $S/diffs/<label>.diff`, §3.3), after
 `git apply --check` there ("ok"), and `git apply -R --check` passed after. Each wheel was installed,
@@ -784,14 +784,14 @@ RESULT: FAILED (11 pass, 2 fail)
 
 ## 8. State handed to the next prompt
 
-- `HEAD` is this commit. `raypoolkit/` is unchanged since `0b6ffd2`.
+- `HEAD` is `eaef0ce`. `raypoolkit/` is unchanged since `0b6ffd2`.
 - **`pyproject.toml`**: `raypoolkit` `0.2.0`, `requires-python = ">=3.12"`, `ray>=2.43`, the test
   package excluded from the packages and package data off. `venv/` holds `0.2.0`, editable.
 - **Suite: 121 tests**, passing at 3.12.15 / 2.43.0 and 3.13.16 / 2.55.1 on macOS. CI has not run on
-  this commit; it runs when the commit is pushed.
-- **`v0.2.0` is ready to be tagged on this commit once CI passes there at both ends.** No tag was
+  `eaef0ce`; it runs when the commit is pushed.
+- **`v0.2.0` is ready to be tagged on `eaef0ce` once CI passes there at both ends.** No tag was
   made and nothing was pushed (README §5 rule 10). If CI fails, no tag: a fix prompt lands first.
-  Local `main` is ahead of `origin/main` (`914070c`) by `f839209`, `1868b6e` and this commit.
+  Local `main` is ahead of `origin/main` (`914070c`) by `f839209`, `1868b6e` and `eaef0ce`.
 - `README.md` describes `v0.2.0`, with the pin `raypoolkit @ git+https://github.com/ds283/RayPoolKit@v0.2.0`,
   written as of the tag; 06's checklists are measured against it.
 - The drivers, probes and wheels (`$S/`) are not committed; every diff they applied is in §5,
