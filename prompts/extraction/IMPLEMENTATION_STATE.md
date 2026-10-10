@@ -2,16 +2,16 @@
 
 **Last updated:** 2026-10-10 · **Status: IN PROGRESS — 3 of 7 prompts written (01–03), 01 landed
 (`49f3ddf`) and reviewed, 02 landed (`b9f6dec`) and reviewed, 03 landed (`4e90a8a`) and
-reviewed.** G1 holds at SGK `b510bc9`, the import commit. The user took U1–U3 at set-up and U4–U5
+reviewed; `v0.1.0` tagged.** G1 holds at SGK `b510bc9`, the import commit. The user took U1–U3 at set-up and U4–U5
 for 01, U6 and U9 for 02 and U7 for 03, all on 2026-10-10 and as recommended (README §6.2; U9 as
 amended at 02's writing). The package `raypoolkit` is at `0.1.0`, declaring Python `>=3.12` and
 `ray>=2.43`, with its test package excluded from the wheel; `compare_with_source.py` exits 0; the
 suite is 116 tests, with no Ray cluster, passing at 3.12.15 / 2.43.0 and 3.13.16 / 2.55.1, and
 faults 1–5 are each pinned as they behave. 8 issues are open. The U5 freeze is in force.
 
-**`v0.1.0` is ready to be tagged on 03's commit, `4e90a8a`, once CI (`.github/workflows/tests.yml`)
-passes there at both ends. No tag has been made, and nothing has been pushed** (README §5 rule
-10). The push, the CI run and the tag are put to the user (the review of 03, below).
+**`v0.1.0` is released**: an annotated tag on 03's commit, `4e90a8a`, made at the user's
+instruction on 2026-10-10 after CI passed there at both ends (run `38054782562`), and pushed with
+`main` (README §5 rule 10). See *Release of `v0.1.0`*, below.
 
 **Campaign:** [`README.md`](README.md) ·
 **Source:** SecondaryGWKit's `RayTools/RayWorkPool.py`, blob `b4666fa` (G1) ·
@@ -51,7 +51,7 @@ passes there at both ends. No tag has been made, and nothing has been pushed** (
 |---|---|---|---|---|
 | 01 | [`01-import-the-pool.md`](01-import-the-pool.md) | **landed** 2026-10-10 ([log](logs/01-import-the-pool.md)), reviewed | `49f3ddf` | 0 → 3 |
 | 02 | [`02-the-test-suite.md`](02-the-test-suite.md) | **landed** 2026-10-10 ([log](logs/02-the-test-suite.md)), reviewed | `b9f6dec` | 3 → 116 |
-| 03 | [`03-supported-versions-and-ci.md`](03-supported-versions-and-ci.md) | **landed** 2026-10-10 ([log](logs/03-supported-versions-and-ci.md)), reviewed | `4e90a8a` | 116 → 116 |
+| 03 | [`03-supported-versions-and-ci.md`](03-supported-versions-and-ci.md) | **landed** 2026-10-10 ([log](logs/03-supported-versions-and-ci.md)), reviewed; tagged `v0.1.0` | `4e90a8a` | 116 → 116 |
 | 04 | `04-fix-the-inherited-faults.md` | not written | — | — |
 | 05 | `05-release-v0.2.0.md` | not written | — | — |
 | 06 | `06-the-adoption-checklists.md` | not written | — | — |
@@ -265,6 +265,22 @@ exited 0 at `c73fc91`, and `e136eee` touched only `prompts/`. No Ray process was
 
 *Residue fixed in the follow-up commit.* "this commit" → `4e90a8a` on this board, in the log and
 in `prompts/INDEX.md`; README §2's status and header for 03; this review and the notes line.
+
+**Release of `v0.1.0` (2026-10-10).** Put to the user after the review of 03, and done at the
+user's instruction, in the order the review recommended, so that CI ran on 03's commit itself:
+1. **Push.** `git push origin 4e90a8a:main` moved `origin/main` from `97f9ff0` to `4e90a8a`.
+2. **CI.** The workflow's first run, `38054782562` on `4e90a8a`, passed both jobs, the suite's
+   first run on Linux: `suite (low)`, Python 3.12.15 / Ray 2.43.0 (GCC 13.3.0 build),
+   `Ran 116 tests … OK` and `black` "15 files would be left unchanged."; `suite (high)`,
+   Python 3.13.16 / Ray 2.55.1, `Ran 116 tests … OK`.
+3. **The tag.** `v0.1.0`, annotated (tag object `0a9cdb2`), on `4e90a8a`, pushed; then `main`
+   (`9db0619`, the review) pushed, and its CI run, `38055129804`, passed both jobs.
+4. **A client's install, checked.** `uv pip install "raypoolkit @
+   git+https://github.com/ds283/RayPoolKit@v0.1.0" "ray==2.55.1"` into a fresh 3.13.16 venv, with
+   `uv`'s cache bypassed: `direct_url.json` records `requested_revision` `v0.1.0` and `commit_id`
+   `4e90a8a…`; the installed package is the four modules and no `tests/`; from an empty directory
+   with `-I`, the two public names import, `version` is `0.1.0`, `requires` is `['ray>=2.43']`,
+   `ray.is_initialized()` is false, and `import raypoolkit.tests` raises `ModuleNotFoundError`.
 
 ## 2. Gates outside this repository (README §7)
 
