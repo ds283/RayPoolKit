@@ -2,7 +2,7 @@
 
 **Last updated:** 2026-10-10 · **Status: IN PROGRESS — 4 of 7 prompts written (01–04), 01 landed
 (`49f3ddf`) and reviewed, 02 landed (`b9f6dec`) and reviewed, 03 landed (`4e90a8a`) and
-reviewed; `v0.1.0` tagged; 04 landed (this commit).** G1 holds at SGK `b510bc9`, the import
+reviewed; `v0.1.0` tagged; 04 landed (`0b6ffd2`) and reviewed.** G1 holds at SGK `b510bc9`, the import
 commit. The user took U1–U3 at set-up and U4–U5 for 01, U6 and U9 for 02, U7 for 03 and U8 and
 U11 for 04, all on 2026-10-10 and as recommended (README §6.2; U9 as amended at 02's writing; U8
 with two amendments); U8 and U11 are applied by 04. The package `raypoolkit` is at `0.1.0`, declaring
@@ -44,10 +44,10 @@ instruction on 2026-10-10 after CI passed there at both ends (run `38054782562`)
 | **U5** freeze | no client edits its `RayTools/` until it adopts | **taken** 2026-10-10; in force from 01's commit |
 | **U6** Ray stand-in | real `ObjectRef(bytes)`; `ray.wait` / `ray.get` replaced in-process | **taken** 2026-10-10 |
 | **U7** versions | Python ≥3.12, Ray ≥2.43; tested 3.12.15/2.43.0 and 3.13.16/2.55.1 | **taken** 2026-10-10 |
-| **U8** handler checks | defaults apply only with a compute handler (option b); `ValueError`; all four compute-path arguments checked | **taken** 2026-10-10, amended; **applied** by 04 (this commit) |
+| **U8** handler checks | defaults apply only with a compute handler (option b); `ValueError`; all four compute-path arguments checked | **taken** 2026-10-10, amended; **applied** by 04 (`0b6ffd2`) |
 | **U9** printed lines | pinned, wording and layout, against a scripted clock; the three consumer patterns checked | **taken** 2026-10-10, as amended |
 | **U10** CPBH shim | none | open, for 06 |
-| **U11** licence header | CPBH's and SI's header, on `RayWorkPool.py` only | **taken** 2026-10-10: on all four package modules; **applied** by 04 (this commit) |
+| **U11** licence header | CPBH's and SI's header, on `RayWorkPool.py` only | **taken** 2026-10-10: on all four package modules; **applied** by 04 (`0b6ffd2`) |
 
 ## 1. Prompts
 
@@ -56,14 +56,15 @@ instruction on 2026-10-10 after CI passed there at both ends (run `38054782562`)
 | 01 | [`01-import-the-pool.md`](01-import-the-pool.md) | **landed** 2026-10-10 ([log](logs/01-import-the-pool.md)), reviewed | `49f3ddf` | 0 → 3 |
 | 02 | [`02-the-test-suite.md`](02-the-test-suite.md) | **landed** 2026-10-10 ([log](logs/02-the-test-suite.md)), reviewed | `b9f6dec` | 3 → 116 |
 | 03 | [`03-supported-versions-and-ci.md`](03-supported-versions-and-ci.md) | **landed** 2026-10-10 ([log](logs/03-supported-versions-and-ci.md)), reviewed; tagged `v0.1.0` | `4e90a8a` | 116 → 116 |
-| 04 | [`04-fix-the-inherited-faults.md`](04-fix-the-inherited-faults.md) | **landed** 2026-10-10 ([log](logs/04-fix-the-inherited-faults.md)) | this commit | 116 → 121 |
+| 04 | [`04-fix-the-inherited-faults.md`](04-fix-the-inherited-faults.md) | **landed** 2026-10-10 ([log](logs/04-fix-the-inherited-faults.md)), reviewed | `0b6ffd2` | 116 → 121 |
 | 05 | `05-release-v0.2.0.md` | not written | — | — |
 | 06 | `06-the-adoption-checklists.md` | not written | — | — |
 | 07 | `07-verification-and-close-out.md` | not written | — | — |
 
 **Orchestrator notes:** [`orchestrator/prompt-01.md`](orchestrator/prompt-01.md) (`310db6e`),
 used for 01; [`orchestrator/prompt-02.md`](orchestrator/prompt-02.md) (`319099a`), used for 02;
-[`orchestrator/prompt-03.md`](orchestrator/prompt-03.md) (`e136eee`), used for 03.
+[`orchestrator/prompt-03.md`](orchestrator/prompt-03.md) (`e136eee`), used for 03;
+[`orchestrator/prompt-04.md`](orchestrator/prompt-04.md) (`a7d9252`), used for 04.
 
 **Orchestrator review of prompt 01 (2026-10-10).** Dispatched from `310db6e` to one Opus
 subagent, with the note's §0 facts, its one addition (breakage (h)) and its two recommendations.
@@ -285,6 +286,79 @@ user's instruction, in the order the review recommended, so that CI ran on 03's 
    `4e90a8a…`; the installed package is the four modules and no `tests/`; from an empty directory
    with `-I`, the two public names import, `version` is `0.1.0`, `requires` is `['ray>=2.43']`,
    `ray.is_initialized()` is false, and `import raypoolkit.tests` raises `ModuleNotFoundError`.
+
+**Orchestrator review of prompt 04 (2026-10-10).** Dispatched from `a7d9252` to one Opus
+subagent, with the note's §0 facts and its eight clarifications, and one addendum: another
+session's short-lived Ray clusters, from DatastoreKit's scratchpad, were to be attributed and left
+alone. Reviewed against its commit `0b6ffd2`, with nothing landed after it. **Every check of the
+note's §3 passed**, and acceptance 1–5 are met. No stop condition fired.
+
+*At dispatch.* The note's gate held at `a7d9252`. The tree was clean, the only worktree was this
+checkout, `git diff v0.1.0 -- raypoolkit` was empty, `git tag` was `v0.1.0` alone and `origin/main`
+was `6b1ddfe`. The suite gave 116 and the check exited 0. A DatastoreKit session's local Ray
+(`gcs_server`, `raylet`) was up for a few seconds and gone before dispatch; none was this
+repository's.
+
+*The checks.*
+1. **E1, scope.** `0b6ffd2` touches 14 files: the four package modules, the four test modules the
+   prompt names and `test_standins.py` (its one comment), `compare_with_source.py`, the log, this
+   board, `prompts/INDEX.md` and the index. `git diff c207238 0b6ffd2` over `pyproject.toml`,
+   `README.md`, `PROVENANCE.md`, `CLAUDE.md`, `LICENSE`, `.gitignore`, `.github`, `standins.py`,
+   the three other test modules and the campaign README is empty. `git ls-files raypoolkit` equals
+   `v0.1.0`'s. No tag was made and `origin` is unchanged.
+2. **E2, the module.** `git diff v0.1.0 0b6ffd2 -- raypoolkit/RayWorkPool.py` was read whole: the
+   header; §2.4's checks with the resolution by identity and §2.5's sizes;
+   `range(self._num_total_items)`; the comment; 26 lines `.hex` → `.hex()`, nothing else on them, and no
+   bare `.hex` left; `:530`'s argument. It equals the orchestrator's own scratch application of the
+   prompt but for two blank lines. The signature is unchanged (18 parameters, names, kinds,
+   defaults by qualified name and annotations equal to `v0.1.0`'s). The other three modules differ
+   by the header, and `contract.py` also by §2.7's sentence; the header's 15 lines hash alike in all
+   four, and its 14 to SI's `e73e9334…e1ab9`.
+3. **E3, the suite.** `venv/`: `Ran 121 tests … OK`. The orchestrator's own fresh `uv` venv at
+   3.13.16 / 2.55.1, the repository editable in one resolve: 121, OK. By module: construction 15,
+   inherited faults 6, package imports 3, printed lines 18, run paths 22, scheduling 7, stand-ins
+   30, task builder 20. No Ray process before or after.
+4. **E4, the breakage.** (r1)–(r10) were extracted from the log's text and replayed from the clean
+   tree at `0b6ffd2`, each with the whole suite under a 300 s timeout. Each gave the log's verdict
+   line exactly, and failed the log's tests, entry counts included ((r4): 51 tests, 80 entries);
+   `git status` was clean after each. The orchestrator's own: (o1) `value < 1` → `value <= 1`
+   fails C7 at 1 (and 124 entries in all, since `process_batch_size` defaults to 1); (o2)
+   `store_handler` dropped from the no-compute tuple fails C2's `store_handler` subtest alone.
+5. **E4, the guards on `v0.1.0`.** In a fresh export of `0b6ffd2` with `v0.1.0`'s
+   `RayWorkPool.py` copied over it: `Ran 121 tests … FAILED (failures=11, errors=23)`, the 17 tests
+   and 34 entries of log §4.11, entry for entry; every test 04 did not change passes there.
+6. **E5, the lines.** `test_printed_lines.py` changes only `HANDLER_SETS` ("validation only" gone,
+   the two lookup-only spellings added) and adds the spelling test, which resets the clock before
+   each of its three runs and expects the nine lines of
+   `test_a_lookup_only_run_notifying_on_every_pass`. No expected line of an existing test changed.
+7. **E6, the tests.** `test_inherited_faults.py`, `test_construction.py` and `test_run_paths.py`
+   were read: §3's names, docstrings naming each resolved issue and the old behaviour, messages
+   compared whole with `type(...) is ValueError`, S4's identity with `results[0]`, X1 seeded under
+   `ref.hex()` only, the header test finding the modules from `raypoolkit.__file__`. The only new
+   use of a private name in the tests is `_build_queued_status_message`, 02 §2.2's seam.
+8. **The check, retired.** Its diff is the one docstring paragraph. From a `git worktree` of
+   `v0.1.0` (removed after), it exits 0 with 572 identical, 2 D-imp, 1 D-pool, 4 D-int, 12 declared
+   files, 0 undeclared; log §3.3 holds the agent's last run before the change.
+9. **`black --check raypoolkit docs`** (25.1.0): 15 files unchanged.
+10. **E7, the records.** The log has every section of README §5.1 and the prompt's §5.5 additions,
+    with §0's clarifications as deviations 1–8. This board had 04's row, U8 and U11 applied, one
+    issue in §3 and the seven in §4, each with a dated **Resolved (04)** line whose line numbers
+    match the module. The index counts 1 row, matching its header; `prompts/INDEX.md`'s line says
+    04 landed.
+
+*Findings.*
+- **None opened.** The agent's observations are kept as observations: `README.md:147-152` and
+  `PROVENANCE.md:40` describe `v0.1.0`, as they say, and 05 rewrites both (README §2, row 05);
+  `compare_with_source.py`'s `NO_SOURCE` text is true of `v0.1.0`, where the retired check runs; a
+  size that does not compare with 1 now raises `TypeError` at construction rather than in `run()`.
+  06's checklists should note that a pool with no compute handler still takes an
+  `available_handler` and a `post_handler`.
+- **A correction to the note.** Its clarification 3 said (r4) "fails 71 of the 116" on the
+  unchanged suite. That counted failing entries, subtests separately, not tests; the agent's 51
+  tests (80 entries) are on the new suite. The two do not disagree.
+
+*Residue fixed in the follow-up commit.* "this commit" → `0b6ffd2` on this board, in the log and
+in `prompts/INDEX.md`; README §2's status and header for 04; this review and the notes line.
 
 ## 2. Gates outside this repository (README §7)
 

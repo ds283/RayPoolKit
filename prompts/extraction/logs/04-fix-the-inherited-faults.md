@@ -1,7 +1,7 @@
 # Log — extraction prompt 04: fix the inherited faults
 
-**Subject:** Fix the five inherited faults and check the constructor's sizes · **Commit:** this
-commit · **Date:** 2026-10-10 · **Agent:** Claude Opus 5.5
+**Subject:** Fix the five inherited faults and check the constructor's sizes · **Commit:** `0b6ffd2`
+· **Date:** 2026-10-10 · **Agent:** Claude Opus 5.5
 
 **Result: landed.** Faults 1–5 are fixed in `raypoolkit/RayWorkPool.py`, with the size checks of
 `[02-the-constructor-does-not-check-its-sizes]` and the comment of
@@ -504,7 +504,7 @@ Undeclared files under raypoolkit/: 0
 RESULT: OK
 ```
 
-It was not run again; on this commit's tree it fails by design.
+It was not run again; on `0b6ffd2`'s tree it fails by design.
 
 ### 3.4 `black` (prompt §4.3)
 
@@ -1031,11 +1031,11 @@ subprocess from a temporary directory and import the same working tree, so they 
 1. **`README.md` still describes `v0.1.0`'s constructor.** Its section "A pool with no compute
    handler must pass `persist_handler=None`" (`README.md:147-152`) says the constructor raises
    `RuntimeWarning`, and that a compute handler with `persist_handler=None` raises `RuntimeError`;
-   on this commit's tree both are `ValueError`, and a lookup-only pool needs neither `None`. It
+   on `0b6ffd2`'s tree both are `ValueError`, and a lookup-only pool needs neither `None`. It
    says "As of `v0.1.0`", which stays true of `v0.1.0`; the prompt (§1, §7) leaves the README to
    05. No issue: 05's plan already rewrites it (README §2, row 05).
 2. **`PROVENANCE.md:40`** says `raypoolkit/RayWorkPool.py` equals its source except for the listed
-   classes. True of `v0.1.0`, not of this commit's tree. Left to 05, as the prompt says; no issue.
+   classes. True of `v0.1.0`, not of `0b6ffd2`'s tree. Left to 05, as the prompt says; no issue.
 3. **`compare_with_source.py`'s `NO_SOURCE` entry for `test_inherited_faults.py`** still reads
    "faults 1-4, pinned as they behave". §2.8 limits the change to the docstring's paragraph, and the
    retired script describes `v0.1.0`, where it is true. No issue.
@@ -1065,11 +1065,11 @@ for 05.
 
 ## 7. State handed to the next prompt
 
-- `HEAD` is this commit. `pyproject.toml` still says `0.1.0`; `README.md` and `PROVENANCE.md` are
+- `HEAD` is `0b6ffd2`. `pyproject.toml` still says `0.1.0`; `README.md` and `PROVENANCE.md` are
   as `v0.1.0` left them (§5.1–§5.2). No tag was made and nothing pushed; local `main` is ahead of
-  `origin/main` (`6b1ddfe`) by `c207238`, `a7d9252` and this commit.
+  `origin/main` (`6b1ddfe`) by `c207238`, `a7d9252` and `0b6ffd2`.
 - **Suite: 121 tests**, passing at 3.12.15 / 2.43.0 and 3.13.16 / 2.55.1 on macOS. CI has not run
-  on this commit; it runs when the commit is pushed.
+  on `0b6ffd2`; it runs when the commit is pushed.
 - **What a caller must pass, after 04** (README §4, "04 names any change"): nothing new. A
   lookup-only pool needs only `compute_handler=None`; `store_handler=None` and
   `persist_handler=None` are still accepted. Newly refused, each with `ValueError` at
