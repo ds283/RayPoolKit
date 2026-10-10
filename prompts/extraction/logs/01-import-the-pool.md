@@ -1,6 +1,6 @@
 # Log — extraction prompt 01: import the pool
 
-**Subject:** Import SGK's RayWorkPool as the raypoolkit package · **Commit:** this commit ·
+**Subject:** Import SGK's RayWorkPool as the raypoolkit package · **Commit:** `49f3ddf` ·
 **Date:** 2026-10-10 · **Agent:** Claude Opus 5.5
 
 **Result: landed.** The package `raypoolkit` exists, its `RayWorkPool` module is SGK's at `b510bc9`
@@ -238,7 +238,7 @@ Each diff is exactly as applied, with `git apply` from the repository root; each
 was reverted with `git apply -R`. After each, a hash of every file under `raypoolkit`, `docs`,
 `pyproject.toml`, `prompts` and `PROVENANCE.md`, together with `git status --short
 --untracked-files=all`, equalled the hash before it ("tree restored: yes" for all eleven and the two
-supplementary runs). None is committed. They were run on the working tree that this commit records
+supplementary runs). None is committed. They were run on the working tree that `49f3ddf` records
 (the package files were final when they ran).
 
 ### 4.1 The equivalence check: (a)–(h)
@@ -857,7 +857,7 @@ sits in `raypoolkit/RayWorkPool.py` (§3.6). The index goes from 5 to **6** open
 
 ## 7. State handed to the next prompt
 
-- `HEAD` is this commit. The package `raypoolkit` `0.1.0.dev0` is installed editable in `venv/`.
+- `HEAD` is `49f3ddf`. The package `raypoolkit` `0.1.0.dev0` is installed editable in `venv/`.
 - **Suite: 3 tests**, all passing (`test_package_imports`).
 - `./venv/bin/python docs/extraction/compare_with_source.py` exits 0; 02 and 03 run it (README §5
   rule 8). A prompt that adds a `.py` file under `raypoolkit/` must declare it in the check's
@@ -866,5 +866,5 @@ sits in `raypoolkit/RayWorkPool.py` (§3.6). The index goes from 5 to **6** open
   target (`"raypoolkit.RayWorkPool.ray"`) or `sys.modules["raypoolkit.RayWorkPool"]`, never through
   the package attribute (test 3's docstring).
 - Package line numbers equal SGK's at `b510bc9`; the five faults are where §3.6 says.
-- The U5 freeze is in force from this commit (`PROVENANCE.md`).
+- The U5 freeze is in force from `49f3ddf` (`PROVENANCE.md`).
 - No tag; `ray` is unbounded in `pyproject.toml` until 03.

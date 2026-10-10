@@ -1,7 +1,7 @@
 # extraction campaign — implementation state
 
 **Last updated:** 2026-10-10 · **Status: IN PROGRESS — 1 of 7 prompts written (01), 01 landed
-(this commit).** G1 holds at SGK `b510bc9`, the import commit. The user took U1–U3 at set-up and
+(`49f3ddf`) and reviewed.** G1 holds at SGK `b510bc9`, the import commit. The user took U1–U3 at set-up and
 U4–U5 for 01, all on 2026-10-10 and as recommended (README §6.2). The package `raypoolkit` exists;
 `compare_with_source.py` exits 0; the suite is 3 tests. The U5 freeze is in force.
 
@@ -41,13 +41,81 @@ U4–U5 for 01, all on 2026-10-10 and as recommended (README §6.2). The package
 
 | # | Prompt | Status | Commit | Suite |
 |---|---|---|---|---|
-| 01 | [`01-import-the-pool.md`](01-import-the-pool.md) | **landed** 2026-10-10 ([log](logs/01-import-the-pool.md)) | this commit | 0 → 3 |
+| 01 | [`01-import-the-pool.md`](01-import-the-pool.md) | **landed** 2026-10-10 ([log](logs/01-import-the-pool.md)), reviewed | `49f3ddf` | 0 → 3 |
 | 02 | `02-the-test-suite.md` | not written | — | — |
 | 03 | `03-supported-versions-and-ci.md` | not written | — | — |
 | 04 | `04-fix-the-inherited-faults.md` | not written | — | — |
 | 05 | `05-release-v0.2.0.md` | not written | — | — |
 | 06 | `06-the-adoption-checklists.md` | not written | — | — |
 | 07 | `07-verification-and-close-out.md` | not written | — | — |
+
+**Orchestrator notes:** [`orchestrator/prompt-01.md`](orchestrator/prompt-01.md) (`310db6e`),
+used for 01.
+
+**Orchestrator review of prompt 01 (2026-10-10).** Dispatched from `310db6e` to one Opus
+subagent, with the note's §0 facts, its one addition (breakage (h)) and its two recommendations.
+Reviewed against its commit `49f3ddf`, with nothing landed after it. **Every check of the note's
+§3 passed**, and acceptance 1–3 are met. No stop condition fired.
+
+*At dispatch.* The note's gate held at `310db6e`. The tree was clean, the only worktree was this
+checkout, and `raypoolkit` was not installed in `venv/`. SGK's `HEAD` was `b510bc9`, with
+`RayTools/RayWorkPool.py` at blob `b4666fa`. No Ray process was up.
+
+*The checks.*
+1. **Scope.** `49f3ddf` touches 13 files: the prompt's §6 list (`pyproject.toml`, the six files
+   under `raypoolkit/`, `compare_with_source.py`, `PROVENANCE.md`), the log, this board,
+   `prompts/INDEX.md` and the index. No `venv/`, `*.egg-info` or scratch file.
+2. **E1, the files.** `git ls-files raypoolkit` gives exactly `__init__.py`, `RayWorkPool.py`,
+   `_timing.py`, `contract.py`, `tests/__init__.py` and `tests/test_package_imports.py`.
+   `__init__.py` binds the two names and `__all__`, and nothing else. `contract.py` imports only
+   `typing` and `ray`, is not `runtime_checkable`, and names no client or `datastorekit` class.
+3. **E2, by running.** The check exits 0: 572 identical lines, 2 D-imp and 1 D-pool in
+   `RayWorkPool.py`; 4 D-int definitions and the byte-for-byte span in `_timing.py`; 4 declared
+   files; 0 undeclared. The counts equal the log's.
+4. **E2, by reading.** The script was read in full. The blob is checked first. D-imp is an exact
+   two-entry `ast` map of whole `ImportFrom` statements, with no alias. D-pool is the one
+   identifier on a line that parses as a lone annotated parameter with no default. There is no
+   D-fmt rule and no line number in any rule. Only equal-length `replace` runs are classified, so
+   additions and deletions never are. D-int compares `ast` segments, the body's names in order, the
+   span byte for byte, and only blank lines between docstring and span.
+5. **E3, the check bites.** (a)–(h) were replayed from the log in `bash`. Each exits 1 and names
+   the line or file, as logged. The orchestrator's own: SGK's `WallclockTimer` (`utilities.py:6-17`,
+   with its two imports) appended to `_timing.py` fails on BODY and SPAN. `git status` was clean
+   after each.
+6. **E4, the guard.** `Ran 3 tests … OK`. Test 1 uses `ast.walk` over every module under
+   `raypoolkit/`, tests included, resolves relative imports, and names file, line and module. Tests
+   2 and 3 run `sys.executable -I` from a `tempfile` directory, with a 300 s timeout. Test 3's
+   docstring states the patching rule.
+7. **E5, isolation.** From the scratchpad, with `env -u PYTHONPATH` and `-I`, the prompt's §3.1
+   import succeeds and leaves `ray.is_initialized()` false; `import RayTools` and
+   `import datastorekit` each fail with `ModuleNotFoundError`.
+8. **E6, the pins.** The `numpy` diff fails test 1 alone; the re-export removal fails tests 2 and
+   3; the class-only variant fails test 3 alone. The `datastorekit` diff in `contract.py` stops
+   discovery at load (`ERROR: raypoolkit.tests`), since the package imports `contract`. Run as a
+   script, the module fails all three, test 1 naming `raypoolkit/contract.py:9`. That is the log's
+   account (deviation 6, STRUCTURALLY REQUIRED). The suite is 3 again after each.
+9. **E7, the records.** The log has every section of README §5.1, `pip freeze` (Python 3.12.15,
+   `ray==2.43.0`, `black==25.1.0`, the editable `raypoolkit`), the check's whole output, the counts
+   0 → 3, and the five faults' package lines. `PROVENANCE.md` has the six items of the prompt's
+   §2.8, with both subject lines right. The index counts 6 rows, matching its header.
+   `black --check raypoolkit docs` (25.1.0) is clean.
+
+*Findings.*
+- **One issue opened by the agent, and kept:** `[01-a-kept-comment-names-the-datastore-service]`
+  (`RayWorkPool.py:424`). The note expected none; the agent's reading of `CLAUDE.md` is right, and
+  the comment is SGK's text, which rule 8 keeps until 04.
+- **A correction to the note.** Its §0 put fault 2's post-handler call at `:489`; that is the
+  `elif`, and the call is at `:490` (the log, and §3 below, are right). README §0.2's and §3's
+  "SGK `:488-491`" is the same span read one line short; the board's **Package** line, `:487-492`,
+  supersedes it.
+- **Put to the user, not acted on:** `CLAUDE.md` says the package names no client module "in code,
+  strings, docstrings or comments", but two mentions inside `raypoolkit/` are required by the
+  prompt: `_timing.py`'s docstring names SGK's `utilities.py` (D-int), and the guard's
+  `FORBIDDEN_ROOTS` names `Datastore`, `RayTools` and `utilities` (§2.7 test 2). Whether
+  `CLAUDE.md` excepts provenance and guard text, or 04 rewords them, is the user's decision.
+
+*Residue fixed in the follow-up commit.* "this commit" → `49f3ddf` on this board, in the log and
+in `prompts/INDEX.md`; README §2's status and header for 01; this review and the notes line.
 
 ## 2. Gates outside this repository (README §7)
 
