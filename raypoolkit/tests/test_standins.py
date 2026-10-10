@@ -113,7 +113,7 @@ class TestWaitContract(PoolTestCase):
         for got, given in zip(ready + remaining, refs):
             self.assertEqual(got, given)
             self.assertIsNot(got, given)
-            # the bound method the pool keys on differs; the hex string does not
+            # the bound method differs; the hex string, which the pool keys on, does not
             self.assertNotEqual(got.hex, given.hex)
             self.assertEqual(got.hex(), given.hex())
 

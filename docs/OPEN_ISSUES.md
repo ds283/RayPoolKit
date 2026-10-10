@@ -3,7 +3,7 @@
 One line per open issue, pointing at the board that holds it. The board is right if the two
 disagree. See `CLAUDE.md` for the maintenance rule.
 
-**Last updated:** 2026-10-10 · **8 open**, all on this repository's boards.
+**Last updated:** 2026-10-10 · **1 open**, on this repository's boards.
 
 ## 1. By campaign
 
@@ -11,11 +11,4 @@ disagree. See `CLAUDE.md` for the maintenance rule.
 
 | Issue | Hook |
 |---|---|
-| `[00-in-flight-work-is-keyed-on-a-bound-method]` | Dictionaries keyed on `ref.hex` (the method), which works only because `ray.wait` returns the refs it was given *(04)* |
-| `[00-a-post-handler-after-persist-gets-the-unpersisted-object]` | With no validation step, the post handler gets the pre-persist copy, without `store_id`; reachable at SGK `main.py:3247`, harmless there *(04)* |
-| `[00-store-results-sizes-from-len-of-the-task-list]` | `store_results=True` with a generator `task_list` raises `TypeError` *(04)* |
-| `[00-the-constructor-checks-its-handlers-unevenly]` | Raises `RuntimeWarning` for a persist handler without compute, so lookup-only pools must pass `persist_handler=None`; no store-handler check *(04, U8)* |
-| `[00-messages-say-maker-and-the-module-has-no-licence-header]` | Cosmetic: "maker" in two messages; no licence header *(04)* |
-| `[01-a-kept-comment-names-the-datastore-service]` | A comment kept from SGK (`RayWorkPool.py:424`) names the client's `Datastore` service *(04)* |
-| `[02-the-constructor-does-not-check-its-sizes]` | A size below 1 is accepted: `max_task_queue=0` or `create_batch_size=0` makes `run()` loop for ever *(04, U8)* |
 | `[03-a-stale-egg-info-manifest-ships-the-tests-in-a-wheel]` | A stale `raypoolkit.egg-info/SOURCES.txt` puts `raypoolkit/tests/` in a wheel as package data, despite the exclusion; a fresh clone is unaffected *(unassigned; proposed 05)* |

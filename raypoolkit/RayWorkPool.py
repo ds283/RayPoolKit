@@ -1,3 +1,18 @@
+# (c) University of Sussex 2026
+# Created by David Seery
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 import time
 from datetime import datetime
 from typing import Optional
@@ -91,15 +106,40 @@ class RayWorkPool:
         title: str = None,
         store_results: bool = False,
     ):
-        if compute_handler is not None and persist_handler is None:
-            raise RuntimeError(
-                "If a compute maker is supplied, a persist maker must also be supplied to serialize the result of the computation"
-            )
+        if compute_handler is None:
+            if store_handler is _default_store_handler:
+                store_handler = None
+            if persist_handler is _default_persist_handler:
+                persist_handler = None
 
-        if compute_handler is None and persist_handler is not None:
-            raise RuntimeWarning(
-                "No compute maker was supplied, but a persist maker was provided. This will have no effect because there will be no compute results to store"
-            )
+            for name, value in (
+                ("store_handler", store_handler),
+                ("persist_handler", persist_handler),
+                ("validation_handler", validation_handler),
+                ("label_builder", label_builder),
+            ):
+                if value is not None:
+                    raise ValueError(
+                        f"No compute handler was supplied, so {name} would never be called; leave it out, or pass None"
+                    )
+
+        else:
+            for name, value in (
+                ("store_handler", store_handler),
+                ("persist_handler", persist_handler),
+            ):
+                if value is None:
+                    raise ValueError(
+                        f"A compute handler was supplied, so {name} must not be None; leave it out to use the default"
+                    )
+
+        for name, value in (
+            ("create_batch_size", create_batch_size),
+            ("process_batch_size", process_batch_size),
+            ("max_task_queue", max_task_queue),
+        ):
+            if value < 1:
+                raise ValueError(f"{name} must be at least 1, not {value!r}")
 
         self._pool = pool
 
@@ -135,7 +175,7 @@ class RayWorkPool:
 
         self._store_results = store_results
         if store_results:
-            self.results = [None for _ in range(len(task_list))]
+            self.results = [None for _ in range(self._num_total_items)]
             self._current_idx = 0
 
         self._num_lookup_queue = 0
@@ -257,13 +297,13 @@ class RayWorkPool:
                     ref_data = self._task_builder(item)
 
                     def store_single_ref(ref, allow_store=True):
-                        self._inflight[ref.hex] = ref
+                        self._inflight[ref.hex()] = ref
 
                         if self._store_results and allow_store:
-                            self._data[ref.hex] = ("lookup", self._current_idx)
+                            self._data[ref.hex()] = ("lookup", self._current_idx)
                             self._current_idx += 1
                         else:
-                            self._data[ref.hex] = ("lookup", None)
+                            self._data[ref.hex()] = ("lookup", None)
 
                         self._num_lookup_queue += 1
 
@@ -274,7 +314,7 @@ class RayWorkPool:
                             store_single_ref(ref, allow_store=allow_store)
 
                             if "compute_payload" in ref_data:
-                                self._compute_data[ref.hex] = ref_data[
+                                self._compute_data[ref.hex()] = ref_data[
                                     "compute_payload"
                                 ]
 
@@ -319,7 +359,7 @@ class RayWorkPool:
 
             for ref in done_refs:
                 ref: ObjectRef
-                item_type, payload = self._data[ref.hex]
+                item_type, payload = self._data[ref.hex()]
 
                 if item_type == "lookup":
                     # payload is an index into the result set
@@ -334,8 +374,8 @@ class RayWorkPool:
                         self.results[idx] = obj
 
                     # remove the original 'lookup' task from the work queue
-                    self._inflight.pop(ref.hex, None)
-                    self._data.pop(ref.hex, None)
+                    self._inflight.pop(ref.hex(), None)
+                    self._data.pop(ref.hex(), None)
 
                     self._num_lookup_queue = max(self._num_lookup_queue - 1, 0)
                     self._num_lookup_complete += 1
@@ -348,8 +388,8 @@ class RayWorkPool:
                                 available_task: ObjectRef = self._available_handler(obj)
 
                                 # add this task to the work queue
-                                self._inflight[available_task.hex] = available_task
-                                self._data[available_task.hex] = (
+                                self._inflight[available_task.hex()] = available_task
+                                self._data[available_task.hex()] = (
                                     "available",
                                     (idx, obj),
                                 )
@@ -376,9 +416,9 @@ class RayWorkPool:
                                     {"label": label} if label is not None else {}
                                 )
 
-                                if ref.hex in self._compute_data:
+                                if ref.hex() in self._compute_data:
                                     compute_args.update(
-                                        {"payload": self._compute_data[ref.hex]}
+                                        {"payload": self._compute_data[ref.hex()]}
                                     )
 
                                 compute_task: ObjectRef = self._compute_handler(
@@ -386,8 +426,8 @@ class RayWorkPool:
                                 )
 
                                 # add this compute task to the work queue
-                                self._inflight[compute_task.hex] = compute_task
-                                self._data[compute_task.hex] = ("compute", (idx, obj))
+                                self._inflight[compute_task.hex()] = compute_task
+                                self._data[compute_task.hex()] = ("compute", (idx, obj))
 
                                 self._num_compute_queue += 1
 
@@ -400,14 +440,14 @@ class RayWorkPool:
                             if replacement_obj is not None and self._store_results:
                                 self.results[idx] = replacement_obj
 
-                    self._compute_data.pop(ref.hex, None)
+                    self._compute_data.pop(ref.hex(), None)
 
                 elif item_type == "available":
                     # payload is a pair of the target index and the constructed object
                     idx, obj = payload
 
-                    self._inflight.pop(ref.hex, None)
-                    self._data.pop(ref.hex, None)
+                    self._inflight.pop(ref.hex(), None)
+                    self._data.pop(ref.hex(), None)
 
                     self._num_available_queue = max(self._num_available_queue - 1, 0)
                     self._num_available_complete += 1
@@ -421,7 +461,7 @@ class RayWorkPool:
 
                 elif item_type == "compute":
                     # payload contains an index into the result set and (our local copy of) the object that has finished computation;
-                    # we want it to store the result of the computation internally, and then submit a store request to the Datastore service.
+                    # we want it to store the result of the computation internally, and then submit a store request to the datastore.
                     # the results will then be serialized into the database
                     idx, obj = payload
 
@@ -431,8 +471,8 @@ class RayWorkPool:
                     self._store_handler(obj, self._pool)
 
                     # remove the original 'compute' task from the work queue
-                    self._inflight.pop(ref.hex, None)
-                    self._data.pop(ref.hex, None)
+                    self._inflight.pop(ref.hex(), None)
+                    self._data.pop(ref.hex(), None)
 
                     self._num_compute_queue = max(self._num_compute_queue - 1, 0)
                     self._num_compute_complete += 1
@@ -441,8 +481,8 @@ class RayWorkPool:
                     store_task: ObjectRef = self._persist_handler(obj, self._pool)
 
                     # add this store task to the work queue
-                    self._inflight[store_task.hex] = store_task
-                    self._data[store_task.hex] = ("store", payload)
+                    self._inflight[store_task.hex()] = store_task
+                    self._data[store_task.hex()] = ("store", payload)
 
                     self._num_store_queue += 1
 
@@ -464,8 +504,8 @@ class RayWorkPool:
                         self.results[idx] = replacement_obj
 
                     # remove the original 'store' task from the work queue
-                    self._inflight.pop(ref.hex, None)
-                    self._data.pop(ref.hex, None)
+                    self._inflight.pop(ref.hex(), None)
+                    self._data.pop(ref.hex(), None)
 
                     self._num_store_queue = max(self._num_store_queue - 1, 0)
                     self._num_store_complete += 1
@@ -476,8 +516,8 @@ class RayWorkPool:
                             replacement_obj
                         )
 
-                        self._inflight[validation_task.hex] = validation_task
-                        self._data[validation_task.hex] = (
+                        self._inflight[validation_task.hex()] = validation_task
+                        self._data[validation_task.hex()] = (
                             "validate",
                             (idx, replacement_obj),
                         )
@@ -487,7 +527,7 @@ class RayWorkPool:
                     # otherwise, this is the exit point for driver flow associated with this task, so apply the
                     # postprocessing task, if one was supplied
                     elif self._post_handler is not None:
-                        replacement_obj = self._post_handler(obj)
+                        replacement_obj = self._post_handler(replacement_obj)
                         if replacement_obj is not None and self._store_results:
                             self.results[idx] = replacement_obj
 
@@ -502,8 +542,8 @@ class RayWorkPool:
                             f"!! WARNING: {type(obj).__name__} object with store_id={obj.store_id} did not validate after being emplaced in the datastore"
                         )
 
-                    self._inflight.pop(ref.hex, None)
-                    self._data.pop(ref.hex, None)
+                    self._inflight.pop(ref.hex(), None)
+                    self._data.pop(ref.hex(), None)
 
                     self._num_validation_queue = max(self._num_validation_queue - 1, 0)
                     self._num_validation_complete += 1

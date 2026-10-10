@@ -2,13 +2,15 @@
 
 **Last updated:** 2026-10-10 · **Status: IN PROGRESS — 4 of 7 prompts written (01–04), 01 landed
 (`49f3ddf`) and reviewed, 02 landed (`b9f6dec`) and reviewed, 03 landed (`4e90a8a`) and
-reviewed; `v0.1.0` tagged; 04 written.** G1 holds at SGK `b510bc9`, the import commit. The user
-took U1–U3 at set-up and U4–U5 for 01, U6 and U9 for 02, U7 for 03 and U8 and U11 for 04, all on
-2026-10-10 and as recommended (README §6.2; U9 as amended at 02's writing; U8 with two
-amendments). The package `raypoolkit` is at `0.1.0`, declaring Python `>=3.12` and
-`ray>=2.43`, with its test package excluded from the wheel; `compare_with_source.py` exits 0; the
-suite is 116 tests, with no Ray cluster, passing at 3.12.15 / 2.43.0 and 3.13.16 / 2.55.1, and
-faults 1–5 are each pinned as they behave. 8 issues are open. The U5 freeze is in force.
+reviewed; `v0.1.0` tagged; 04 landed (this commit).** G1 holds at SGK `b510bc9`, the import
+commit. The user took U1–U3 at set-up and U4–U5 for 01, U6 and U9 for 02, U7 for 03 and U8 and
+U11 for 04, all on 2026-10-10 and as recommended (README §6.2; U9 as amended at 02's writing; U8
+with two amendments); U8 and U11 are applied by 04. The package `raypoolkit` is at `0.1.0`, declaring
+Python `>=3.12` and `ray>=2.43`, with its test package excluded from the wheel. Since 04, faults
+1–5 are fixed on `main`, with the constructor's sizes checked, each fix guarded by a test that
+`v0.1.0`'s module fails; the fixes are unreleased until `v0.2.0` (05). `compare_with_source.py` is
+retired at `v0.1.0`. The suite is 121 tests, with no Ray cluster, passing at 3.12.15 / 2.43.0 and
+3.13.16 / 2.55.1. 1 issue is open. The U5 freeze is in force.
 
 **`v0.1.0` is released**: an annotated tag on 03's commit, `4e90a8a`, made at the user's
 instruction on 2026-10-10 after CI passed there at both ends (run `38054782562`), and pushed with
@@ -42,10 +44,10 @@ instruction on 2026-10-10 after CI passed there at both ends (run `38054782562`)
 | **U5** freeze | no client edits its `RayTools/` until it adopts | **taken** 2026-10-10; in force from 01's commit |
 | **U6** Ray stand-in | real `ObjectRef(bytes)`; `ray.wait` / `ray.get` replaced in-process | **taken** 2026-10-10 |
 | **U7** versions | Python ≥3.12, Ray ≥2.43; tested 3.12.15/2.43.0 and 3.13.16/2.55.1 | **taken** 2026-10-10 |
-| **U8** handler checks | defaults apply only with a compute handler (option b); `ValueError`; all four compute-path arguments checked | **taken** 2026-10-10, amended |
+| **U8** handler checks | defaults apply only with a compute handler (option b); `ValueError`; all four compute-path arguments checked | **taken** 2026-10-10, amended; **applied** by 04 (this commit) |
 | **U9** printed lines | pinned, wording and layout, against a scripted clock; the three consumer patterns checked | **taken** 2026-10-10, as amended |
 | **U10** CPBH shim | none | open, for 06 |
-| **U11** licence header | CPBH's and SI's header, on `RayWorkPool.py` only | **taken** 2026-10-10: on all four package modules |
+| **U11** licence header | CPBH's and SI's header, on `RayWorkPool.py` only | **taken** 2026-10-10: on all four package modules; **applied** by 04 (this commit) |
 
 ## 1. Prompts
 
@@ -54,7 +56,7 @@ instruction on 2026-10-10 after CI passed there at both ends (run `38054782562`)
 | 01 | [`01-import-the-pool.md`](01-import-the-pool.md) | **landed** 2026-10-10 ([log](logs/01-import-the-pool.md)), reviewed | `49f3ddf` | 0 → 3 |
 | 02 | [`02-the-test-suite.md`](02-the-test-suite.md) | **landed** 2026-10-10 ([log](logs/02-the-test-suite.md)), reviewed | `b9f6dec` | 3 → 116 |
 | 03 | [`03-supported-versions-and-ci.md`](03-supported-versions-and-ci.md) | **landed** 2026-10-10 ([log](logs/03-supported-versions-and-ci.md)), reviewed; tagged `v0.1.0` | `4e90a8a` | 116 → 116 |
-| 04 | [`04-fix-the-inherited-faults.md`](04-fix-the-inherited-faults.md) | **written** 2026-10-10 | — | 116 → 121 |
+| 04 | [`04-fix-the-inherited-faults.md`](04-fix-the-inherited-faults.md) | **landed** 2026-10-10 ([log](logs/04-fix-the-inherited-faults.md)) | this commit | 116 → 121 |
 | 05 | `05-release-v0.2.0.md` | not written | — | — |
 | 06 | `06-the-adoption-checklists.md` | not written | — | — |
 | 07 | `07-verification-and-close-out.md` | not written | — | — |
@@ -295,173 +297,9 @@ user's instruction, in the order the review recommended, so that CI ran on 03's 
 
 ## 3. Active and unresolved issues
 
-The five `[00-…]` entries are inherited from the source and were opened at planning (README
-§0.2, faults 1–5). Each is pinned as it behaves by 02 and fixed by 04 (README §2). Since 01, each
-gives the **Package** lines where its fault sits in `raypoolkit/RayWorkPool.py`, read from the
-package (log 01 §3.6); they equal SGK's at `b510bc9`, because 01 replaced lines one for one.
-
-### `[00-in-flight-work-is-keyed-on-a-bound-method]`
-
-**Opened:** 2026-10-10, at planning. **Owner:** 04.
-
-**Package (01):** 26 lines keyed on `.hex`, `raypoolkit/RayWorkPool.py:260, 263, 266, 277, 322,
-337, 338, 351, 352, 379, 381, 389, 390, 403, 409, 410, 434, 435, 444, 445, 467, 468, 479, 480, 505,
-506`.
-
-`RayWorkPool.run()` keys `_inflight`, `_data` and `_compute_data` on `ref.hex`, the bound method,
-not on `ref.hex()` or the ref itself. Bound methods compare by the identity of `__self__`, so two
-equal `ObjectRef`s that are distinct Python objects give unequal keys. Measured at Ray 2.43.0,
-2.53.0 and 2.55.1: `ObjectRef(b) == ObjectRef(b)` and their hashes agree, but their `.hex` methods
-do not compare equal.
-
-*Impact.* None today: `ray.wait` returns the objects it was given, so every lookup finds its key.
-A Ray release that returns fresh refs from `ray.wait`, or a stand-in that does, makes every
-completed task a `KeyError`.
-
-*Next step.* 04 keys the dictionaries on the ref itself (or `ref.hex()`), with a test whose
-stand-in `ray.wait` returns equal but distinct refs.
-
-**Pinned (02, 2026-10-10):** `raypoolkit/tests/test_inherited_faults.py`,
-`TestInheritedFaults.test_fault_in_flight_work_is_keyed_on_a_bound_method`, as it behaves: with the
-stand-in's `fresh_refs`, the first completed lookup raises `KeyError` from `self._data[ref.hex]`.
-Changing all 26 keys to `.hex()` fails this test and no other (log 02 §5.2). 04 inverts it.
-
-### `[00-a-post-handler-after-persist-gets-the-unpersisted-object]`
-
-**Opened:** 2026-10-10, at planning. **Owner:** 04.
-
-**Package (01):** `raypoolkit/RayWorkPool.py:487-492`: the `elif self._post_handler is not None:`
-at `:489`, the call `self._post_handler(obj)` at `:490`.
-
-In the `"store"` branch with no validation handler (SGK `RayWorkPool.py:488-491`), the post
-handler is called with `obj`, the driver's copy from before the persist, not with
-`replacement_obj`, the object the datastore returned with its `store_id` set. Every other exit
-passes the current object.
-
-*Impact.* Reachable at one client site, SGK `main.py:3247` (`postprocess_GkSourcePolicy`). That
-handler reads only `policy`, `type` and `quality`, which `store()` sets locally, so it is correct
-today. A post handler there that read `store_id` would see `None`.
-
-*Next step.* 04 passes `replacement_obj`, with a test that a post handler after a persist sees the
-replacement. 06's checklists re-measure the sites.
-
-**Pinned (02, 2026-10-10):** `TestInheritedFaults.test_fault_post_handler_after_persist_gets_the_unpersisted_object`:
-at exit 4 the post handler is given an object whose `store_id` is `None`, while `results` holds the
-persisted one. Passing `replacement_obj` at `:490` fails it and S4's identity test,
-`test_run_paths.TestComputeStoreValidate.test_without_a_validation_handler_a_completed_store_exits_to_the_post_handler`.
-04 inverts both.
-
-### `[00-store-results-sizes-from-len-of-the-task-list]`
-
-**Opened:** 2026-10-10, at planning. **Owner:** 04.
-
-**Package (01):** `raypoolkit/RayWorkPool.py:138`.
-
-With `store_results=True` the constructor sizes `results` from `len(task_list)` (SGK `:138`),
-though it has already consumed `task_list` into `self._todo` and counted it. A generator or other
-iterable without `len()` raises `TypeError`.
-
-*Impact.* None known at a client: no client run is known to have raised it, but the planner did
-not trace every `task_list` argument to its type (06 does). The constructor otherwise accepts any
-iterable.
-
-*Next step.* 04 sizes from `self._num_total_items`, with a test that passes a generator.
-
-**Pinned (02, 2026-10-10):** `TestInheritedFaults.test_fault_store_results_sizes_from_len_of_the_task_list`: a
-generator `task_list` with `store_results=True` raises `TypeError` at `:138`; without it, it runs.
-Sizing from `self._num_total_items` fails this test alone. 04 inverts it.
-
-### `[00-the-constructor-checks-its-handlers-unevenly]`
-
-**Opened:** 2026-10-10, at planning. **Owner:** 04, under U8.
-
-**Package (01):** the `RuntimeWarning` check at `raypoolkit/RayWorkPool.py:99-102` (raised at
-`:100`); the store handler, never checked, is called at `:431`.
-
-The constructor raises `RuntimeWarning`, an exception class, when a persist handler is set without
-a compute handler (SGK `:99-102`). Since the default persist handler is not `None`, every
-lookup-only pool must pass `persist_handler=None`. It does not check the converse for the store
-handler: `store_handler=None` with a compute handler fails with `TypeError` at the first completed
-compute, not at construction.
-
-*Impact.* Every lookup-only site in SGK (44) and SI (12) carries `persist_handler=None` for this
-reason. CPBH's 14 lookup-only sites do not, so under the package as imported each raises at
-construction until CPBH changes it.
-
-*Next step.* U8 is put when 04 is written; the recommendation (option b) makes the defaults apply
-only with a compute handler, so no existing site has to change.
-
-**Decided (2026-10-10):** U8 taken, option (b), with every argument check raising `ValueError`
-and the check covering `store_handler`, `persist_handler`, `validation_handler` and
-`label_builder`. 04 applies it (prompt 04 §2.4); all 87 client call sites construct under it.
-
-**Pinned (02, 2026-10-10):** `TestInheritedFaults.test_fault_persist_handler_without_compute_raises_runtime_warning`
-(also `test_construction.TestHandlerChecks.test_persist_handler_without_compute_handler_raises_runtime_warning`,
-with the message) and `TestInheritedFaults.test_fault_store_handler_none_with_compute_fails_at_first_compute`
-(`TypeError` from `self._store_handler(obj, self._pool)` once the first compute completes). 04
-inverts them under U8.
-
-### `[00-messages-say-maker-and-the-module-has-no-licence-header]`
-
-**Opened:** 2026-10-10, at planning. **Owner:** 04.
-
-**Package (01):** "maker" at `raypoolkit/RayWorkPool.py:96` and `:101`; no licence header (`:1` is
-`import time`).
-
-The constructor's two messages say "compute maker" and "persist maker" for the handlers, and SGK's
-module carries no licence header (CPBH's and SI's copies carry the Apache 2.0 header, and SI's
-messages say "handler").
-
-*Impact.* Cosmetic. The messages are not part of the printed-lines interface (`CLAUDE.md`); they
-are exception text.
-
-*Next step.* 04 rewrites the two messages and adds the header the repository's licence calls for.
-
-**Pinned (02, 2026-10-10):** by `raypoolkit/tests/test_construction.py`'s message assertions,
-`TestHandlerChecks.test_compute_handler_without_persist_handler_raises_runtime_error` and
-`…_persist_handler_without_compute_handler_raises_runtime_warning`, which compare each message
-whole (`COMPUTE_WITHOUT_PERSIST`, `PERSIST_WITHOUT_COMPUTE`). No test pins the absent header. 04
-changes the two constants.
-
-**Decided (2026-10-10):** U11 taken: CPBH's and SI's 14-line header, byte for byte, on all four
-package modules (`RayWorkPool.py`, `_timing.py`, `contract.py`, `__init__.py`), not the tests. 04
-adds it with a test that reads it (prompt 04 §2.6, §3.1).
-
-### `[01-a-kept-comment-names-the-datastore-service]`
-
-**Opened:** 2026-10-10, by 01 (log 01 §5.1). **Owner:** 04.
-
-**Package (01):** `raypoolkit/RayWorkPool.py:424`, a comment kept from SGK as it is (01 §2.4):
-"…and then submit a store request to the Datastore service". `Datastore` is the name of SGK's
-datastore package and class. `CLAUDE.md` says the package names no client class, module or package
-in its comments. The module's other mentions (`:430`, `:451`, `:502`, `:574`) say "datastore" in
-lower case, generically.
-
-*Impact.* None on behaviour: it is a comment. It breaks a stated invariant of the package's text.
-
-*Next step.* 04, which rewrites the module's wording for
-`[00-messages-say-maker-and-the-module-has-no-licence-header]`, rewords the comment generically
-("the datastore"). The printed lines are not affected.
-
-### `[02-the-constructor-does-not-check-its-sizes]`
-
-**Opened:** 2026-10-10, by the orchestrator's review of 02 (log 02 §6.1). **Owner:** 04, with
-U8's handler checks.
-
-**Package:** `raypoolkit/RayWorkPool.py:85-87` (the three sizes, unchecked); the loop at `:246`,
-the batch guard at `:250`, the inner loop at `:252`, and `num_returns` at `:315`.
-
-The constructor accepts any `create_batch_size`, `process_batch_size` and `max_task_queue`.
-Measured by the orchestrator on a scratch stand-in at 02's dispatch: with `max_task_queue=0` or
-`create_batch_size=0`, no task is ever built, so every pass calls `ray.wait([], num_returns=0)`,
-which returns `([], [])`, and `run()` never ends. With `process_batch_size=0` and work in flight,
-`num_returns` is 0 and `ray.wait` raises `ValueError`.
-
-*Impact.* None known at a client: the defaults are 5, 1 and 200. A caller who passes 0 hangs a
-driver with no message.
-
-*Next step.* 04 raises `ValueError` at construction for a size below 1, with a test for each, as
-part of the constructor checks U8 settles. No test pins the hang today (02 builds no such pool).
+The five `[00-…]` entries inherited from the source,
+`[01-a-kept-comment-names-the-datastore-service]` and
+`[02-the-constructor-does-not-check-its-sizes]` were closed by 04 and are in §4.
 
 ### `[03-a-stale-egg-info-manifest-ships-the-tests-in-a-wheel]`
 
@@ -493,4 +331,210 @@ says so makes it, with the release check re-run; 03 could not (its §2.1: "Nothi
 
 ## 4. Resolved issues
 
-None.
+The five `[00-…]` entries were inherited from the source and opened at planning (README §0.2,
+faults 1–5); each was pinned as it behaved by 02 and fixed by 04. Their **Package** lines are
+`v0.1.0`'s (log 01 §3.6); each **Resolved** line gives the line in the module as 04 left it.
+
+### `[00-in-flight-work-is-keyed-on-a-bound-method]`
+
+**Opened:** 2026-10-10, at planning. **Owner:** 04.
+
+**Package (01):** 26 lines keyed on `.hex`, `raypoolkit/RayWorkPool.py:260, 263, 266, 277, 322,
+337, 338, 351, 352, 379, 381, 389, 390, 403, 409, 410, 434, 435, 444, 445, 467, 468, 479, 480, 505,
+506`.
+
+`RayWorkPool.run()` keys `_inflight`, `_data` and `_compute_data` on `ref.hex`, the bound method,
+not on `ref.hex()` or the ref itself. Bound methods compare by the identity of `__self__`, so two
+equal `ObjectRef`s that are distinct Python objects give unequal keys. Measured at Ray 2.43.0,
+2.53.0 and 2.55.1: `ObjectRef(b) == ObjectRef(b)` and their hashes agree, but their `.hex` methods
+do not compare equal.
+
+*Impact.* None today: `ray.wait` returns the objects it was given, so every lookup finds its key.
+A Ray release that returns fresh refs from `ray.wait`, or a stand-in that does, makes every
+completed task a `KeyError`.
+
+*Next step.* 04 keys the dictionaries on the ref itself (or `ref.hex()`), with a test whose
+stand-in `ray.wait` returns equal but distinct refs.
+
+**Pinned (02, 2026-10-10):** `raypoolkit/tests/test_inherited_faults.py`,
+`TestInheritedFaults.test_fault_in_flight_work_is_keyed_on_a_bound_method`, as it behaves: with the
+stand-in's `fresh_refs`, the first completed lookup raises `KeyError` from `self._data[ref.hex]`.
+Changing all 26 keys to `.hex()` fails this test and no other (log 02 §5.2). 04 inverts it.
+
+**Resolved (04, 2026-10-10):** the 26 keys are `.hex()`, at `raypoolkit/RayWorkPool.py:300, 303, 306,
+317, 362, 377, 378, 391, 392, 419, 421, 429, 430, 443, 449, 450, 474, 475, 484, 485, 507, 508, 519,
+520, 545, 546`. Guarded by `test_inherited_faults.TestInheritedFaults.test_fresh_refs_from_wait_complete_every_path`
+(with `fresh_refs`, a lookup-only pool, one with an availability handler, compute with and without
+validation, and `Blob`s each run to completion with the right `results`) and by X1, now seeded under
+`ref.hex()` only. (r1) fails both, and so does `v0.1.0`'s module (log 04 §4).
+
+### `[00-a-post-handler-after-persist-gets-the-unpersisted-object]`
+
+**Opened:** 2026-10-10, at planning. **Owner:** 04.
+
+**Package (01):** `raypoolkit/RayWorkPool.py:487-492`: the `elif self._post_handler is not None:`
+at `:489`, the call `self._post_handler(obj)` at `:490`.
+
+In the `"store"` branch with no validation handler (SGK `RayWorkPool.py:488-491`), the post
+handler is called with `obj`, the driver's copy from before the persist, not with
+`replacement_obj`, the object the datastore returned with its `store_id` set. Every other exit
+passes the current object.
+
+*Impact.* Reachable at one client site, SGK `main.py:3247` (`postprocess_GkSourcePolicy`). That
+handler reads only `policy`, `type` and `quality`, which `store()` sets locally, so it is correct
+today. A post handler there that read `store_id` would see `None`.
+
+*Next step.* 04 passes `replacement_obj`, with a test that a post handler after a persist sees the
+replacement. 06's checklists re-measure the sites.
+
+**Pinned (02, 2026-10-10):** `TestInheritedFaults.test_fault_post_handler_after_persist_gets_the_unpersisted_object`:
+at exit 4 the post handler is given an object whose `store_id` is `None`, while `results` holds the
+persisted one. Passing `replacement_obj` at `:490` fails it and S4's identity test,
+`test_run_paths.TestComputeStoreValidate.test_without_a_validation_handler_a_completed_store_exits_to_the_post_handler`.
+04 inverts both.
+
+**Resolved (04, 2026-10-10):** `raypoolkit/RayWorkPool.py:530` passes `replacement_obj`. Guarded by
+`TestInheritedFaults.test_the_post_handler_after_persist_gets_the_persisted_object` (the post
+handler's object has `store_id` 1001 and is `results[0]`) and by S4, inverted. (r2) fails both, and
+so does `v0.1.0`'s module (log 04 §4).
+
+### `[00-store-results-sizes-from-len-of-the-task-list]`
+
+**Opened:** 2026-10-10, at planning. **Owner:** 04.
+
+**Package (01):** `raypoolkit/RayWorkPool.py:138`.
+
+With `store_results=True` the constructor sizes `results` from `len(task_list)` (SGK `:138`),
+though it has already consumed `task_list` into `self._todo` and counted it. A generator or other
+iterable without `len()` raises `TypeError`.
+
+*Impact.* None known at a client: no client run is known to have raised it, but the planner did
+not trace every `task_list` argument to its type (06 does). The constructor otherwise accepts any
+iterable.
+
+*Next step.* 04 sizes from `self._num_total_items`, with a test that passes a generator.
+
+**Pinned (02, 2026-10-10):** `TestInheritedFaults.test_fault_store_results_sizes_from_len_of_the_task_list`: a
+generator `task_list` with `store_results=True` raises `TypeError` at `:138`; without it, it runs.
+Sizing from `self._num_total_items` fails this test alone. 04 inverts it.
+
+**Resolved (04, 2026-10-10):** `raypoolkit/RayWorkPool.py:178` sizes `results` from
+`self._num_total_items`. Guarded by `TestInheritedFaults.test_store_results_accepts_a_generator_task_list`.
+(r3) fails it, and so does `v0.1.0`'s module (log 04 §4).
+
+### `[00-the-constructor-checks-its-handlers-unevenly]`
+
+**Opened:** 2026-10-10, at planning. **Owner:** 04, under U8.
+
+**Package (01):** the `RuntimeWarning` check at `raypoolkit/RayWorkPool.py:99-102` (raised at
+`:100`); the store handler, never checked, is called at `:431`.
+
+The constructor raises `RuntimeWarning`, an exception class, when a persist handler is set without
+a compute handler (SGK `:99-102`). Since the default persist handler is not `None`, every
+lookup-only pool must pass `persist_handler=None`. It does not check the converse for the store
+handler: `store_handler=None` with a compute handler fails with `TypeError` at the first completed
+compute, not at construction.
+
+*Impact.* Every lookup-only site in SGK (44) and SI (12) carries `persist_handler=None` for this
+reason. CPBH's 14 lookup-only sites do not, so under the package as imported each raises at
+construction until CPBH changes it.
+
+*Next step.* U8 is put when 04 is written; the recommendation (option b) makes the defaults apply
+only with a compute handler, so no existing site has to change.
+
+**Decided (2026-10-10):** U8 taken, option (b), with every argument check raising `ValueError`
+and the check covering `store_handler`, `persist_handler`, `validation_handler` and
+`label_builder`. 04 applies it (prompt 04 §2.4); all 87 client call sites construct under it.
+
+**Pinned (02, 2026-10-10):** `TestInheritedFaults.test_fault_persist_handler_without_compute_raises_runtime_warning`
+(also `test_construction.TestHandlerChecks.test_persist_handler_without_compute_handler_raises_runtime_warning`,
+with the message) and `TestInheritedFaults.test_fault_store_handler_none_with_compute_fails_at_first_compute`
+(`TypeError` from `self._store_handler(obj, self._pool)` once the first compute completes). 04
+inverts them under U8.
+
+**Resolved (04, 2026-10-10):** under U8, `raypoolkit/RayWorkPool.py:109-134`: with no compute
+handler, a store or persist handler left at its default (by identity) resolves to `None`, and any
+of the four compute-path arguments not `None` raises `ValueError`; with one, `store_handler=None`
+or `persist_handler=None` raises `ValueError`. The signature is unchanged; no client call site must
+change (prompt 04 §2.4). Guarded by `TestInheritedFaults.test_a_lookup_only_pool_needs_no_persist_handler`
+and `…test_store_handler_none_with_compute_is_refused_at_construction`; by C1, C2, C5 and C6 in
+`test_construction.TestHandlerChecks`; and by `test_printed_lines`' spelling test, which shows the
+three lookup-only spellings print the same lines. (r4)–(r7) each fail them, and so does `v0.1.0`'s
+module (log 04 §4).
+
+### `[00-messages-say-maker-and-the-module-has-no-licence-header]`
+
+**Opened:** 2026-10-10, at planning. **Owner:** 04.
+
+**Package (01):** "maker" at `raypoolkit/RayWorkPool.py:96` and `:101`; no licence header (`:1` is
+`import time`).
+
+The constructor's two messages say "compute maker" and "persist maker" for the handlers, and SGK's
+module carries no licence header (CPBH's and SI's copies carry the Apache 2.0 header, and SI's
+messages say "handler").
+
+*Impact.* Cosmetic. The messages are not part of the printed-lines interface (`CLAUDE.md`); they
+are exception text.
+
+*Next step.* 04 rewrites the two messages and adds the header the repository's licence calls for.
+
+**Pinned (02, 2026-10-10):** by `raypoolkit/tests/test_construction.py`'s message assertions,
+`TestHandlerChecks.test_compute_handler_without_persist_handler_raises_runtime_error` and
+`…_persist_handler_without_compute_handler_raises_runtime_warning`, which compare each message
+whole (`COMPUTE_WITHOUT_PERSIST`, `PERSIST_WITHOUT_COMPUTE`). No test pins the absent header. 04
+changes the two constants.
+
+**Decided (2026-10-10):** U11 taken: CPBH's and SI's 14-line header, byte for byte, on all four
+package modules (`RayWorkPool.py`, `_timing.py`, `contract.py`, `__init__.py`), not the tests. 04
+adds it with a test that reads it (prompt 04 §2.6, §3.1).
+
+**Resolved (04, 2026-10-10):** the constructor's messages (`raypoolkit/RayWorkPool.py:123`, `:133`,
+`:142`) say "handler", and U11's header is at lines 1–15 of all four package modules. Guarded by
+the message assertions of `test_construction.py` (C1, C2, C5, C7) and the fault-4b guard, and by
+`TestInheritedFaults.test_every_package_module_carries_the_licence_header`. (r9) and (r10) fail
+them; `v0.1.0`'s module fails the header test for `RayWorkPool.py` (log 04 §4).
+
+### `[01-a-kept-comment-names-the-datastore-service]`
+
+**Opened:** 2026-10-10, by 01 (log 01 §5.1). **Owner:** 04.
+
+**Package (01):** `raypoolkit/RayWorkPool.py:424`, a comment kept from SGK as it is (01 §2.4):
+"…and then submit a store request to the Datastore service". `Datastore` is the name of SGK's
+datastore package and class. `CLAUDE.md` says the package names no client class, module or package
+in its comments. The module's other mentions (`:430`, `:451`, `:502`, `:574`) say "datastore" in
+lower case, generically.
+
+*Impact.* None on behaviour: it is a comment. It breaks a stated invariant of the package's text.
+
+*Next step.* 04, which rewrites the module's wording for
+`[00-messages-say-maker-and-the-module-has-no-licence-header]`, rewords the comment generically
+("the datastore"). The printed lines are not affected.
+
+**Resolved (04, 2026-10-10):** the comment at `raypoolkit/RayWorkPool.py:464` says "…submit a
+store request to the datastore." No test guards a comment; `git grep -n "Datastore service"
+raypoolkit` is empty.
+
+### `[02-the-constructor-does-not-check-its-sizes]`
+
+**Opened:** 2026-10-10, by the orchestrator's review of 02 (log 02 §6.1). **Owner:** 04, with
+U8's handler checks.
+
+**Package:** `raypoolkit/RayWorkPool.py:85-87` (the three sizes, unchecked); the loop at `:246`,
+the batch guard at `:250`, the inner loop at `:252`, and `num_returns` at `:315`.
+
+The constructor accepts any `create_batch_size`, `process_batch_size` and `max_task_queue`.
+Measured by the orchestrator on a scratch stand-in at 02's dispatch: with `max_task_queue=0` or
+`create_batch_size=0`, no task is ever built, so every pass calls `ray.wait([], num_returns=0)`,
+which returns `([], [])`, and `run()` never ends. With `process_batch_size=0` and work in flight,
+`num_returns` is 0 and `ray.wait` raises `ValueError`.
+
+*Impact.* None known at a client: the defaults are 5, 1 and 200. A caller who passes 0 hangs a
+driver with no message.
+
+*Next step.* 04 raises `ValueError` at construction for a size below 1, with a test for each, as
+part of the constructor checks U8 settles. No test pins the hang today (02 builds no such pool).
+
+**Resolved (04, 2026-10-10):** `raypoolkit/RayWorkPool.py:136-142`: each of `create_batch_size`,
+`process_batch_size` and `max_task_queue` below 1 raises `ValueError` ("<name> must be at least 1,
+not <value>"). Guarded by C7, `test_construction.TestSizeChecks.test_a_size_below_one_raises_value_error`.
+(r8) fails it, and so does `v0.1.0`'s module (log 04 §4).

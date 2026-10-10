@@ -92,6 +92,11 @@ class TestStatusMessages(PoolTestCase):
 
     HANDLER_SETS = {
         "lookup only": (LOOKUP_ONLY, ["lookup"]),
+        "lookup only, nothing passed": ({"compute_handler": None}, ["lookup"]),
+        "lookup only, store_handler=None": (
+            {"compute_handler": None, "store_handler": None},
+            ["lookup"],
+        ),
         "available": (
             dict(LOOKUP_ONLY, available_handler=lambda obj: None),
             ["lookup", "available"],
@@ -103,10 +108,6 @@ class TestStatusMessages(PoolTestCase):
                 "validation_handler": lambda obj: None,
             },
             ["lookup", "compute", "store", "available", "validation"],
-        ),
-        "validation only": (
-            dict(LOOKUP_ONLY, validation_handler=lambda obj: None),
-            ["lookup", "validation"],
         ),
     }
 
@@ -177,6 +178,47 @@ class TestProgressAndCompletion(PoolTestCase):
             ],
         )
         self.assertEqual(pool.total_time, 5)
+
+    def test_a_lookup_only_pool_prints_the_same_lines_however_its_handlers_are_spelled(
+        self,
+    ):
+        """
+        The run of ``test_a_lookup_only_run_notifying_on_every_pass``, with ``compute_handler=None``
+        and ``persist_handler=None``, with ``compute_handler=None`` alone, and with
+        ``compute_handler=None`` and ``store_handler=None``: the default store and persist handlers
+        apply only with a compute handler, so no spelling prints a store segment, and each prints
+        that test's nine lines. The clock is set back to 0 before each run.
+        """
+        spellings = {
+            "persist_handler=None": LOOKUP_ONLY,
+            "nothing passed": {"compute_handler": None},
+            "store_handler=None": {"compute_handler": None, "store_handler": None},
+        }
+        for name, handlers in spellings.items():
+            with self.subTest(spelling=name):
+                self.clock.reading = 0
+                pool, lines = self.run_pool(
+                    ["a", "b"],
+                    self.work_builder(available=True),
+                    title="Stage one",
+                    **EVERY_PASS,
+                    **handlers,
+                )
+                self.assertEqual(
+                    lines,
+                    [
+                        "",
+                        "** Stage one",
+                        progress(2, "1s", 0, 2, "100.00%", suffix=True),
+                        "      inflight: 1 lookup | completed: 1 lookup (avg 60/min)",
+                        progress(4, "3s", 0, 2, "100.00%", suffix=True),
+                        "      inflight: 0 lookup | completed: 2 lookup (60/min, avg 40/min)",
+                        "   -- ALL WORK ITEMS COMPLETE in time 5s",
+                        "      Queue summary: 2 lookup (avg 24/min)",
+                        NO_COMPUTE,
+                    ],
+                )
+                self.assertEqual(pool.total_time, 5)
 
     def test_the_percentage_counts_items_whose_task_is_not_yet_built(self):
         """

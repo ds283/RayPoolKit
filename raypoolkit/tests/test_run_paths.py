@@ -277,7 +277,10 @@ class TestComputeStoreValidate(RunPathTestCase):
     def test_without_a_validation_handler_a_completed_store_exits_to_the_post_handler(
         self,
     ):
-        """S4: exit 4, given the object the compute ran on (the board's fault 2)."""
+        """
+        S4: exit 4, given the persisted object, the one in ``results``, not the object the compute
+        ran on (fault 2, fixed).
+        """
         pool, _ = self.run_pool(
             ["a"],
             self.work_builder(available=False),
@@ -289,7 +292,10 @@ class TestComputeStoreValidate(RunPathTestCase):
             self.kinds(),
             ["compute_handler", "compute_kwargs", "store", "object_store", "post"],
         )
-        self.assertIs(self.logged("post")[0], self.logged("compute_handler")[0])
+        (given,) = self.logged("post")
+        self.assertEqual((given.name, given.store_id), ("a", 1001))
+        self.assertIs(given, pool.results[0])
+        self.assertIsNot(given, self.logged("compute_handler")[0])
         self.assertEqual(self.ray.wait_calls, [(1, 1)] * 3)
 
     def test_a_validation_that_is_not_true_prints_the_warning(self):
@@ -397,17 +403,10 @@ class TestExits(RunPathTestCase):
 
 class TestUnexpectedItemType(RunPathTestCase):
     def test_an_unexpected_item_type_raises(self):
-        """
-        X1, seeded through ``_inflight`` and ``_data`` (the white-box seam of §2.2).
-
-        ``_data`` is seeded under both ``ref.hex``, the bound method the module keys on today, and
-        ``ref.hex()``, the string the board's fault 1 would key on, so that this test pins the
-        branch and not the keying.
-        """
+        """X1, seeded through ``_inflight`` and ``_data`` (the white-box seam of §2.2)."""
         pool, _ = self.make_pool([], self.work_builder(), **LOOKUP_ONLY)
         ref = self.ray.ref(None)
-        pool._inflight[ref.hex] = ref
-        pool._data[ref.hex] = ("unexpected", None)
+        pool._inflight[ref.hex()] = ref
         pool._data[ref.hex()] = ("unexpected", None)
         with self.assertRaises(RuntimeError) as caught:
             self.run_existing(pool)

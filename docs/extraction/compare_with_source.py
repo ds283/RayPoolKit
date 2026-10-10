@@ -1,5 +1,11 @@
 #!/usr/bin/env python3
 """
+**Retired at ``v0.1.0``.** This check describes the package as tagged ``v0.1.0``, the last tree
+that equals its source up to the classes below. It was retired there (README §5 rule 8; prompt 04
+§2.8): prompt 04 ran it for the last time, before its change, and changes the module in its own
+right, so on a later tree it fails by design. If it is run again, run it on that tag, for example
+from a ``git worktree`` of ``v0.1.0``.
+
 The equivalence check of the extraction campaign (prompt 01 §2.5; README §5 rule 8).
 
 The package's ``RayWorkPool`` module is SecondaryGWKit's ``RayTools/RayWorkPool.py`` at the import
