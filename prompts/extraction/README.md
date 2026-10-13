@@ -357,7 +357,7 @@ The others are put when the prompt that needs them is written.
 |---|---|---|
 | **G1** | SGK's `RayTools/RayWorkPool.py` is still blob `b4666fa` when 01 is written. If it has changed, the plan is re-measured before 01. **Holds (2026-10-10)** at SGK `b510bc9`. | 01 |
 | **G2** | SGK has adopted `v0.2.0` in a campaign of its own: `RayTools/` deleted, the package imported at a pinned tag, its suites pass, including the six pinned lines. *(Corrected at 06's review, 2026-10-10: `test_pipeline_adoption.py`'s `A3_OUTPUT` holds five lines, the banner and two two-line progress notifications, with no completion pair, though its comment says six; see SGK's checklist, items 6 and 8.)* **Holds (2026-10-12)**: SGK adopted `v0.2.0` in its campaign `dk-and-rpk-migration`; recorded on the board, §2. | — |
-| **G3** | CPBH has adopted `v0.2.0` in a campaign of its own (06's checklist). | — |
+| **G3** | CPBH has adopted `v0.2.0` in a campaign of its own (06's checklist). **Holds (2026-10-12)**: CPBH adopted `v0.2.0` in its campaign `dk-and-rpk-migration`; recorded on the board, §2. | — |
 | **G4** | SI has adopted `v0.2.0`, when it is next active (06's checklist). | — |
 
 The campaign closes at 07. G2–G4 are recorded on this board as they hold, but this campaign does
