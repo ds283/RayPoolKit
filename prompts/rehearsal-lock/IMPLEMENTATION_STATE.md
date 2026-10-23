@@ -1,9 +1,12 @@
 # rehearsal-lock campaign — implementation state
 
-**Last updated:** 2026-10-23 · **Status: PLANNED — 1 of 5 prompts written (01).** G1 holds at SGK
-`216e44d`, CPBH `807f175` and SI `8b4f615`. The user took D1–D4 (README §6.1) and U1–U6 (README
-§6.2), all on 2026-10-23 and U1–U6 as recommended. The package is at `0.2.0`; the suite is 121
-tests.
+**Last updated:** 2026-10-23 · **Status: ACTIVE — 1 of 5 prompts written (01), and 01 landed
+(this commit): `raypoolkit/rehearsal_lock.py`, the lock at `~/.raypoolkit/rehearsal-lock` with the
+old-location refusal, the owner file, the five commands and the process rule by temp dir, standard
+library only; its 103 tests and two guard tests.** G1 holds at SGK `216e44d`, CPBH `807f175` and
+SI `8b4f615`. The user took D1–D4 (README §6.1) and U1–U6 (README §6.2), all on 2026-10-23 and
+U1–U6 as recommended. The package is at `0.2.0`; the suite is 226 tests (121 before 01), at
+3.12.15 / Ray 2.43.0 and 3.13.16 / Ray 2.55.1. No issue is open.
 
 **Campaign:** [`README.md`](README.md) ·
 **Sources:** SecondaryGWKit's `tools/rehearsal_lock.py`, blob `ea14336`; ChamPBH's and
@@ -40,7 +43,7 @@ StochasticInstantons' `ray_cluster.sh`, blobs `eaae1e7` and `6c8eada` (G1) ·
 
 | # | Prompt | Status | Commit | Suite |
 |---|---|---|---|---|
-| 01 | [`01-the-lock-module.md`](01-the-lock-module.md) | written 2026-10-23 | — | 121 → |
+| 01 | [`01-the-lock-module.md`](01-the-lock-module.md) | **landed** 2026-10-23 ([log](logs/01-the-lock-module.md)) | this commit | 121 → 226 |
 | 02 | `02-prove-it-under-real-ray.md` | not written | — | — |
 | 03 | `03-release-v0.3.0.md` | not written | — | — |
 | 04 | `04-the-switch-over-checklists.md` | not written | — | — |

@@ -10,6 +10,10 @@ The package's import guard: ``raypoolkit`` imports only the standard library, ``
    and no client module and no ``datastorekit`` has been loaded.
 3. In a fresh, isolated interpreter, the re-export of the class from the package root is pinned
    (see that test's docstring).
+4. ``raypoolkit/rehearsal_lock.py`` imports only the standard library: neither ``ray`` nor the
+   rest of the package.
+5. In a fresh, isolated interpreter, ``python -I -m raypoolkit.rehearsal_lock --help`` exits 0 and
+   loads no client module and no ``datastorekit``. It does load ``ray``, through the package root.
 
 This guard is about imports only. Ray is imported by the child interpreters, never started.
 """
@@ -71,6 +75,18 @@ def _run_child(code: str):
     with tempfile.TemporaryDirectory() as cwd:
         return subprocess.run(
             [sys.executable, "-I", "-c", code],
+            capture_output=True,
+            text=True,
+            cwd=cwd,
+            timeout=CHILD_TIMEOUT,
+        )
+
+
+def _run_child_args(args):
+    """Run ``sys.executable`` with ``args`` from an empty temporary directory."""
+    with tempfile.TemporaryDirectory() as cwd:
+        return subprocess.run(
+            [sys.executable, *args],
             capture_output=True,
             text=True,
             cwd=cwd,
@@ -156,6 +172,42 @@ print(json.dumps(facts))
         facts = json.loads(result.stdout.strip().splitlines()[-1])
         failed = sorted(k for k, v in facts.items() if v is not True)
         self.assertEqual(failed, [], f"U4's re-export does not hold: {failed}")
+
+    def test_the_lock_module_imports_only_the_standard_library(self):
+        path = PACKAGE_DIR / "rehearsal_lock.py"
+        found = imported_modules(path)
+        self.assertGreater(len(found), 0)
+        allowed = set(sys.stdlib_module_names) - ALLOWED_ROOTS
+        offending = [
+            f"{path.relative_to(PACKAGE_DIR.parent)}:{line}: imports {name}"
+            for line, name in found
+            if name.split(".")[0] not in allowed
+        ]
+        self.assertEqual(offending, [], "\n".join(offending))
+
+    def test_the_lock_command_runs_with_no_client(self):
+        """
+        The literal command, ``python -I -m raypoolkit.rehearsal_lock --help``, with ``-X
+        importtime`` so that every module it loads is named on stderr. ``ray`` is among them,
+        imported by the package root (the rehearsal-lock campaign's decision U3), so it is not
+        checked here; the module's own imports are the previous test's.
+        """
+        result = _run_child_args(
+            ["-I", "-X", "importtime", "-m", "raypoolkit.rehearsal_lock", "--help"]
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertTrue(
+            result.stdout.startswith("usage: python -m raypoolkit.rehearsal_lock"),
+            result.stdout,
+        )
+        loaded = [
+            line.rsplit("|", 1)[-1].strip()
+            for line in result.stderr.splitlines()
+            if line.startswith("import time:")
+        ]
+        self.assertIn(PACKAGE_NAME, loaded)
+        forbidden = sorted(m for m in loaded if m.split(".")[0] in FORBIDDEN_ROOTS)
+        self.assertEqual(forbidden, [], f"the lock command loaded {forbidden}")
 
 
 if __name__ == "__main__":
