@@ -328,5 +328,9 @@ None is in this campaign's scope. Candidates:
   ports), their targeted stop (SIGTERM to what the process rule finds, a grace period, SIGKILL, and
   a check that the ports are free) and their status could move here as a second module, taking the
   ports as arguments. It signals processes and would need its own proof on a real cluster.
+  **It waits for G2** (the user, 2026-10-23): its stop signals what this campaign's process rule
+  lists, so that rule is first proven by 02 and in use by all three clients; the switch-over day
+  stays limited to the lock; and, because each cluster is its own project's, it needs no shared
+  day of its own: a later release that CPBH and SI each adopt when they choose.
 - **Dropping the old-location refusal** (U4), in the release after G2 holds.
 - **Renaming the `RayWorkPool` submodule**, if a Ray-free import of the package is wanted (U3).
