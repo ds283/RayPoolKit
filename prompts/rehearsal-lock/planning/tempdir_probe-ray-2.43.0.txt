@@ -1,0 +1,20 @@
+2026-10-23 12:43:03,944	INFO worker.py:1841 -- Started a local Ray instance.
+ray 2.43.0 3.12.15
+driver 6169 children of driver: 7
+  ---- 6170 6169 <python> -u <venv>
+  SEED 6171 6169 <venv>/lib/python3.12/site-packages/ray/core/src/ray/gcs/gcs_server --log_dir=/tmp/ray-rpkp/session_2026-10-23_12
+  SEED 6172 6169 <python> -u <venv>
+  SEED 6173 6169 <python> <venv>/li
+  SEED 6174 6169 <venv>/lib/python3.12/site-packages/ray/core/src/ray/raylet/raylet --raylet_socket_name=/tmp/ray-rpkp/session_202
+  SEED 6175 6169 <python> -u <venv>
+  SEED 6176 6174 <python> -u <venv>
+  SEED 6177 6174 <python> -u <venv>
+  desc 6178 6174 ray::IDLE                    
+  desc 6179 6174 ray::IDLE                    
+  desc 6181 6174 ray::A                    
+  ---- 6183 6169 ps -axww -o pid= -o ppid= -o command=
+worker/actor pids reached by temp-dir rule: [6178, 6179, 6181] missed: []
+child procs of driver missed by temp-dir rule:
+    <python> -u <venv>/lib/python3.12/site-packages/ray/_private/ray_process_reaper.py
+    ps -axww -o pid= -o ppid= -o command=
+client server present: False

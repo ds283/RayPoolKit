@@ -1,0 +1,20 @@
+2026-10-23 12:43:32,951	INFO worker.py:2012 -- Started a local Ray instance.
+ray 2.55.1 3.13.16
+driver 6212 children of driver: 7
+  ---- 6221 6212 <python> -u /Users/ds283/Documents/Code/StochasticInsta
+  SEED 6222 6212 <venv>/lib/python3.13/site-packages/ray/core/src/ray/gcs/gcs_server --log_dir=/tmp/ray-rpkp/session_202
+  SEED 6241 6212 <python> -u /Users/ds283/Documents/Code/StochasticInsta
+  SEED 6244 6212 <python> /Users/ds283/Documents/Code/StochasticInstanto
+  SEED 6262 6212 <python> -u /Users/ds283/Documents/Code/StochasticInsta
+  SEED 6263 6212 <venv>/lib/python3.13/site-packages/ray/core/src/ray/raylet/raylet --raylet_socket_name=/tmp/ray-rpkp/s
+  desc 6264 6263 ray::DashboardAgent                     
+  desc 6265 6263 ray::RuntimeEnvAgent               
+  desc 6268 6263 ray::IDLE                    
+  desc 6269 6263 ray::IDLE                    
+  desc 6270 6263 ray::A                    
+  ---- 6274 6212 ps -axww -o pid= -o ppid= -o command=
+worker/actor pids reached by temp-dir rule: [6268, 6269, 6270] missed: []
+child procs of driver missed by temp-dir rule:
+    <python> -u <venv>/lib/python3.13/site-packages/ray/_private/ray_process_reaper.py
+    ps -axww -o pid= -o ppid= -o command=
+client server present: False
