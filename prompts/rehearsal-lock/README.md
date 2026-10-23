@@ -2,10 +2,9 @@
 
 **Written:** 2026-10-23 by Claude Opus 5.5, at the user's request, from a read-only comparison of
 the three clients' rehearsal-lock code made the same day (§0.2) and two probes of an in-process Ray
-instance (§0.3). The user took D1–D4 the same day (§6.1). U1–U6 (§6.2) are put with
-recommendations; U1–U5 are needed before 01 is written. **No prompt is written yet.** Each is
-written after the one before it has landed and been reviewed, against the tree it left, as in
-`extraction`.
+instance (§0.3). The user took D1–D4 the same day (§6.1), and U1–U6 (§6.2) the same day, each as
+recommended. **Prompt 01 is written**; each later prompt is written after the one before it has
+landed and been reviewed, against the tree it left, as in `extraction`.
 
 ## 0. Why this campaign exists
 
@@ -140,7 +139,7 @@ so any `python -m raypoolkit.<module>` pays this (U3).
 
 | # | Prompt | Covers | Status |
 |---|---|---|---|
-| 01 | `01-the-lock-module.md` | `raypoolkit/rehearsal_lock.py` under U1, to §4's interface: the location (D2) and the old-location refusal (U4); the owner file; `acquire`, `set-pid`, `release`, `status` and `ray-processes`; the temp-dir rule (U2), with the client-server seed when the address is `host:port`; the command line. Written new, to §4, taking SGK's module as its model (the owner-file code, the ancestor walk, the exit codes) and CPBH's `list_cluster_pids` for the rule. Tests: SGK's 42 ported with neutral project names, and new ones for the rule, built from §0.3's process trees; `HOME` patched in every test. The import guard covers the new module. **Acceptance:** every refusal has a test that a named mutation fails, with only that one reason standing (as SGK's 02a); an owner file of each shape the clients write today parses, and is accepted or refused by the identity check as §4 says; no test creates anything under the real `HOME`. | not written |
+| 01 | `01-the-lock-module.md` | `raypoolkit/rehearsal_lock.py` under U1, to §4's interface: the location (D2) and the old-location refusal (U4); the owner file; `acquire`, `set-pid`, `release`, `status` and `ray-processes`; the temp-dir rule (U2), with the client-server seed when the address is `host:port`; the command line. Written new, to §4, taking SGK's module as its model (the owner-file code, the ancestor walk, the exit codes) and CPBH's `list_cluster_pids` for the rule. Tests: SGK's 42 ported with neutral project names, and new ones for the rule, built from §0.3's process trees; `HOME` patched in every test. The import guard covers the new module. **Acceptance:** every refusal has a test that a named mutation fails, with only that one reason standing (as SGK's 02a); an owner file of each shape the clients write today parses, and is accepted or refused by the identity check as §4 says; no test creates anything under the real `HOME`. | written 2026-10-23 ([`01-the-lock-module.md`](01-the-lock-module.md)) |
 | 02 | `02-prove-it-under-real-ray.md` | A script, `docs/rehearsal-lock/ray_proof.py`, not a test (as `extraction`'s U13), run at both tested ends: (a) an in-process instance with `_temp_dir`: acquire, `set-pid`, `ray-processes` lists every Ray process an independent listing finds bar the reaper, release refused while it is up, allowed after `ray.shutdown()`; (b) a `ray start --head` cluster on its own temp dir and non-default ports: the client server found by its address; the script stops it by signalling exactly what `ray-processes` listed, then release succeeds; (c) a second acquire refused. The script takes the shared lock as it stands on the day (§5 rule 9). Nothing under `raypoolkit/` changes unless the proof fails, which is a stop. | not written |
 | 03 | `03-release-v0.3.0.md` | `pyproject.toml` at `0.3.0`; `README.md` (usage of the lock; "Changes in `v0.3.0`"); `PROVENANCE.md` ("Since `v0.2.0`": what came from SGK's module at blob `ea14336`, and from CPBH's and SI's scripts); `docs/rehearsal-lock.md`, the contract, written without naming a client; `CLAUDE.md` ("What this repository is"; the command line's exit codes and `status` layout are an interface). Both ends locally and in CI; **`v0.3.0`** tagged on its commit after green CI (U6). | not written |
 | 04 | `04-the-switch-over-checklists.md` | `docs/adoption/rehearsal-lock/`: one checklist per client, measured read-only at a named client commit against `v0.3.0`, and `switch-over.md`, the procedure for the day. SGK: delete `tools/rehearsal_lock.py` and its tests; give each in-process `ray.init` a `_temp_dir` (and measure what Ray does when `_temp_dir` is passed with a cluster address); its owner values; its `CLAUDE.md` section. CPBH and SI: replace `acquire_lock`, `release_lock`, the owner functions and the lock half of `status` in `ray_cluster.sh` with calls to the command line, keeping the cluster code; their `CLAUDE.md` and README lines. Each: the pin. The procedure: the preconditions (no lock at either location, no Ray process of any client), the order, and what each client checks afterwards. | not written |
@@ -157,7 +156,7 @@ code (04) reads source files through `git`; it does not import a client or run a
 
 ## 4. The interfaces between prompts
 
-**Fixed by this plan** (subject to U1–U5):
+**Fixed by this plan** (U1–U5 taken 2026-10-23):
 
 - **The module** is `raypoolkit.rehearsal_lock`, run as `python -m raypoolkit.rehearsal_lock`
   with the client's venv's interpreter (U1). It imports only the standard library and itself; it
@@ -185,14 +184,17 @@ code (04) reads source files through `git`; it does not import a client or run a
   ```text
   acquire --project P --purpose TEXT --ray-temp-dir D --ray-address A
       0 held now; 3 held already, or the old location exists (nothing touched);
-      4 a process of D is alive (released again); 1 the owner file could not be written
+      4 a process of D is alive, or the process table cannot be read (released again);
+      1 the owner file could not be written
   set-pid --project P --ray-temp-dir D PID
-      0 recorded; 1 refused (not P's lock, or PID not alive)
+      0 recorded; 1 refused (no lock, not P's lock, or PID not alive)
   release --project P --ray-temp-dir D
-      0 released, or no lock; 1 refused (not P's lock, its pid alive, or a process of D alive)
+      0 released, or no lock; 1 refused (not P's lock, its pid alive, a process of D alive,
+      or the process table cannot be read)
   status [--ray-temp-dir D [--ray-address A]]
-      0; the lock, its owner file verbatim, whether its pid is alive, and the processes of D
-      (or, with no D given, of the owner's ray_temp_dir and ray_address)
+      0; the lock, its owner file verbatim, whether its pid is alive, whether the old
+      location exists, and the processes of D (or, with no D given, of the owner's
+      ray_temp_dir and ray_address)
   ray-processes --ray-temp-dir D [--ray-address A]
       0 none; 1 some, one per line
   ```
@@ -260,15 +262,16 @@ The project-wide ones in `CLAUDE.md`, plus:
 
 ### 6.2 Decisions this campaign needs
 
-Each is put with a recommendation. **U1–U5 are needed before 01 is written; U6 before 03.**
+Each was put with a recommendation. **U1–U6 were taken by the user on 2026-10-23, each as
+recommended**; the recommendation below is the decision.
 
-- **U1: the module and how it is run** *(for 01)*. *Recommended:* `raypoolkit/rehearsal_lock.py`,
+- **U1: the module and how it is run** *(for 01)*. *Taken 2026-10-23:* `raypoolkit/rehearsal_lock.py`,
   run as `python -m raypoolkit.rehearsal_lock` with the client's venv's interpreter, and no
   console-script entry point. A console script would put a `raypoolkit-…` command on `PATH`, where
   it could come from another venv; `./venv/bin/python -m …` says whose it is, which is how all
   three clients already call their tools.
 - **U2: one process rule, by Ray temp dir** *(for 01; the user asked whether SGK can use it)*.
-  *Recommended:* yes. The module carries only the temp-dir rule of §4, and SGK gives every
+  *Taken 2026-10-23:* yes. The module carries only the temp-dir rule of §4, and SGK gives every
   in-process instance that runs under the lock a temp dir of its own (`ray.init(address="local",
   _temp_dir="/tmp/ray-sgk")`), recorded in its owner file in place of `in-process`
   (`ray_address` stays `in-process`). §0.3 measured that this finds every Ray process of the
@@ -291,19 +294,19 @@ Each is put with a recommendation. **U1–U5 are needed before 01 is written; U6
   before `__getattr__` returns; one that also rebinds the name in `globals()` gives the class on a
   fresh import, but still gives the module whenever the submodule was imported first (`import
   pkg.Thing`, or `from pkg.Thing import …`), since `__getattr__` is then never consulted. That is a
-  change to a released interface, for 0.3 s. *Recommended:* **no** in this campaign; keep the
+  change to a released interface, for 0.3 s. *Taken 2026-10-23:* **no** in this campaign; keep the
   eager import. If the
   latency matters later, the clean fix is to rename the submodule (so the class no longer shadows
   it) in a release of its own, which is a client-visible change.
-- **U4: refuse while the old location exists** *(for 01)*. *Recommended:* yes, in `0.3.x`, removed
+- **U4: refuse while the old location exists** *(for 01)*. *Taken 2026-10-23:* yes, in `0.3.x`, removed
   by a later release once G2 holds. On the switch-over day it catches a client that was missed and
   still holds the old lock, and a stale old lock left behind; it costs one check and its tests. It
   cannot catch a missed client that acquires after the switch (that client cannot see the new
   lock), which is what the procedure in 04 is for.
-- **U5: no environment override of the location** *(for 01)*. *Recommended:* none. A variable that
+- **U5: no environment override of the location** *(for 01)*. *Taken 2026-10-23:* none. A variable that
   one project set differently would recreate the problem this campaign removes. Tests and 02's
   proof pass `lock_dir` as a keyword argument; the command line has no option for it.
-- **U6: the release** *(for 03)*. *Recommended:* `v0.3.0`, a new minor version: a new module and a
+- **U6: the release** *(for 03)*. *Taken 2026-10-23:* `v0.3.0`, a new minor version: a new module and a
   new command-line interface, with `RayWorkPool` unchanged. A client moving its pin from `v0.2.0`
   changes nothing else.
 
