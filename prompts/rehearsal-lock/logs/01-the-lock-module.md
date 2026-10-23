@@ -1,6 +1,6 @@
 # Log — rehearsal-lock prompt 01: the lock module
 
-**Subject:** Add the shared rehearsal lock as raypoolkit.rehearsal_lock · **Commit:** this commit
+**Subject:** Add the shared rehearsal lock as raypoolkit.rehearsal_lock · **Commit:** `6733447`
 · **Date:** 2026-10-23 · **Agent:** Claude Opus 5.5
 
 **Result: landed.** `raypoolkit/rehearsal_lock.py` is new: the lock at `~/.raypoolkit/rehearsal-lock`
@@ -542,7 +542,7 @@ mutation.
 Each mutation's named test fails, except M9's, which cannot (deviation 21), and M13's, which fails
 in `setUp` rather than in its body.
 
-The fourteen diffs, as `git apply` replays them on this commit's tree:
+The fourteen diffs, as `git apply` replays them on `6733447`'s tree:
 
 **M1: the lock's `os.mkdir` replaced by `mkdir(exist_ok=True)`** (`m01.diff`)
 
