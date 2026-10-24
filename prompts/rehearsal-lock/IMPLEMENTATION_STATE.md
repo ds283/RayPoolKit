@@ -559,6 +559,16 @@ directories a run; CI has not yet run `black` over the changed script. None is a
 head, in the README and in `prompts/INDEX.md`; the notes line. The verification document says "the
 commit that adds this document" and is left as it is (`CLAUDE.md` rule 6).
 
+*CI on 05's work (2026-10-25).* The user had `main` pushed from `6284b3b` to `60f16c3`, carrying
+`2861b38`, `636a02a`, `41cc35e` and `60f16c3` in one push, so the `tests` workflow ran once, on
+`60f16c3`: run 40142968068 passed both jobs (`suite (low)` and `suite (high)`, each `Ran 226 tests`
+… `OK`; the whole run 29 s), and `black --check raypoolkit docs` left 20 files unchanged. It is
+the first CI run of `black` over the changed `docs/rehearsal-lock/ray_proof.py`. `2861b38`,
+`636a02a` and `41cc35e` have no run of their own; the run on `60f16c3` covers their trees, since
+`60f16c3` touches only `prompts/`. The proof itself does not run in CI. The verification
+document's §2.3 was written before this push and is not changed (`CLAUDE.md` rule 6); this
+paragraph is the record.
+
 ## 2. Gates outside this repository (README §7)
 
 | Gate | Status |
