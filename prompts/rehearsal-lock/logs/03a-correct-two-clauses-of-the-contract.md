@@ -1,9 +1,9 @@
 # Log — rehearsal-lock prompt 03a: correct two clauses of the contract
 
-**Subject:** Correct two clauses of the rehearsal lock's contract · **Commit:** this commit ·
+**Subject:** Correct two clauses of the rehearsal lock's contract · **Commit:** `67a75b9` ·
 **Date:** 2026-10-24 · **Agent:** Claude Opus 5.5
 
-**Result: landed; `v0.3.0` is ready to be tagged on this commit once CI passes here. No tag was
+**Result: landed; `v0.3.0` is ready to be tagged on `67a75b9` once CI passes here. No tag was
 made, and nothing was pushed.**
 - `docs/rehearsal-lock.md` says what the module does at the two edges 03's review found: §4's
   `ray_temp_dir` rule admits a leading `//`, and §6 item 4 keeps pid 1 out of the set never listed.
@@ -145,7 +145,7 @@ No UNINTENDED DRIFT was found.
 
 ### 3.2 Nothing reaches the wheel (prompt §3.2)
 
-`git diff 89d6875 HEAD -- raypoolkit pyproject.toml`, after this commit: empty (§3.7). No wheel was
+`git diff 89d6875 HEAD -- raypoolkit pyproject.toml`, after `67a75b9`: empty (§3.7). No wheel was
 built.
 
 ### 3.3 The probes (prompt §3.3)
@@ -434,7 +434,7 @@ P-b's first case, would print FAIL and the probe exit 1.
 1. **The module's docstrings make the pid 1 claim** (prompt §2.3): `rehearsal_lock.py:63-64`, the
    provenance note's "the walk that keeps this process, its ancestors and its own children out of
    the listing", and `:345-347`, `ray_processes`'s "this process …, its ancestors and its own
-   descendants are **never listed**". Both say what the contract said before this commit. They are
+   descendants are **never listed**". Both say what the contract said before `67a75b9`. They are
    under `raypoolkit/`, which this prompt does not change. No issue is opened, as the prompt
    directs (its acceptance 3 puts the index at 0); for the orchestrator, should a later change
    under `raypoolkit/` take them.
@@ -465,7 +465,7 @@ with a **Resolved (03a)** line. None opened or narrowed. `docs/OPEN_ISSUES.md`: 
 
 ## 7. State handed to the next prompt
 
-- **`v0.3.0` is ready to be tagged on this commit once CI passes here** (README §5 rule 10), not on
+- **`v0.3.0` is ready to be tagged on `67a75b9` once CI passes here** (README §5 rule 10), not on
   `89d6875`. The trees of the two differ only in `docs/rehearsal-lock.md` and `prompts/`; nothing
   under `raypoolkit/` or `pyproject.toml` differs, so the wheel is 03's. The tag is made by the
   user or on the user's instruction. Nothing is pushed: local `main` is ahead of `origin/main`

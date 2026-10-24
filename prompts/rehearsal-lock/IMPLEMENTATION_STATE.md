@@ -12,7 +12,7 @@ nothing under `raypoolkit/` changed. 03 landed (`89d6875`), reviewed: `pyproject
 the contract `docs/rehearsal-lock.md` (98 statements, each checked), and `README.md`,
 `PROVENANCE.md` and `CLAUDE.md` true of `v0.3.0`; the suite 226 → 226 at both ends; the release
 check passes with and without the stale manifest (10 entries, none under `raypoolkit/tests/`).
-03a landed (this commit): `docs/rehearsal-lock.md` §4 (a leading `//` passes the `ray_temp_dir`
+03a landed (`67a75b9`), reviewed: `docs/rehearsal-lock.md` §4 (a leading `//` passes the `ray_temp_dir`
 check) and §6 item 4 (pid 1 is not kept out of the listing) corrected to what the module does,
 each with its caller advice and a probe; nothing under `raypoolkit/` or `pyproject.toml` changed;
 the suite 226 → 226. `v0.3.0` is ready to be tagged on 03a's commit once CI passes there, not on
@@ -61,7 +61,7 @@ StochasticInstantons' `ray_cluster.sh`, blobs `eaae1e7` and `6c8eada` (G1) ·
 | 01 | [`01-the-lock-module.md`](01-the-lock-module.md) | **landed** 2026-10-23 ([log](logs/01-the-lock-module.md)), reviewed | `6733447` | 121 → 226 |
 | 02 | [`02-prove-it-under-real-ray.md`](02-prove-it-under-real-ray.md) | **landed** 2026-10-24 ([log](logs/02-prove-it-under-real-ray.md)), reviewed; CI green | `722466a` | 226 → 226 |
 | 03 | [`03-release-v0.3.0.md`](03-release-v0.3.0.md) | **landed** 2026-10-24 ([log](logs/03-release-v0.3.0.md)), reviewed; `v0.3.0` not yet tagged | `89d6875` | 226 → 226 |
-| 03a | [`03a-correct-two-clauses-of-the-contract.md`](03a-correct-two-clauses-of-the-contract.md) | **landed** 2026-10-24 ([log](logs/03a-correct-two-clauses-of-the-contract.md)); `v0.3.0` to be tagged here once CI passes | this commit | 226 → 226 |
+| 03a | [`03a-correct-two-clauses-of-the-contract.md`](03a-correct-two-clauses-of-the-contract.md) | **landed** 2026-10-24 ([log](logs/03a-correct-two-clauses-of-the-contract.md)); reviewed; `v0.3.0` to be tagged here once CI passes | `67a75b9` | 226 → 226 |
 | 04 | `04-the-switch-over-checklists.md` | not written | — | — |
 | 05 | `05-verification-and-close-out.md` | not written | — | — |
 
@@ -320,6 +320,51 @@ switch-over holds a lock no project looks at (for 04 and 05). The log's §5 list
 *Residue fixed in the review's own commit:* "this commit" → `89d6875` on this board, in the log
 and in `prompts/INDEX.md`; README's header and §2 status for 03; this notes line.
 
+**Orchestrator review of prompt 03a (2026-10-24).** The user chose a fix prompt over an
+orchestrator edit. Written (`b2ee2b3`) with the orchestrator's measurements in the prompt itself,
+and dispatched from it to one Opus subagent; reviewed against its commit `67a75b9`, with nothing
+landed after it. **Every check passed**, and the prompt's acceptance 1–3 are met. No stop
+condition fired.
+
+*The checks.*
+1. **Scope.** `67a75b9` touches five files: `docs/rehearsal-lock.md`, the log, this board,
+   `docs/OPEN_ISSUES.md` and `prompts/INDEX.md`. `raypoolkit/`, `pyproject.toml`, `README.md`,
+   `PROVENANCE.md`, `CLAUDE.md`, `.github/`, 03's log, the prompt and the campaign README are
+   unchanged from `b2ee2b3`, and `git diff 89d6875 67a75b9 -- raypoolkit pyproject.toml` is empty,
+   so the wheel is 03's. No tag; `origin/main` still `cc5f2d6`.
+2. **The document, read against the module.** §4's `ray_temp_dir` rule now admits a leading `//`
+   and names the four measured spellings; §6 item 4 now exempts the reader's ancestors other than
+   pid 1, and says that pid 1 naming `D` lists every descendant of pid 1 outside that set; "What
+   it asks of a caller" gains "never start the temp dir with `//`" and "never use a temp dir that
+   pid 1's command names". Each is true of `rehearsal_lock.py:126-135`, `:307-312` and
+   `:374-379`. The opening links 03a's log too. Nothing else changed.
+3. **The probes, re-run.** The agent's P-a, P-b and its own P-c, run again by the orchestrator
+   with `venv/`'s interpreter, `-I`, from a directory outside the repository: each exits 0 with
+   output byte-equal to the agent's, and each matches the prompt's measurements and the
+   orchestrator's own of 2026-10-24.
+4. **The suite and `black`.** `venv/`: `Ran 226 tests … OK`; `black --check raypoolkit docs`: 20
+   files unchanged. No Ray process; neither lock location under the real `HOME`.
+5. **Links and names.** The document's six relative links resolve to tracked files; the client
+   grep finds nothing.
+6. **The records.** The log has every section of README §5.1; the issue is in §4 with its
+   **Resolved (03a)** line; the index counts 0, matching its header.
+
+*The agent's own choices, accepted.* Deviations 1–8 of the log. **Deviation 1** (STRUCTURALLY
+REQUIRED) replaces the prompt's "every process outside that set" with "every descendant of pid 1
+outside that set, which is almost every process": on Linux, `kthreadd` (pid 2) has ppid 0, so the
+kernel threads are not pid 1's descendants (its P-c). The prompt's text was wrong; the agent's is
+the module's.
+
+*Observed, not opened.* The module's docstrings (`rehearsal_lock.py:63-64`, `:345-347`) and
+`PROVENANCE.md:102` still say ancestors are never listed, without the pid 1 exception; the
+docstrings are under `raypoolkit/` and change only in a later release. A temp dir of
+`//private/tmp/…` is matched only as spelled, not in its `/tmp/…` spelling (P-c); §4's "the process
+rule then matches the leading `//` as spelled" and the new `//` advice cover it. No test pins
+either corrected edge; both rest on the probes. The log's §5 lists the rest.
+
+*Residue fixed in the review's own commit:* "this commit" → `67a75b9` on this board, in the log
+and in `prompts/INDEX.md`; README's header and §2 status for 03 and 03a.
+
 ## 2. Gates outside this repository (README §7)
 
 | Gate | Status |
@@ -361,7 +406,7 @@ at the user's choice of a fix prompt; `v0.3.0` is then tagged on 03a's commit.
 leading `//` is kept; pid 1 is not exempt), each with its probe recorded, and change nothing under
 `raypoolkit/`. Then CI on that commit, then the tag.
 
-**Resolved (03a, 2026-10-24):** in this commit. `docs/rehearsal-lock.md` §4 now says that normal
+**Resolved (03a, 2026-10-24):** in `67a75b9`. `docs/rehearsal-lock.md` §4 now says that normal
 form is what `os.path.normpath` leaves unchanged, with no doubled `/` except a leading `//`, which
 POSIX keeps and the check accepts (`//tmp/ray-a` passes; `/tmp//ray-a`, `///tmp/ray-a` and
 `/tmp/ray-a/` do not). §6 item 4 now says that never listed are the reader, its ancestors other
