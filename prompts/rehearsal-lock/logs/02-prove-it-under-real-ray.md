@@ -1,6 +1,6 @@
 # Log — rehearsal-lock prompt 02: prove it under real Ray
 
-**Subject:** Prove the rehearsal lock under real Ray at both ends · **Commit:** this commit ·
+**Subject:** Prove the rehearsal lock under real Ray at both ends · **Commit:** `722466a` ·
 **Date:** 2026-10-24 · **Agent:** Claude Opus 5.5
 
 **Result: landed.** `docs/rehearsal-lock/ray_proof.py` is new: a script, not a test, which takes

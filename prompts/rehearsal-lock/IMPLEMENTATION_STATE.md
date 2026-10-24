@@ -4,10 +4,11 @@
 (`6733447`), reviewed, and CI green at both ends: `raypoolkit/rehearsal_lock.py`, the lock at
 `~/.raypoolkit/rehearsal-lock` with the old-location refusal, the owner file, the five commands
 and the process rule by temp dir, standard library only; its 103 tests and two guard tests. 02
-landed (this commit): `docs/rehearsal-lock/ray_proof.py`, run under real Ray holding the real
-shared lock, exits 0 at 3.12.15 / Ray 2.43.0 and 3.13.16 / Ray 2.55.1 (`ray[default]` scratch
-venvs, the user's choice of 2026-10-24), 31 checks each; its offline replay fails under M10 and
-M12 at both ends; nothing under `raypoolkit/` changed.** G1 holds at SGK `216e44d`, CPBH `807f175` and
+landed (`722466a`) and reviewed: `docs/rehearsal-lock/ray_proof.py`, run under real Ray holding
+the real shared lock, exits 0 at 3.12.15 / Ray 2.43.0 and 3.13.16 / Ray 2.55.1 (`ray[default]`
+scratch venvs, the user's choice of 2026-10-24), 31 checks each, for the agent and again for the
+orchestrator; its offline replay fails under M10 and M12 at both ends; nothing under
+`raypoolkit/` changed.** G1 holds at SGK `216e44d`, CPBH `807f175` and
 SI `8b4f615`. The user took D1–D4 (README §6.1) and U1–U6 (README §6.2), all on 2026-10-23 and
 U1–U6 as recommended. The package is at `0.2.0`; the suite is 226 tests (121 before 01), at
 3.12.15 / Ray 2.43.0 and 3.13.16 / Ray 2.55.1. No issue is open.
@@ -48,13 +49,13 @@ StochasticInstantons' `ray_cluster.sh`, blobs `eaae1e7` and `6c8eada` (G1) ·
 | # | Prompt | Status | Commit | Suite |
 |---|---|---|---|---|
 | 01 | [`01-the-lock-module.md`](01-the-lock-module.md) | **landed** 2026-10-23 ([log](logs/01-the-lock-module.md)), reviewed | `6733447` | 121 → 226 |
-| 02 | [`02-prove-it-under-real-ray.md`](02-prove-it-under-real-ray.md) | **landed** 2026-10-24 ([log](logs/02-prove-it-under-real-ray.md)) | this commit | 226 → 226 |
+| 02 | [`02-prove-it-under-real-ray.md`](02-prove-it-under-real-ray.md) | **landed** 2026-10-24 ([log](logs/02-prove-it-under-real-ray.md)), reviewed | `722466a` | 226 → 226 |
 | 03 | `03-release-v0.3.0.md` | not written | — | — |
 | 04 | `04-the-switch-over-checklists.md` | not written | — | — |
 | 05 | `05-verification-and-close-out.md` | not written | — | — |
 
 **Orchestrator notes:** [`orchestrator/prompt-01.md`](orchestrator/prompt-01.md) (`10be4d5`),
-used for 01.
+used for 01; [`orchestrator/prompt-02.md`](orchestrator/prompt-02.md) (`ae1e064`), used for 02.
 
 **Orchestrator review of prompt 01 (2026-10-23).** Dispatched from `10be4d5` to one Opus
 subagent, with the note's §0: eleven clarifications and the measured facts. Reviewed against its
@@ -134,6 +135,89 @@ workflow passed on both, at both ends: run 40031056598 on `6733447` (`suite (low
 
 *Residue fixed in the review's own commit:* "this commit" → `6733447` on this board, in the log
 and in `prompts/INDEX.md`; README's header and §2 status for 01; this notes line.
+
+**Orchestrator review of prompt 02 (2026-10-24).** Dispatched from `ae1e064` to one Opus
+subagent, with the note's §0: thirteen clarifications and the measured facts. Reviewed against its
+commit `722466a`, with nothing landed after it. **Every check of the note's §3 passed**, and the
+prompt's acceptance 1–4 are met. No stop condition fired.
+
+*Before dispatch, a decision for the user.* The prompt's §2.1 could not pass as written: `venv/`
+carries the minimal `ray`, with no `grpc`, and Ray 2.43.0 and 2.55.1 both refuse a client-server
+port without it (`RayParams` raises `ValueError`), so part (b)'s `ray start` would have failed at
+both ends. The clients pin the `ray[default]` set. **The user chose on 2026-10-24** to run the
+proof in two `ray[default]` scratch venvs, 3.12.15 / 2.43.0 and 3.13.16 / 2.55.1, with `venv/`
+keeping the suite and `black` (the note's clarification 1; the log's deviation 1, STRUCTURALLY
+REQUIRED).
+
+*At dispatch.* The note's gate held at `ae1e064`: the tree clean, this checkout the only worktree,
+`Ran 226 tests … OK`, `black` 19 files, no Ray process, ports 6420, 6421, 8270 and 52370 free,
+neither lock location under the real `HOME`, no `RAY_*` variable.
+
+*The checks.*
+1. **Scope.** `722466a` touches four files: `docs/rehearsal-lock/ray_proof.py` (new), the log,
+   this board and `prompts/INDEX.md`. `raypoolkit/`, `pyproject.toml`, `README.md`,
+   `PROVENANCE.md`, `CLAUDE.md`, `.github/` and the campaign README are unchanged from `3f1620e`.
+   No tag; `origin/main` still `2e561e2`.
+2. **The machine after the agent.** No Ray process; the four ports free; neither lock location;
+   `/tmp/ray-rpk02a` and `…b` hold Ray's session directories, `…c` was never made.
+3. **The script, by reading.** Read whole against the prompt's §2.2–§2.3 and the note's
+   clarifications. `RAY_USAGE_STATS_ENABLED=0` is set and the `RAY_*` refusal list taken before
+   `raypoolkit` is imported. Every lock call is a fresh `-I` interpreter from an empty directory,
+   `lock_dir=old_lock_dir()` but for (c)'s default-location acquire. Neither the script's argv nor
+   the driver's names a temp dir. The witness uses the venv's `ray` directory,
+   `ray.util.client.server` and `ray::` alone, less the script and its children. There is one
+   `os.kill` in the file, reached only through `signal_if_same`, which guards pid ≤ 1, the script
+   and its ancestors and then compares the command with the one recorded. No `ray stop`, `killpg`
+   or `pkill`. Any exception, and SIGTERM or SIGHUP, goes to the cleanup, which on a failure before
+   b3 signals only what both the listing and the witness name. It names no client.
+4. **The proof, by running.** In the orchestrator's own `ray[default]` venvs (editable installs of
+   this checkout), from a command naming no temp dir, in the background: **exit 0 at both ends, 31
+   checks of 31**, 60.2 s at 3.12.15 / 2.43.0 and 65.7 s at 3.13.16 / 2.55.1. Every role matched
+   the log: the reaper in the witness and in neither listing at a1, and gone after
+   `ray.shutdown()`; the client server listed with the address only, naming no temp dir; a stop
+   list of 8 processes at the low end and 18 at the high end (four dashboard children gone by
+   their turn and sent nothing); `gcs_server` and `monitor.py` outliving SIGTERM and killed after
+   the grace, at both ends. Before and after each run: no Ray process, the lock free,
+   `~/.raypoolkit` absent, the four ports (and 8265) free.
+5. **The breakage, by replaying.** The agent's extracted M8–M12 (SHA-256 as its log's §4), each
+   applied, replayed and reverted, over the orchestrator's records and the agent's, with `HOME` an
+   empty scratch directory that stayed empty. Unmutated, all four replays exit 0. **M10** fails a1
+   and b2 at 2.43.0, and a1, b1, b2 and b3 at 2.55.1; **M12** fails b1, b2 and b3 at both ends; M8,
+   M9 and M11 pass, for the reasons the log gives. The module and `git status` were restored after
+   each.
+6. **The witness, from the record** (the orchestrator's, 2.55.1). At a1 every one of the 11
+   witness processes names the venv's `ray` directory or is a `ray::` process; at b1, 8 of 18 do
+   and the other 10 (the dashboard's children) are descendants of one; none is unexplained. The
+   listings equal the witness, less the reaper at a1.
+7. **The suite and `black`.** `venv/`: `Ran 226 tests … OK`. `black --check raypoolkit docs`: 20
+   files unchanged.
+8. **The fixtures against the real lines** (the log's §3.9). Every role a test of 01 relies on
+   holds in the real trees. `TREE_243` labels two seed scripts wrongly (`default_worker.py` for
+   `dashboard.py`, and the order of `log_monitor.py`), and `TREE_255`'s `dashboard.py --minimal`
+   is not what `ray[default]` runs; neither changes what a test proves, so nothing is opened.
+9. **The records.** The log has every section of README §5.1 and the prompt's §4.4 additions:
+   both runs' whole output, their durations and readings, both venvs' freezes, §3.6's replay,
+   §3.9's comparison, the breakage record. The index counts 0, matching its header.
+
+*The agent's own choices, accepted.* Deviations 14–24 of the log. Two were looked at closely:
+- **`self_pid=-1` for the offline listing (14).** On macOS `launchd` is pid 1 with ppid 0
+  (measured by the orchestrator too), so `self_pid=0`'s "own descendants" are the whole table and
+  every offline listing would be empty: a1 could never pass. `-1` is in no row. Accepted as
+  STRUCTURALLY REQUIRED; the prompt's text was wrong, the module is right.
+- **The settling rule (15).** A checkpoint passes only when two consecutive readings agree and
+  the expectation holds on them, which is never weaker than the prompt's and gives a2 its bound.
+
+*Observed, not opened.* The replay can catch a mutation that under-lists, never one that
+over-lists: the record keeps only the rows of processes in the witness or a listing (the prompt's
+§2.2), so a process a mutation would wrongly add is never in it. That is why M8 cannot bite, and
+01's fixed-table tests stay the guard for over-listing. `KeyboardInterrupt` is not among the
+exceptions the parts catch, so a Ctrl-C at a terminal would end the script without its cleanup;
+it is run in the background, where nothing sends one. The log's §5 lists the rest: the
+in-process dashboard on port 8265 under `ray[default]` (for 04's SGK checklist), `self_pid` as a
+test seam (for 03's contract document), and `ray[default]` venvs for 05.
+
+*Residue fixed in the review's own commit:* "this commit" → `722466a` on this board, in the log
+and in `prompts/INDEX.md`; README's header and §2 status for 02; this notes line.
 
 ## 2. Gates outside this repository (README §7)
 
