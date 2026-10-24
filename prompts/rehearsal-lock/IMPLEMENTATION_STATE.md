@@ -1,6 +1,6 @@
 # rehearsal-lock campaign — implementation state
 
-**Last updated:** 2026-10-24 · **Status: ACTIVE — 3 of 5 prompts written (01, 02, 03); 01 landed
+**Last updated:** 2026-10-24 · **Status: ACTIVE — 4 prompts written (01, 02, 03, and the fix 03a), of 6; 01 landed
 (`6733447`), reviewed, and CI green at both ends: `raypoolkit/rehearsal_lock.py`, the lock at
 `~/.raypoolkit/rehearsal-lock` with the old-location refusal, the owner file, the five commands
 and the process rule by temp dir, standard library only; its 103 tests and two guard tests. 02
@@ -58,12 +58,14 @@ StochasticInstantons' `ray_cluster.sh`, blobs `eaae1e7` and `6c8eada` (G1) ·
 | 01 | [`01-the-lock-module.md`](01-the-lock-module.md) | **landed** 2026-10-23 ([log](logs/01-the-lock-module.md)), reviewed | `6733447` | 121 → 226 |
 | 02 | [`02-prove-it-under-real-ray.md`](02-prove-it-under-real-ray.md) | **landed** 2026-10-24 ([log](logs/02-prove-it-under-real-ray.md)), reviewed; CI green | `722466a` | 226 → 226 |
 | 03 | [`03-release-v0.3.0.md`](03-release-v0.3.0.md) | **landed** 2026-10-24 ([log](logs/03-release-v0.3.0.md)), reviewed; `v0.3.0` not yet tagged | `89d6875` | 226 → 226 |
+| 03a | [`03a-correct-two-clauses-of-the-contract.md`](03a-correct-two-clauses-of-the-contract.md) | written 2026-10-24 | — | 226 → |
 | 04 | `04-the-switch-over-checklists.md` | not written | — | — |
 | 05 | `05-verification-and-close-out.md` | not written | — | — |
 
 **Orchestrator notes:** [`orchestrator/prompt-01.md`](orchestrator/prompt-01.md) (`10be4d5`),
 used for 01; [`orchestrator/prompt-02.md`](orchestrator/prompt-02.md) (`ae1e064`), used for 02;
-[`orchestrator/prompt-03.md`](orchestrator/prompt-03.md) (`8c0dfff`), used for 03.
+[`orchestrator/prompt-03.md`](orchestrator/prompt-03.md) (`8c0dfff`), used for 03. 03a has no note of
+its own: the prompt carries the orchestrator's measurements.
 
 **Orchestrator review of prompt 01 (2026-10-23).** Dispatched from `10be4d5` to one Opus
 subagent, with the note's §0: eleven clarifications and the measured facts. Reviewed against its
@@ -326,7 +328,7 @@ and in `prompts/INDEX.md`; README's header and §2 status for 03; this notes lin
 
 ### `[03-the-contract-overstates-two-edges-of-the-module]`
 
-**Opened:** 2026-10-24, by the orchestrator's review of 03. **Owner:** a fix before the tag.
+**Opened:** 2026-10-24, by the orchestrator's review of 03. **Owner:** 03a, before the tag.
 
 **Where:** `docs/rehearsal-lock.md` at `89d6875`, §4 ("The argument rules", the `ray_temp_dir`
 bullet) and §6 item 4.
@@ -344,6 +346,9 @@ Two statements of the contract say more than the module does:
 *Impact.* None on any project today: no caller passes a temp dir starting `//`, and pid 1 is
 `launchd` on macOS. But the document is the contract three projects keep, and the tag `v0.3.0`
 cannot be moved once made, so a statement untrue of the module is not released in it.
+
+**Assigned (2026-10-24):** to prompt 03a, [`03a-correct-two-clauses-of-the-contract.md`](03a-correct-two-clauses-of-the-contract.md),
+at the user's choice of a fix prompt; `v0.3.0` is then tagged on 03a's commit.
 
 *Next step.* Correct the two clauses in `docs/rehearsal-lock.md`, saying what the module does (a
 leading `//` is kept; pid 1 is not exempt), each with its probe recorded, and change nothing under
