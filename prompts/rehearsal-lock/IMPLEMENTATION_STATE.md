@@ -12,13 +12,16 @@ nothing under `raypoolkit/` changed. 03 landed (`89d6875`), reviewed: `pyproject
 the contract `docs/rehearsal-lock.md` (98 statements, each checked), and `README.md`,
 `PROVENANCE.md` and `CLAUDE.md` true of `v0.3.0`; the suite 226 → 226 at both ends; the release
 check passes with and without the stale manifest (10 entries, none under `raypoolkit/tests/`).
-`v0.3.0` is ready to be tagged once CI passes on 03's commit; no tag was made, and nothing was
-pushed.** G1 holds at SGK `216e44d`, CPBH
+03a landed (this commit): `docs/rehearsal-lock.md` §4 (a leading `//` passes the `ray_temp_dir`
+check) and §6 item 4 (pid 1 is not kept out of the listing) corrected to what the module does,
+each with its caller advice and a probe; nothing under `raypoolkit/` or `pyproject.toml` changed;
+the suite 226 → 226. `v0.3.0` is ready to be tagged on 03a's commit once CI passes there, not on
+03's; no tag was made, and nothing was pushed.** G1 holds at SGK `216e44d`, CPBH
 `807f175` and SI `8b4f615` (SI's `HEAD` is now `7071bb8`, its `ray_cluster.sh` still blob
 `6c8eada`). The user took D1–D4 (README §6.1) and U1–U6 (README §6.2), all on 2026-10-23 and
 U1–U6 as recommended. The package is at `0.3.0` (untagged); the suite is 226 tests (121 before
-01), at 3.12.15 / Ray 2.43.0 and 3.13.16 / Ray 2.55.1. One issue is open (§3), found by the review
-of 03: two edge statements of the contract are not true of the module, and the tag waits on it.
+01), at 3.12.15 / Ray 2.43.0 and 3.13.16 / Ray 2.55.1. No issue is open: the one the review of 03
+found, two edge statements of the contract not true of the module, was closed by 03a (§4).
 
 **Campaign:** [`README.md`](README.md) ·
 **Sources:** SecondaryGWKit's `tools/rehearsal_lock.py`, blob `ea14336`; ChamPBH's and
@@ -58,7 +61,7 @@ StochasticInstantons' `ray_cluster.sh`, blobs `eaae1e7` and `6c8eada` (G1) ·
 | 01 | [`01-the-lock-module.md`](01-the-lock-module.md) | **landed** 2026-10-23 ([log](logs/01-the-lock-module.md)), reviewed | `6733447` | 121 → 226 |
 | 02 | [`02-prove-it-under-real-ray.md`](02-prove-it-under-real-ray.md) | **landed** 2026-10-24 ([log](logs/02-prove-it-under-real-ray.md)), reviewed; CI green | `722466a` | 226 → 226 |
 | 03 | [`03-release-v0.3.0.md`](03-release-v0.3.0.md) | **landed** 2026-10-24 ([log](logs/03-release-v0.3.0.md)), reviewed; `v0.3.0` not yet tagged | `89d6875` | 226 → 226 |
-| 03a | [`03a-correct-two-clauses-of-the-contract.md`](03a-correct-two-clauses-of-the-contract.md) | written 2026-10-24 | — | 226 → |
+| 03a | [`03a-correct-two-clauses-of-the-contract.md`](03a-correct-two-clauses-of-the-contract.md) | **landed** 2026-10-24 ([log](logs/03a-correct-two-clauses-of-the-contract.md)); `v0.3.0` to be tagged here once CI passes | this commit | 226 → 226 |
 | 04 | `04-the-switch-over-checklists.md` | not written | — | — |
 | 05 | `05-verification-and-close-out.md` | not written | — | — |
 
@@ -326,6 +329,10 @@ and in `prompts/INDEX.md`; README's header and §2 status for 03; this notes lin
 
 ## 3. Active and unresolved issues
 
+None.
+
+## 4. Resolved issues
+
 ### `[03-the-contract-overstates-two-edges-of-the-module]`
 
 **Opened:** 2026-10-24, by the orchestrator's review of 03. **Owner:** 03a, before the tag.
@@ -354,6 +361,16 @@ at the user's choice of a fix prompt; `v0.3.0` is then tagged on 03a's commit.
 leading `//` is kept; pid 1 is not exempt), each with its probe recorded, and change nothing under
 `raypoolkit/`. Then CI on that commit, then the tag.
 
-## 4. Resolved issues
-
-None.
+**Resolved (03a, 2026-10-24):** in this commit. `docs/rehearsal-lock.md` §4 now says that normal
+form is what `os.path.normpath` leaves unchanged, with no doubled `/` except a leading `//`, which
+POSIX keeps and the check accepts (`//tmp/ray-a` passes; `/tmp//ray-a`, `///tmp/ray-a` and
+`/tmp/ray-a/` do not). §6 item 4 now says that never listed are the reader, its ancestors other
+than pid 1, and its own descendants; pid 1 is listed if its command names `D`, and then so is every
+descendant of pid 1 outside that set, which over-lists (`acquire` 4, `release` 1). "What it asks of
+a caller" gains: never start the temp dir with `//`, and never use one that pid 1's command names.
+Probes against fixed tables, in [the log](logs/03a-correct-two-clauses-of-the-contract.md) §3.3:
+**P-a**, the four spellings (one accepted, three refused) and, over one table, `[41]` for
+`//tmp/ray-a` against `[40, 41]` for `/tmp/ray-a`; **P-b**, `[1, 30, 31]` with pid 1 naming `D`
+(the old clause predicted `[30, 31]`) and `[]` with pid 1 naming another directory. Nothing under
+`raypoolkit/` changed; the module's docstrings and `PROVENANCE.md:102`, which make the same pid 1
+claim, are recorded in the log's §5.

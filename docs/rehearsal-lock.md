@@ -8,7 +8,9 @@ Every statement below about the module is true of it at this release. Each is ch
 in [`raypoolkit/tests/test_rehearsal_lock.py`](../raypoolkit/tests/test_rehearsal_lock.py), by a
 probe, or by the proof under real Ray. The checks are listed, statement by statement, in the log
 of the prompt that wrote this document,
-[`prompts/rehearsal-lock/logs/03-release-v0.3.0.md`](../prompts/rehearsal-lock/logs/03-release-v0.3.0.md).
+[`prompts/rehearsal-lock/logs/03-release-v0.3.0.md`](../prompts/rehearsal-lock/logs/03-release-v0.3.0.md),
+and in 03a's, which corrected two of its clauses,
+[`prompts/rehearsal-lock/logs/03a-correct-two-clauses-of-the-contract.md`](../prompts/rehearsal-lock/logs/03a-correct-two-clauses-of-the-contract.md).
 
 ## 1. What the lock is for
 
@@ -96,8 +98,11 @@ again by `set-pid`.
 **The argument rules.** Every argument is checked before anything is touched. A value that breaks
 a rule is a usage error (exit 2), or `ValueError` from a function.
 - Every value is one line: not empty or blank, with no line break of any kind.
-- `ray_temp_dir` is an absolute path in normal form (`os.path.normpath` leaves it as it is, so no
-  trailing `/`, `.`, `..` or `//`), and never `in-process`.
+- `ray_temp_dir` is an absolute path in normal form, and never `in-process`. Normal form is what
+  `os.path.normpath` leaves unchanged: no trailing `/`, no `.` or `..` component, and no doubled
+  `/`, except a leading `//`, which POSIX keeps and the check accepts. So `//tmp/ray-a` passes,
+  and `/tmp//ray-a`, `///tmp/ray-a` and `/tmp/ray-a/` do not. The process rule then matches the
+  leading `//` as spelled (§6, "What it asks of a caller").
 - `ray_address` is `in-process`, or `host:port`. It is split at the last colon: the host is
   non-empty with no whitespace, and the port is decimal digits. No range is checked, so
   `[::1]:6379` and `h:99999` both pass; `local` and `auto` do not.
@@ -138,9 +143,12 @@ Then:
    anywhere in the command. A `ray start` cluster's Ray client server names no temp dir, and this
    finds it. With `A` `in-process`, or no `A`, there is no such seed.
 3. **Descendants.** Every descendant of a seed is added. Ray's workers show only `ray::<name>`.
-4. **This process is never listed**: the process reading the table, its ancestors, and its own
-   descendants. They still seed the walk, so if an ancestor's command names `D`, its other
-   descendants are listed.
+4. **This process is never listed**: the process reading the table, its ancestors other than
+   pid 1, and its own descendants. They still seed the walk, so if an ancestor's command names
+   `D`, its other descendants are listed.
+   - Pid 1 is listed if its command names `D`, and then so is every descendant of pid 1 outside
+     that set, which is almost every process. This over-lists, the safe side: `acquire` refuses
+     with 4 and `release` with 1. On macOS pid 1 is `launchd`, whose command names no temp dir.
 
 **What it asks of a caller.**
 - **Every Ray instance run under the lock has a temp dir of its own**, recorded as
@@ -152,6 +160,10 @@ Then:
 - **Keep the temp dir short**: Ray's Unix sockets live under it, and macOS limits a socket's path
   to about 104 bytes. Never use `/`, or a directory other processes name. `/` passes the argument
   checks, and then every command containing `//`, `/ ` or `/=`, or ending in `/`, is a seed.
+- **Never start the temp dir with `//`.** The check accepts a leading `//` (§4), and the rule
+  matches the spelling given: for `//tmp/ray-a`, a command naming `//tmp/ray-a/…` is a seed and
+  one naming `/tmp/ray-a/…` is not. So a process that names the same directory as `/tmp/…` would
+  not be listed. That is the unsafe side.
 - **Record a pid with `set-pid` once Ray is up**: the driver's for an in-process instance, and the
   `gcs_server`'s for a cluster. `release` refuses while the recorded pid is alive. Ray's process
   reaper (`ray/_private/ray_process_reaper.py`) is a child of an in-process driver and names no
@@ -168,6 +180,9 @@ Then:
   too, the driver among them. So a script that runs the lock's commands names the temp dir in no
   command line of its own, and passes it some other way (a variable set inside the script, or
   standard input).
+- **Never use a temp dir that pid 1's command names.** Pid 1 is not kept out of the listing (§6
+  item 4), so it and almost every other process would be listed, and `acquire` and `release`
+  would refuse for as long as pid 1 runs.
 
 ## 7. The commands
 
