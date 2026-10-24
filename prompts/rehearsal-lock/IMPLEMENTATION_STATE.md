@@ -1,6 +1,6 @@
 # rehearsal-lock campaign — implementation state
 
-**Last updated:** 2026-10-24 · **Status: ACTIVE — 4 prompts written (01, 02, 03, and the fix 03a), of 6; 01 landed
+**Last updated:** 2026-10-24 · **Status: ACTIVE — 5 prompts written (01, 02, 03, the fix 03a, and 04), of 6; 01 landed
 (`6733447`), reviewed, and CI green at both ends: `raypoolkit/rehearsal_lock.py`, the lock at
 `~/.raypoolkit/rehearsal-lock` with the old-location refusal, the owner file, the five commands
 and the process rule by temp dir, standard library only; its 103 tests and two guard tests. 02
@@ -62,7 +62,7 @@ StochasticInstantons' `ray_cluster.sh`, blobs `eaae1e7` and `6c8eada` (G1) ·
 | 02 | [`02-prove-it-under-real-ray.md`](02-prove-it-under-real-ray.md) | **landed** 2026-10-24 ([log](logs/02-prove-it-under-real-ray.md)), reviewed; CI green | `722466a` | 226 → 226 |
 | 03 | [`03-release-v0.3.0.md`](03-release-v0.3.0.md) | **landed** 2026-10-24 ([log](logs/03-release-v0.3.0.md)), reviewed; released in `v0.3.0` with 03a | `89d6875` | 226 → 226 |
 | 03a | [`03a-correct-two-clauses-of-the-contract.md`](03a-correct-two-clauses-of-the-contract.md) | **landed** 2026-10-24 ([log](logs/03a-correct-two-clauses-of-the-contract.md)); reviewed; CI green; **tagged `v0.3.0`** | `67a75b9` | 226 → 226 |
-| 04 | `04-the-switch-over-checklists.md` | not written | — | — |
+| 04 | [`04-the-switch-over-checklists.md`](04-the-switch-over-checklists.md) | written 2026-10-24 | — | 226 → |
 | 05 | `05-verification-and-close-out.md` | not written | — | — |
 
 **Orchestrator notes:** [`orchestrator/prompt-01.md`](orchestrator/prompt-01.md) (`10be4d5`),
@@ -399,7 +399,7 @@ switch-over checklists, is measured against `v0.3.0` and can now be written.
 
 | Gate | Status |
 |---|---|
-| **G1** | **holds** 2026-10-23: SGK `tools/rehearsal_lock.py` is blob `ea14336` and `tools/tests/test_rehearsal_lock.py` blob `cdeecd6` at `216e44d`; CPBH's `.documents/dk-and-rpk-migration/rehearsal/ray_cluster.sh` is blob `eaae1e7` at `807f175`; SI's is blob `6c8eada` at `8b4f615` (the tip of its unmerged branch `dk-and-rpk-migration`) |
+| **G1** | **holds** 2026-10-23: SGK `tools/rehearsal_lock.py` is blob `ea14336` and `tools/tests/test_rehearsal_lock.py` blob `cdeecd6` at `216e44d`; CPBH's `.documents/dk-and-rpk-migration/rehearsal/ray_cluster.sh` is blob `eaae1e7` at `807f175`; SI's is blob `6c8eada` at `8b4f615` (the tip of its unmerged branch `dk-and-rpk-migration`). **Re-measured for 04** (2026-10-24): unchanged at SGK `216e44d`, CPBH `807f175` and SI `7071bb8` (SI's `HEAD`; `main` `1c223e8` its ancestor, the same blob) |
 | **G2** | not yet (the switch-over: all three on `v0.3.0`, on one day) |
 
 ## 3. Active and unresolved issues
