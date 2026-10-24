@@ -1,15 +1,22 @@
 #!/usr/bin/env python3
 """
 Prove ``raypoolkit.rehearsal_lock`` under real Ray, holding the real shared lock (rehearsal-lock
-prompt 02).
+prompt 02; made to hold the lock at both its locations by prompt 05).
 
 The module's tests run on fixed process tables and never start Ray. This script is the one place
 where the module meets Ray itself. It is not a test: the suite does not collect it, and it does
 not run in CI.
 
-**What it proves**, at the Ray it is run with, holding the shared lock where the clients look for
-it today (``~/ScienceData/.rehearsal-lock``, ``lock_dir=old_lock_dir()``) as project
-``RayPoolKit``. Each part takes the lock before it starts Ray and releases it once Ray is gone.
+**What it proves**, at the Ray it is run with, holding the shared lock as project ``RayPoolKit``
+at **both** its locations: the default one (``~/.raypoolkit/rehearsal-lock``,
+``lock_dir=default_lock_dir()``) and the old one (``~/ScienceData/.rehearsal-lock``,
+``lock_dir=old_lock_dir()``). Every lock call names its location; none relies on a default. The
+clients look at the old location until the switch-over and at the default one after it, and while
+the module refuses to acquire beside the old location (``0.3.x``), the old one also stops a client
+that has switched; so the proof is seen by every client on any day (the user's decision U7,
+2026-10-24). Each part takes the default location first (the module refuses it while the old one
+exists) and then the old one, before it starts Ray, and releases the old one first and then the
+default one, once Ray is gone.
 
 - **(a) An in-process instance** started with ``_temp_dir`` (``/tmp/ray-rpk02a``): the rule lists
   every Ray process that an independent witness finds, bar the reaper; ``release`` is refused while
@@ -20,8 +27,12 @@ it today (``~/ScienceData/.rehearsal-lock``, ``lock_dir=old_lock_dir()``) as pro
   finds, the Ray client server among them by its address; the script stops the cluster by
   signalling exactly what ``ray-processes`` listed, and nothing else; then nothing of it is left,
   its ports are free, and ``release`` succeeds.
-- **(c) A second acquire is refused** while the lock is held: at the lock's own location, as held;
-  and at the default location, because the old one exists.
+- **(c) A second acquire is refused** while the lock is held: at the old location, as held; and at
+  the default location, because the old one exists (the module checks that first). Neither owner
+  file changes.
+
+Straight after the two acquires, and before a part starts Ray, both owner files are checked: each
+names ``RayPoolKit``, the part's temp dir and address, and ``pid: -``.
 
 **How it is run.** From the repository root, with nothing of Ray running, with the interpreter of a
 venv that has ``ray[default]`` and this package installed (the client server needs Ray's client
@@ -54,9 +65,10 @@ holds on them.
 signals anything but the stop list of part (b) (``ray-processes``'s listing at checkpoint b3) and,
 when cleaning up after a failed check, its own driver. Immediately before each signal it reads the
 pid's command and signals only if it is the command recorded for it. It never removes a lock: every
-``acquire``, ``set_pid``, ``release`` and ``status`` is the module's own, in a fresh interpreter. It
-never names a temp dir in its own command line or its driver's (the driver reads its settings
-from stdin), since a process naming the temp dir would seed the rule's walk. It sets
+``acquire``, ``set_pid``, ``release`` and ``status`` is the module's own, in a fresh interpreter,
+with an explicit ``lock_dir``. It never names a temp dir in its own command line or its driver's
+(the driver reads its settings from stdin), since a process naming the temp dir would seed the
+rule's walk. It sets
 ``RAY_USAGE_STATS_ENABLED=0`` for itself and every child before ``raypoolkit`` (and so ``ray``) is
 imported, and passes ``--disable-usage-stats`` to ``ray start``.
 
@@ -69,8 +81,12 @@ is written ``<venv>``, the record's directory ``<scratch>`` and the home directo
 **Exit status.** 0 every check passed; 1 a check failed, and everything was stopped and the lock
 released; 2 refused to start (a Ray process, a process naming a temp dir, a held port, a ``RAY_*``
 variable, a record path naming a temp dir), nothing touched; 3 the shared lock is held by someone
-else, nothing touched; 4 something could not be cleaned up, and the lock is left held: stop and ask
-the user.
+else (either location exists before the run, or an ``acquire`` exits 3), and nothing of it is
+held (a default location taken before the old one refused is released again); 4 something could
+not be cleaned up, and the lock is left held at the location named: stop and ask the user.
+
+``--replay`` reads a record of either form: 02's, which held the old location alone, or this
+one's, which records both locations.
 """
 
 import os
@@ -119,6 +135,12 @@ NUM_CPUS = 2
 PROJECT = "RayPoolKit"
 SECOND_PROJECT = "RayPoolKitSecond"
 
+# The lock's two locations (U7), each computed when called; acquired default first, released
+# old first.
+LOCATIONS = {"default": rl.default_lock_dir, "old": rl.old_lock_dir}
+ACQUIRE_ORDER = ("default", "old")
+RELEASE_ORDER = ("old", "default")
+
 OFFLINE_SELF_PID = -1
 SETTLE_READINGS = 20
 GRACE = 15
@@ -139,15 +161,18 @@ _FRAMEWORK_PYTHON = re.compile(
     r"\S*/Python\.framework/Versions/[^/\s]+/Resources/Python\.app/Contents/MacOS/Python\b"
 )
 
-# The code of every lock child: one function of the module, at the old location unless told not.
+# The code of every lock child: one function of the module, at the location its payload names,
+# always passed as ``lock_dir``; a location it does not know is an exit, never a default.
 LOCK_CODE = """\
 import json, sys
 import raypoolkit.rehearsal_lock as rl
 a = json.loads(sys.argv[1])
 if a["function"] not in ("acquire", "set_pid", "release", "status"):
     sys.exit("not a lock function: " + repr(a["function"]))
-kw = {"lock_dir": rl.old_lock_dir()} if a["old_location"] else {}
-sys.exit(getattr(rl, a["function"])(*a["args"], **kw))
+dirs = {"default": rl.default_lock_dir, "old": rl.old_lock_dir}
+if a.get("location") not in dirs:
+    sys.exit("not a lock location: " + repr(a.get("location")))
+sys.exit(getattr(rl, a["function"])(*a["args"], lock_dir=dirs[a["location"]]()))
 """
 
 
@@ -262,6 +287,11 @@ def port_listeners(port):
         ["lsof", "-nP", f"-iTCP:{port}", "-sTCP:LISTEN"], capture_output=True, text=True
     )
     return [line for line in result.stdout.splitlines()[1:] if line.strip()]
+
+
+def lock_dir(location):
+    """The lock directory at ``location`` (``default`` or ``old``), computed now, as the module does."""
+    return LOCATIONS[location]()
 
 
 # ---- the expectations, shared by the run and the replay -----------------------------------------
@@ -492,6 +522,9 @@ class Proof:
             "executable": sys.executable,
             "ray_dir_spellings": self.spellings,
             "offline_self_pid": OFFLINE_SELF_PID,
+            "lock_dirs": {loc: str(lock_dir(loc)) for loc in LOCATIONS},
+            "acquire_order": list(ACQUIRE_ORDER),
+            "release_order": list(RELEASE_ORDER),
             "checkpoints": [],
             "checks": [],
         }
@@ -576,9 +609,9 @@ class Proof:
 
     # -- children --
 
-    def lock_call(self, function, *args, old_location=True):
+    def lock_call(self, function, *args, location):
         payload = json.dumps(
-            {"function": function, "args": list(args), "old_location": old_location}
+            {"function": function, "args": list(args), "location": location}
         )
         self.say(f"  $ {sys.executable} -I -c LOCK_CODE '{payload}'")
         result = subprocess.run(
@@ -625,19 +658,24 @@ class Proof:
         return pids, argv, result.returncode
 
     def owner_bytes(self):
-        try:
-            return (rl.old_lock_dir() / "owner").read_bytes()
-        except FileNotFoundError:
-            return None
+        """Both owner files' bytes, by location (``None`` where there is none)."""
+        out = {}
+        for loc in LOCATIONS:
+            try:
+                out[loc] = (lock_dir(loc) / "owner").read_bytes()
+            except (FileNotFoundError, NotADirectoryError):
+                out[loc] = None
+        return out
 
     def show_owner(self, label="owner file"):
         data = self.owner_bytes()
-        self.say(f"  {label} ({rl.old_lock_dir() / 'owner'}):")
-        if data is None:
-            self.say("    (none)")
-        else:
-            for line in data.decode("utf-8", "replace").splitlines():
-                self.say("    " + line)
+        for loc in LOCATIONS:
+            self.say(f"  {label}, {loc} location ({lock_dir(loc) / 'owner'}):")
+            if data[loc] is None:
+                self.say("    (none)")
+            else:
+                for line in data[loc].decode("utf-8", "replace").splitlines():
+                    self.say("    " + line)
         return data
 
     # -- readings and checkpoints --
@@ -936,6 +974,15 @@ class Proof:
     # -- preflight --
 
     def preflight(self):
+        self.say(
+            f"the lock, default location: {lock_dir('default')} "
+            "(where every client looks after the switch-over)"
+        )
+        self.say(
+            f"the lock, old location: {lock_dir('old')} "
+            "(where the clients look until the switch-over)"
+        )
+        print(f"~ is {self.home}", flush=True)
         self.say(f"python: {sys.version}")
         self.say(f"executable: {sys.executable}")
         self.say(f"ray: {self.ray_version} ({importlib.util.find_spec('ray').origin})")
@@ -943,9 +990,6 @@ class Proof:
         self.say(f"this venv's ray directory, as matched: {self.spellings}")
         self.say(
             f"RAY_USAGE_STATS_ENABLED: {os.environ.get('RAY_USAGE_STATS_ENABLED')}"
-        )
-        self.say(
-            f"the lock: {rl.old_lock_dir()} (the old location, where the clients look today)"
         )
         refused = []
         if _REFUSED_RAY_VARIABLES:
@@ -965,11 +1009,14 @@ class Proof:
             for r in refused:
                 self.say(f"REFUSED: {r}")
             return 2
-        if os.path.lexists(rl.old_lock_dir()):
+        present = [loc for loc in LOCATIONS if os.path.lexists(lock_dir(loc))]
+        for loc in present:
             self.say(
-                f"REFUSED: the shared lock exists ({rl.old_lock_dir()}); its owner file:"
+                f"REFUSED: the shared lock exists at its {loc} location ({lock_dir(loc)}); "
+                "its owner file:"
             )
-            self.say(rl._indented(rl.read_owner(rl.old_lock_dir())))
+            self.say(rl._indented(rl.read_owner(lock_dir(loc))))
+        if present:
             self.say("it is someone's: stop and ask the user")
             return 3
 
@@ -1005,119 +1052,168 @@ class Proof:
         )
         self.record["preflight"] = {
             "raypoolkit_dir_exists": self.raypoolkit_before,
-            "lock_exists": False,
+            "lock_exists": {loc: False for loc in LOCATIONS},
         }
         return 0
 
     # -- the steps shared by the parts --
 
     def acquire_step(self, part, label, purpose):
-        code, out, _ = self.lock_call(
-            "acquire",
-            PROJECT,
-            purpose,
-            part["temp_dir"],
-            part["address"] or "in-process",
-        )
-        if code == 3:
-            self.note(label, "FAIL", "acquire exited 3: the lock is someone else's")
-            raise HeldByOther(label)
-        if code == 0:
-            part["lock_held"] = True
-        self.check(label, code == 0 and "acquired" in out, f"acquire exited {code}")
+        """The default location, then the old one; then both owner files are checked."""
+        args = (PROJECT, purpose, part["temp_dir"], part["address"] or "in-process")
+        for loc in ACQUIRE_ORDER:
+            code, out, _ = self.lock_call("acquire", *args, location=loc)
+            if code == 3:
+                self.note(
+                    f"{label} ({loc})",
+                    "FAIL",
+                    f"acquire at the {loc} location exited 3: the lock is someone else's",
+                )
+                raise HeldByOther(label)
+            if code == 0:
+                part["held"][loc] = True
+            self.check(
+                f"{label} ({loc})",
+                code == 0 and "acquired" in out,
+                f"acquire at the {loc} location exited {code}",
+            )
+        self.owner_files_step(part, f"{label}-owner-files")
+
+    def owner_files_step(self, part, label):
+        """Both owner files exist, each naming this project, the part's temp dir and address."""
+        want = {
+            "project": PROJECT,
+            "ray_temp_dir": part["temp_dir"],
+            "ray_address": part["address"] or "in-process",
+            "pid": "-",
+        }
+        problems = []
+        for loc in LOCATIONS:
+            text = rl.read_owner(lock_dir(loc))
+            if text is None:
+                problems.append(f"the {loc} location has no owner file")
+                continue
+            owner = rl.parse_owner(text)
+            wrong = {k: owner.get(k) for k, v in want.items() if owner.get(k) != v}
+            if wrong:
+                problems.append(f"the {loc} location's owner file has {wrong}")
         self.show_owner()
+        self.check(
+            label,
+            not problems,
+            (
+                "; ".join(problems)
+                if problems
+                else f"both owner files exist, each with {want}"
+            ),
+        )
 
     def release_refused(self, part, label, reason):
-        before = self.owner_bytes()
-        code, _, err = self.lock_call("release", PROJECT, part["temp_dir"])
-        after = self.owner_bytes()
-        if reason == "processes":
-            saw = (
-                "release: processes of" in err
-                and "release: the recorded pid" not in err
+        for loc in RELEASE_ORDER:
+            before = self.owner_bytes()
+            code, _, err = self.lock_call(
+                "release", PROJECT, part["temp_dir"], location=loc
             )
-        else:
-            saw = f"release: the recorded pid {reason} is alive" in err
-        self.check(
-            label,
-            code == 1 and saw and before == after,
-            f"release exited {code}; the reason {'is' if saw else 'is NOT'} "
-            f"{'the processes' if reason == 'processes' else f'the recorded pid {reason}'}; "
-            f"the owner file {'unchanged' if before == after else 'CHANGED'}",
-        )
+            after = self.owner_bytes()
+            if reason == "processes":
+                saw = (
+                    "release: processes of" in err
+                    and "release: the recorded pid" not in err
+                )
+            else:
+                saw = f"release: the recorded pid {reason} is alive" in err
+            self.check(
+                f"{label} ({loc})",
+                code == 1 and saw and before == after,
+                f"release at the {loc} location exited {code}; the reason "
+                f"{'is' if saw else 'is NOT'} "
+                f"{'the processes' if reason == 'processes' else f'the recorded pid {reason}'}; "
+                f"both owner files {'unchanged' if before == after else 'CHANGED'}",
+            )
 
     def set_pid_step(self, part, label, pid):
-        before = self.owner_bytes()
-        code, _, _ = self.lock_call("set_pid", PROJECT, part["temp_dir"], pid)
-        after = self.owner_bytes()
-        b = before.decode().splitlines() if before else []
-        a = after.decode().splitlines() if after else []
-        changed = [(x, y) for x, y in zip(b, a) if x != y]
-        ok = (
-            code == 0
-            and len(a) == len(b) == 7
-            and changed == [("pid: -", f"pid: {pid}")]
-        )
-        self.check(
-            label,
-            ok,
-            f"set_pid exited {code}; {len(b)} lines before, {len(a)} after; "
-            f"changed: {changed}",
-        )
+        for loc in RELEASE_ORDER:
+            before = self.owner_bytes()
+            code, _, _ = self.lock_call(
+                "set_pid", PROJECT, part["temp_dir"], pid, location=loc
+            )
+            after = self.owner_bytes()
+            b = before[loc].decode().splitlines() if before[loc] else []
+            a = after[loc].decode().splitlines() if after[loc] else []
+            changed = [(x, y) for x, y in zip(b, a) if x != y]
+            others = all(before[o] == after[o] for o in LOCATIONS if o != loc)
+            ok = (
+                code == 0
+                and len(a) == len(b) == 7
+                and changed == [("pid: -", f"pid: {pid}")]
+                and others
+            )
+            self.check(
+                f"{label} ({loc})",
+                ok,
+                f"set_pid at the {loc} location exited {code}; {len(b)} lines before, "
+                f"{len(a)} after; changed: {changed}; the other owner file "
+                f"{'unchanged' if others else 'CHANGED'}",
+            )
         self.show_owner()
 
     def second_acquire_step(self, part, label):
         before = self.owner_bytes()
-        rp_before = os.path.lexists(self.raypoolkit_dir)
         purpose = f"rehearsal-lock 02 proof (c), second acquirer, during part ({part['name']})"
         code1, _, err1 = self.lock_call(
-            "acquire", SECOND_PROJECT, purpose, TEMP_C, "in-process"
+            "acquire", SECOND_PROJECT, purpose, TEMP_C, "in-process", location="old"
         )
         code2, _, err2 = self.lock_call(
-            "acquire", SECOND_PROJECT, purpose, TEMP_C, "in-process", old_location=False
+            "acquire", SECOND_PROJECT, purpose, TEMP_C, "in-process", location="default"
         )
         after = self.owner_bytes()
-        rp_after = os.path.lexists(self.raypoolkit_dir)
         held = "the rehearsal lock is held (" in err1
         old = "the old location of the rehearsal lock exists (" in err2
         self.check(
             label,
-            code1 == 3
-            and code2 == 3
-            and held
-            and old
-            and before == after
-            and rp_before == rp_after == self.raypoolkit_before,
+            code1 == 3 and code2 == 3 and held and old and before == after,
             f"at the old location exit {code1} ({'as held' if held else 'NOT as held'}); "
             f"at the default location exit {code2} "
-            f"({'the old location' if old else 'NOT the old location'}); the owner file "
-            f"{'unchanged' if before == after else 'CHANGED'}; ~/.raypoolkit "
-            f"{'exists' if rp_after else 'does not exist'}, as before: "
-            f"{rp_after == self.raypoolkit_before}",
+            f"({'the old location' if old else 'NOT the old location'}); both owner files "
+            f"{'unchanged' if before == after else 'CHANGED'}",
         )
 
     def release_free_step(self, part, label):
-        code, out, _ = self.lock_call("release", PROJECT, part["temp_dir"])
-        if code == 0:
-            part["lock_held"] = os.path.lexists(rl.old_lock_dir())
-        self.check(
-            label + " release",
-            code == 0 and "released" in out,
-            f"release exited {code}",
-        )
+        for loc in RELEASE_ORDER:
+            code, out, _ = self.lock_call(
+                "release", PROJECT, part["temp_dir"], location=loc
+            )
+            if code == 0:
+                part["held"][loc] = os.path.lexists(lock_dir(loc))
+            self.check(
+                f"{label} release ({loc})",
+                code == 0 and "released" in out,
+                f"release at the {loc} location exited {code}",
+            )
         args = [part["temp_dir"]] + ([part["address"]] if part["address"] else [])
-        code, out, _ = self.lock_call("status", *args)
-        free = f"lock: free ({rl.old_lock_dir()} does not exist)" in out
-        self.check(
-            label + " status",
-            code == 0 and free and not os.path.lexists(rl.old_lock_dir()),
-            f"status exited {code}; it says {'free' if free else 'NOT free'}",
-        )
+        for loc in RELEASE_ORDER:
+            code, out, _ = self.lock_call("status", *args, location=loc)
+            free = f"lock: free ({lock_dir(loc)} does not exist)" in out
+            old_present = "old location: PRESENT" in out
+            exist = [o for o in LOCATIONS if os.path.lexists(lock_dir(o))]
+            self.check(
+                f"{label} status ({loc})",
+                code == 0 and free and not old_present and not exist,
+                f"status at the {loc} location exited {code}; it says "
+                f"{'free' if free else 'NOT free'}"
+                f"{'; old location: PRESENT' if old_present else ''}; "
+                f"existing: {exist if exist else 'neither location'}",
+            )
 
     # -- part (a) --
 
     def part_a(self):
-        part = {"name": "a", "temp_dir": TEMP_A, "address": None, "lock_held": False}
+        part = {
+            "name": "a",
+            "temp_dir": TEMP_A,
+            "address": None,
+            "held": {loc: False for loc in LOCATIONS},
+        }
         self.say("")
         self.say("== part (a): an in-process instance with _temp_dir")
         started = time.monotonic()
@@ -1175,7 +1271,7 @@ class Proof:
             self.checkpoint(part, "a3", "a3", {"driver_pid": driver_pid})
             self.release_free_step(part, "a9")
         except HeldByOther:
-            return 3
+            return self.refused_by_other(part)
         except (CheckFailed, Exception, Interrupted) as exc:
             self.failure(exc)
             return self.cleanup(part)
@@ -1190,7 +1286,7 @@ class Proof:
             "name": "b",
             "temp_dir": TEMP_B,
             "address": ADDRESS_B,
-            "lock_held": False,
+            "held": {loc: False for loc in LOCATIONS},
         }
         self.say("")
         self.say("== part (b): a ray start --head cluster")
@@ -1275,7 +1371,7 @@ class Proof:
             self.checkpoint(part, "b4", "b4", {})
             self.release_free_step(part, "b9")
         except HeldByOther:
-            return 3
+            return self.refused_by_other(part)
         except (CheckFailed, Exception, Interrupted) as exc:
             self.failure(exc)
             return self.cleanup(part)
@@ -1332,23 +1428,59 @@ class Proof:
                     self.say(f"  left: {p} {self.cut(r['table'].get(p, (0, ''))[1])}")
             if left:
                 raise LeftHeld(f"processes left: {_fmt(left)}")
-            if part["lock_held"]:
-                code, _, _ = self.lock_call("release", PROJECT, part["temp_dir"])
-                if code != 0:
-                    raise LeftHeld(f"release exited {code}")
-                part["lock_held"] = False
+            self.release_held(part)
         except (LeftHeld, Exception) as exc:
-            self.say(
-                f"CLEANUP INCOMPLETE ({type(exc).__name__}: {exc}): the lock is left held"
-            )
-            self.show_owner("the lock's owner file")
-            self.record["cleanup"] = f"incomplete: {exc!r}"
-            return 4
+            return self.left_held(exc)
         self.record["cleanup"] = "complete"
         self.say(
             "cleanup complete: nothing of this part is left, and the lock is released"
         )
         return 1
+
+    def release_held(self, part):
+        """Release, through the module, each location this part holds, old first; stop at a refusal."""
+        for loc in RELEASE_ORDER:
+            if not part["held"][loc]:
+                continue
+            code, _, _ = self.lock_call(
+                "release", PROJECT, part["temp_dir"], location=loc
+            )
+            if code != 0:
+                raise LeftHeld(
+                    f"release at the {loc} location ({lock_dir(loc)}) exited {code}"
+                )
+            part["held"][loc] = os.path.lexists(lock_dir(loc))
+            if part["held"][loc]:
+                raise LeftHeld(f"the {loc} location ({lock_dir(loc)}) still exists")
+
+    def left_held(self, exc):
+        self.say(
+            f"CLEANUP INCOMPLETE ({type(exc).__name__}: {exc}): the lock is left as it is "
+            "at both locations"
+        )
+        self.show_owner("the lock's owner file")
+        self.record["cleanup"] = f"incomplete: {exc!r}"
+        return 4
+
+    def refused_by_other(self, part):
+        """An ``acquire`` exited 3: release what this part holds (the default location), then 3."""
+        self._interrupted = True  # a later SIGTERM or SIGHUP is ignored from here on
+        held = [loc for loc in RELEASE_ORDER if part["held"][loc]]
+        self.say(
+            "the shared lock is someone else's; this part holds it at "
+            + (
+                " and ".join(f"the {loc} location" for loc in held)
+                if held
+                else "neither location"
+            )
+        )
+        self.show_owner("owner file")
+        try:
+            self.release_held(part)
+        except (LeftHeld, Exception) as exc:
+            return self.left_held(exc)
+        self.record["cleanup"] = "refused: someone else's lock; nothing of it held"
+        return 3
 
     def _on_signal(self, signum, frame):
         if self._interrupted:
@@ -1373,14 +1505,16 @@ class Proof:
             self.say("")
             self.say("== after both parts")
             try:
+                exist = [o for o in LOCATIONS if os.path.lexists(lock_dir(o))]
                 rp = os.path.lexists(self.raypoolkit_dir)
+                rp_entries = sorted(os.listdir(self.raypoolkit_dir)) if rp else []
                 self.check(
                     "after-both",
-                    not os.path.lexists(rl.old_lock_dir())
-                    and rp == self.raypoolkit_before,
-                    f"{rl.old_lock_dir()} {'exists' if os.path.lexists(rl.old_lock_dir()) else 'does not exist'}; "
+                    not exist and not rp_entries,
+                    f"existing: {exist if exist else 'neither location'}; "
                     f"~/.raypoolkit {'exists' if rp else 'does not exist'} (before: "
-                    f"{'exists' if self.raypoolkit_before else 'does not exist'})",
+                    f"{'exists' if self.raypoolkit_before else 'does not exist'}), holding "
+                    f"{rp_entries if rp_entries else 'nothing'}",
                 )
             except CheckFailed:
                 code = 1
@@ -1408,6 +1542,11 @@ def replay(path):
     print(
         f"  recorded at Python {record['python'].split()[0]} / Ray {record['ray']}; exit {record.get('exit')}"
     )
+    if "lock_dirs" in record:
+        held = ", ".join(f"{k} {v}" for k, v in sorted(record["lock_dirs"].items()))
+        print(f"  the lock held at both locations (05's form): {held}")
+    else:
+        print("  the lock held at the old location alone (02's form)")
     print(f"  the module as imported: {rl.__file__}")
     print(f"  HOME: {os.environ.get('HOME')}")
     failures = 0

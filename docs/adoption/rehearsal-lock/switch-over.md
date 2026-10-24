@@ -21,6 +21,12 @@ Like the checklists, it is data: each client acts in a campaign of its own, unde
 | StochasticInstantons (SI) | [`stochasticinstantons.md`](stochasticinstantons.md) | `7071bb8` (`rrk-adoption`, 2026-10-23) | the lock half of `ray_cluster.sh` | `--project StochasticInstantons --ray-temp-dir /tmp/ray-si --ray-address 127.0.0.1:6390` |
 | **RayPoolKit's proof** | — | [`docs/rehearsal-lock/ray_proof.py`](../../rehearsal-lock/ray_proof.py) | takes the lock at `old_lock_dir()`, `~/ScienceData/.rehearsal-lock` (its `:149`) | must move to the default location before it is run again, by a later prompt of this repository (`[04-the-proof-takes-the-old-lock]`, assigned to 05). Until then it is **not run** after the switch: it would hold a lock no project looks at |
 
+*2026-10-24, prompt 05:* the proof now holds the lock at both locations, the default one first
+and then the old one (decision U7), so it may be run before the switch-over and after it alike;
+`[04-the-proof-takes-the-old-lock]` is closed
+([`docs/rehearsal-lock-verification.md`](../../rehearsal-lock-verification.md) §4). The row above
+is as 04 measured it.
+
 Every project's lock moves from `~/ScienceData/.rehearsal-lock` to `~/.raypoolkit/rehearsal-lock`
 (contract §3). A project still on its own implementation cannot see the new location, and a project
 on the module refuses to `acquire` while anything exists at the old one (contract §9, decision U4).
@@ -140,6 +146,8 @@ can do without Ray.
 
 - **The proof moves.** RayPoolKit's `docs/rehearsal-lock/ray_proof.py` takes the default location
   before it is run again (`[04-the-proof-takes-the-old-lock]`, prompt 05).
+  *2026-10-24, prompt 05:* it holds both locations instead (U7), so it may be run before and after
+  the switch-over alike; `[04-the-proof-takes-the-old-lock]` is closed.
 - **U4's refusal is dropped** by a later release, once G2 holds (the campaign plan,
   [`prompts/rehearsal-lock/README.md`](../../../prompts/rehearsal-lock/README.md) §8). Until then
   any directory at `~/ScienceData/.rehearsal-lock` stops every `acquire`.

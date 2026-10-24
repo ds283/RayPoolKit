@@ -7,7 +7,7 @@ recommended. **Prompt 01 has landed (`6733447`) and been reviewed, with CI green
 prompt 02 has landed (`722466a`) and been reviewed, run in `ray[default]` scratch venvs (the
 user's choice of 2026-10-24), with CI green; prompt 03 has landed (`89d6875`) and been reviewed; the issue its review opened was
 closed by prompt 03a, which has landed (`67a75b9`) and been reviewed; CI passed at both ends on
-`67a75b9`, and **`v0.3.0` is tagged** on it (2026-10-24); prompt 04 has landed (`127b2b4`) and been reviewed; prompt 05 is written, with U7 taken by the user on 2026-10-24**; each later prompt is written after the one before it has landed
+`67a75b9`, and **`v0.3.0` is tagged** on it (2026-10-24); prompt 04 has landed (`127b2b4`) and been reviewed; prompt 05 is written, with U7 taken by the user on 2026-10-24, and has landed (this commit): the proof holds the lock at both locations and passed again under real Ray at both ends, and `docs/rehearsal-lock-verification.md` verifies the campaign**. **The campaign closed at 05 on 2026-10-24, with G2 open.** Each prompt was written after the one before it had landed
 and been reviewed, against the tree it left, as in `extraction`.
 
 ## 0. Why this campaign exists
@@ -148,7 +148,7 @@ so any `python -m raypoolkit.<module>` pays this (U3).
 | 03 | `03-release-v0.3.0.md` | `pyproject.toml` at `0.3.0`; `README.md` (usage of the lock; "Changes in `v0.3.0`"); `PROVENANCE.md` ("Since `v0.2.0`": what came from SGK's module at blob `ea14336`, and from CPBH's and SI's scripts); `docs/rehearsal-lock.md`, the contract, written without naming a client; `CLAUDE.md` ("What this repository is"; the command line's exit codes and `status` layout are an interface). Both ends locally and in CI; **`v0.3.0`** tagged on its commit after green CI (U6). | landed 2026-10-24 (`89d6875`), reviewed; its review's issue closed by 03a; released in `v0.3.0` |
 | 03a | `03a-correct-two-clauses-of-the-contract.md` | A fix, written 2026-10-24 after 03's review: `docs/rehearsal-lock.md` §4 (a leading `//` passes the `ray_temp_dir` check) and §6 item 4 (pid 1 is not kept out of the listing) corrected to what the module does, with the caller advice each implies; closes `[03-the-contract-overstates-two-edges-of-the-module]`. Nothing under `raypoolkit/`. **`v0.3.0`** is tagged on 03a's commit after green CI. | landed 2026-10-24 (`67a75b9`), reviewed; CI green at both ends (run 40121254667); **tagged `v0.3.0`** |
 | 04 | `04-the-switch-over-checklists.md` | `docs/adoption/rehearsal-lock/`: one checklist per client, measured read-only at a named client commit against `v0.3.0`, and `switch-over.md`, the procedure for the day. SGK: delete `tools/rehearsal_lock.py` and its tests; give each in-process `ray.init` a `_temp_dir` (and measure what Ray does when `_temp_dir` is passed with a cluster address); its owner values; its `CLAUDE.md` section. CPBH and SI: replace `acquire_lock`, `release_lock`, the owner functions and the lock half of `status` in `ray_cluster.sh` with calls to the command line, keeping the cluster code; their `CLAUDE.md` and README lines. Each: the pin. The procedure: the preconditions (no lock at either location, no Ray process of any client), the order, and what each client checks afterwards. | landed 2026-10-24 (`127b2b4`), reviewed; one issue opened, for 05 |
-| 05 | `05-verification-and-close-out.md` | `docs/rehearsal-lock/ray_proof.py` made to hold the lock at both locations (U7), closing `[04-the-proof-takes-the-old-lock]`, and re-run under real Ray at both ends; `docs/rehearsal-lock-verification.md`, from the package at `v0.3.0` and the records of 01–04 and 05; the campaign closed, with G2 open. | written 2026-10-24 ([`05-verification-and-close-out.md`](05-verification-and-close-out.md)) |
+| 05 | `05-verification-and-close-out.md` | `docs/rehearsal-lock/ray_proof.py` made to hold the lock at both locations (U7), closing `[04-the-proof-takes-the-old-lock]`, and re-run under real Ray at both ends; `docs/rehearsal-lock-verification.md`, from the package at `v0.3.0` and the records of 01–04 and 05; the campaign closed, with G2 open. | landed 2026-10-24 (this commit); the campaign closed, with G2 open |
 
 **Order.** 01 → 02 → 03 → 03a → 04 → 05. 02 precedes the release so that `v0.3.0` is a module that has
 held a real lock over real Ray at both ends. 04 is measured against `v0.3.0`, the release the
@@ -337,6 +337,8 @@ Each was put with a recommendation. **U1–U6 were taken by the user on 2026-10-
 
 The campaign closes at 05. G2 is recorded on this board when it holds, but the campaign does not
 wait for it.
+
+*2026-10-24:* the campaign closed at 05, with G2 open.
 
 ## 8. Later units of work
 

@@ -1,6 +1,6 @@
 # rehearsal-lock campaign — implementation state
 
-**Last updated:** 2026-10-24 · **Status: ACTIVE — 6 prompts written (01, 02, 03, the fix 03a, 04 and 05), of 6; 01 landed
+**Last updated:** 2026-10-24 · **Status: CLOSED (2026-10-24, by prompt 05) — all 6 prompts landed (01, 02, 03, the fix 03a, 04 and 05); 01 landed
 (`6733447`), reviewed, and CI green at both ends: `raypoolkit/rehearsal_lock.py`, the lock at
 `~/.raypoolkit/rehearsal-lock` with the old-location refusal, the owner file, the five commands
 and the process rule by temp dir, standard library only; its 103 tests and two guard tests. 02
@@ -20,13 +20,18 @@ passed at both ends there, and a client's install from the tag is checked (below
 (`127b2b4`), reviewed: `docs/adoption/rehearsal-lock/`, a switch-over checklist for each client, measured
 read-only at SGK `216e44d`, CPBH `807f175` and SI `7071bb8` against `v0.3.0`, and `switch-over.md`,
 the procedure for the day; every command run against a scratch `HOME`, no Ray started; nothing
-under `raypoolkit/` changed; the suite 226 → 226; one issue opened, for 05.** G1 holds at SGK `216e44d`, CPBH
+under `raypoolkit/` changed; the suite 226 → 226; one issue opened, for 05. 05 landed (this
+commit): `docs/rehearsal-lock/ray_proof.py` holds the lock at both locations (U7), and under real
+Ray, holding the real shared lock at both, exits 0 with 46 checks of 46 at 3.12.15 / Ray 2.43.0
+and 3.13.16 / Ray 2.55.1; its records and 02's fail under M10 and M12 by replay; the breakage P1–P4
+as the prompt says; `docs/rehearsal-lock-verification.md` verifies the campaign from `v0.3.0`;
+nothing under `raypoolkit/` changed; the suite 226 → 226; the issue closed. G2 is open.** G1 holds at SGK `216e44d`, CPBH
 `807f175` and SI `8b4f615` (SI's `HEAD` is now `7071bb8`, its `ray_cluster.sh` still blob
 `6c8eada`). The user took D1–D4 (README §6.1) and U1–U6 (README §6.2), all on 2026-10-23 and
 U1–U6 as recommended; U7 (the proof holds both lock locations) on 2026-10-24, as recommended, for 05. The package is at `0.3.0`, tagged `v0.3.0` on `67a75b9`; the suite is 226 tests (121 before
-01), at 3.12.15 / Ray 2.43.0 and 3.13.16 / Ray 2.55.1. **One issue is open**,
-`[04-the-proof-takes-the-old-lock]`, assigned to 05 (§3). The one the review of 03 found, two edge
-statements of the contract not true of the module, was closed by 03a (§4).
+01), at 3.12.15 / Ray 2.43.0 and 3.13.16 / Ray 2.55.1. **No issue is open.** The one the review of
+03 found, two edge statements of the contract not true of the module, was closed by 03a, and
+`[04-the-proof-takes-the-old-lock]`, opened by 04, by 05 (§4).
 
 **Campaign:** [`README.md`](README.md) ·
 **Sources:** SecondaryGWKit's `tools/rehearsal_lock.py`, blob `ea14336`; ChamPBH's and
@@ -69,7 +74,7 @@ StochasticInstantons' `ray_cluster.sh`, blobs `eaae1e7` and `6c8eada` (G1) ·
 | 03 | [`03-release-v0.3.0.md`](03-release-v0.3.0.md) | **landed** 2026-10-24 ([log](logs/03-release-v0.3.0.md)), reviewed; released in `v0.3.0` with 03a | `89d6875` | 226 → 226 |
 | 03a | [`03a-correct-two-clauses-of-the-contract.md`](03a-correct-two-clauses-of-the-contract.md) | **landed** 2026-10-24 ([log](logs/03a-correct-two-clauses-of-the-contract.md)); reviewed; CI green; **tagged `v0.3.0`** | `67a75b9` | 226 → 226 |
 | 04 | [`04-the-switch-over-checklists.md`](04-the-switch-over-checklists.md) | **landed** 2026-10-24 ([log](logs/04-the-switch-over-checklists.md)), reviewed | `127b2b4` | 226 → 226 |
-| 05 | [`05-verification-and-close-out.md`](05-verification-and-close-out.md) | written 2026-10-24 | — | 226 → |
+| 05 | [`05-verification-and-close-out.md`](05-verification-and-close-out.md) | **landed** 2026-10-24 ([log](logs/05-verification-and-close-out.md)); the campaign closed | this commit | 226 → 226 |
 
 **Orchestrator notes:** [`orchestrator/prompt-01.md`](orchestrator/prompt-01.md) (`10be4d5`),
 used for 01; [`orchestrator/prompt-02.md`](orchestrator/prompt-02.md) (`ae1e064`), used for 02;
@@ -475,7 +480,14 @@ and in `prompts/INDEX.md`; README's header and §2 status for 04; the notes line
 | **G1** | **holds** 2026-10-23: SGK `tools/rehearsal_lock.py` is blob `ea14336` and `tools/tests/test_rehearsal_lock.py` blob `cdeecd6` at `216e44d`; CPBH's `.documents/dk-and-rpk-migration/rehearsal/ray_cluster.sh` is blob `eaae1e7` at `807f175`; SI's is blob `6c8eada` at `8b4f615` (the tip of its unmerged branch `dk-and-rpk-migration`). **Re-measured for 04** (2026-10-24): unchanged at SGK `216e44d`, CPBH `807f175` and SI `7071bb8` (SI's `HEAD`; `main` `1c223e8` its ancestor, the same blob) |
 | **G2** | not yet (the switch-over: all three on `v0.3.0`, on one day). The procedure is [`docs/adoption/rehearsal-lock/switch-over.md`](../../docs/adoption/rehearsal-lock/switch-over.md) (04), with a checklist per client beside it; G2 is recorded here, with each client's merged commit and the cross-check of its §3 |
 
+*2026-10-24, at the close (05):* the campaign closed with G2 open. G1 and G2 are unchanged by 05.
+After the close, G2 is recorded on this board when it holds, in a records commit of its own.
+
 ## 3. Active and unresolved issues
+
+None. The campaign closed at 05 (2026-10-24) with no issue open.
+
+## 4. Resolved issues
 
 ### `[04-the-proof-takes-the-old-lock]`
 
@@ -512,7 +524,18 @@ preflight refuses while either exists. Part (c)'s two expectations stand (the de
 default `acquire` creates `~/.raypoolkit`. 05 makes the change and re-runs the proof at both ends
 ([`05-verification-and-close-out.md`](05-verification-and-close-out.md) §2.2–§2.3).
 
-## 4. Resolved issues
+**Resolved (05, 2026-10-24):** in this commit. `docs/rehearsal-lock/ray_proof.py` now holds the
+lock at both locations: every lock call names its location and passes it as `lock_dir`; the
+default location is acquired first and then the old one, and the old one is released first; the
+preflight refuses (exit 3) while either exists; a new check after the two acquires, before any Ray
+starts, requires both owner files; `set_pid`, every refused `release`, every `release` and `status`
+are made at both, and the cleanup releases whichever is held. Run under real Ray holding the real
+lock at both locations: exit 0, 46 checks of 46, at 3.12.15 / Ray 2.43.0 and 3.13.16 / Ray 2.55.1,
+both locations absent before and after. Guarded by the breakage of the change, P1 (the old
+location's `acquire` dropped) and P2 (the default's dropped), each failing the new check with exit
+1 before any Ray starts, and P3 and P4 (a directory at either location), each refused by the
+preflight with exit 3 ([the log](logs/05-verification-and-close-out.md) §4;
+[`docs/rehearsal-lock-verification.md`](../../docs/rehearsal-lock-verification.md) §4).
 
 ### `[03-the-contract-overstates-two-edges-of-the-module]`
 
