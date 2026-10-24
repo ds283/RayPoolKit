@@ -16,12 +16,17 @@ check passes with and without the stale manifest (10 entries, none under `raypoo
 check) and §6 item 4 (pid 1 is not kept out of the listing) corrected to what the module does,
 each with its caller advice and a probe; nothing under `raypoolkit/` or `pyproject.toml` changed;
 the suite 226 → 226. **`v0.3.0` is tagged** (2026-10-24, annotated, on `67a75b9`) after CI
-passed at both ends there, and a client's install from the tag is checked (below).** G1 holds at SGK `216e44d`, CPBH
+passed at both ends there, and a client's install from the tag is checked (below). 04 landed
+(this commit): `docs/adoption/rehearsal-lock/`, a switch-over checklist for each client, measured
+read-only at SGK `216e44d`, CPBH `807f175` and SI `7071bb8` against `v0.3.0`, and `switch-over.md`,
+the procedure for the day; every command run against a scratch `HOME`, no Ray started; nothing
+under `raypoolkit/` changed; the suite 226 → 226; one issue opened, for 05.** G1 holds at SGK `216e44d`, CPBH
 `807f175` and SI `8b4f615` (SI's `HEAD` is now `7071bb8`, its `ray_cluster.sh` still blob
 `6c8eada`). The user took D1–D4 (README §6.1) and U1–U6 (README §6.2), all on 2026-10-23 and
 U1–U6 as recommended. The package is at `0.3.0`, tagged `v0.3.0` on `67a75b9`; the suite is 226 tests (121 before
-01), at 3.12.15 / Ray 2.43.0 and 3.13.16 / Ray 2.55.1. No issue is open: the one the review of 03
-found, two edge statements of the contract not true of the module, was closed by 03a (§4).
+01), at 3.12.15 / Ray 2.43.0 and 3.13.16 / Ray 2.55.1. **One issue is open**,
+`[04-the-proof-takes-the-old-lock]`, assigned to 05 (§3). The one the review of 03 found, two edge
+statements of the contract not true of the module, was closed by 03a (§4).
 
 **Campaign:** [`README.md`](README.md) ·
 **Sources:** SecondaryGWKit's `tools/rehearsal_lock.py`, blob `ea14336`; ChamPBH's and
@@ -62,7 +67,7 @@ StochasticInstantons' `ray_cluster.sh`, blobs `eaae1e7` and `6c8eada` (G1) ·
 | 02 | [`02-prove-it-under-real-ray.md`](02-prove-it-under-real-ray.md) | **landed** 2026-10-24 ([log](logs/02-prove-it-under-real-ray.md)), reviewed; CI green | `722466a` | 226 → 226 |
 | 03 | [`03-release-v0.3.0.md`](03-release-v0.3.0.md) | **landed** 2026-10-24 ([log](logs/03-release-v0.3.0.md)), reviewed; released in `v0.3.0` with 03a | `89d6875` | 226 → 226 |
 | 03a | [`03a-correct-two-clauses-of-the-contract.md`](03a-correct-two-clauses-of-the-contract.md) | **landed** 2026-10-24 ([log](logs/03a-correct-two-clauses-of-the-contract.md)); reviewed; CI green; **tagged `v0.3.0`** | `67a75b9` | 226 → 226 |
-| 04 | [`04-the-switch-over-checklists.md`](04-the-switch-over-checklists.md) | written 2026-10-24 | — | 226 → |
+| 04 | [`04-the-switch-over-checklists.md`](04-the-switch-over-checklists.md) | **landed** 2026-10-24 ([log](logs/04-the-switch-over-checklists.md)) | this commit | 226 → 226 |
 | 05 | `05-verification-and-close-out.md` | not written | — | — |
 
 **Orchestrator notes:** [`orchestrator/prompt-01.md`](orchestrator/prompt-01.md) (`10be4d5`),
@@ -400,11 +405,35 @@ switch-over checklists, is measured against `v0.3.0` and can now be written.
 | Gate | Status |
 |---|---|
 | **G1** | **holds** 2026-10-23: SGK `tools/rehearsal_lock.py` is blob `ea14336` and `tools/tests/test_rehearsal_lock.py` blob `cdeecd6` at `216e44d`; CPBH's `.documents/dk-and-rpk-migration/rehearsal/ray_cluster.sh` is blob `eaae1e7` at `807f175`; SI's is blob `6c8eada` at `8b4f615` (the tip of its unmerged branch `dk-and-rpk-migration`). **Re-measured for 04** (2026-10-24): unchanged at SGK `216e44d`, CPBH `807f175` and SI `7071bb8` (SI's `HEAD`; `main` `1c223e8` its ancestor, the same blob) |
-| **G2** | not yet (the switch-over: all three on `v0.3.0`, on one day) |
+| **G2** | not yet (the switch-over: all three on `v0.3.0`, on one day). The procedure is [`docs/adoption/rehearsal-lock/switch-over.md`](../../docs/adoption/rehearsal-lock/switch-over.md) (04), with a checklist per client beside it; G2 is recorded here, with each client's merged commit and the cross-check of its §3 |
 
 ## 3. Active and unresolved issues
 
-None.
+### `[04-the-proof-takes-the-old-lock]`
+
+**Opened:** 2026-10-24, by prompt 04 (its §2.5). **Owner:** 05.
+
+**Where:** `docs/rehearsal-lock/ray_proof.py` at `722466a` (unchanged since), `:149`: `kw =
+{"lock_dir": rl.old_lock_dir()} if a["old_location"] else {}`. Every lock call of parts (a) and (b)
+passes `lock_dir=old_lock_dir()`, and the preflight looks for the shared lock at the old location
+only (`:948`, `:968-972`), as [02's log](logs/02-prove-it-under-real-ray.md) §5 records: the proof
+takes the lock "where the clients look for it on that day" (README §5 rule 9), which was
+`~/ScienceData/.rehearsal-lock`.
+
+*Impact.* After the switch-over ([`switch-over.md`](../../docs/adoption/rehearsal-lock/switch-over.md))
+every project looks at `~/.raypoolkit/rehearsal-lock`. A re-run of the proof as it stands would
+hold a lock that no project looks at, and start Ray beside a client's build that holds the real
+one. While `0.3.x`'s old-location refusal stands, its lock at the old location would also make
+every client's `acquire` refuse with 3 for the length of the run. Nothing is wrong today: the proof
+is not run again before 05, and `switch-over.md` §1 lists it among the parties, not to be run
+after the switch until it moves.
+
+**Assigned (2026-10-24):** to prompt 05 of this campaign, which re-runs the proof for the
+verification document: it is the next prompt to run it, so it moves the lock first.
+
+*Next step.* 05 moves the proof's lock calls and preflight to the default location (no
+`lock_dir`) before it re-runs it, or says why not. Part (c)'s default-location `acquire`, refused
+today as the old location, then needs a new expectation.
 
 ## 4. Resolved issues
 
