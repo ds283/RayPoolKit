@@ -1,15 +1,16 @@
 # rehearsal-lock campaign — implementation state
 
-**Last updated:** 2026-10-24 · **Status: ACTIVE — 2 of 5 prompts written (01, 02); 01 landed
+**Last updated:** 2026-10-24 · **Status: ACTIVE — 3 of 5 prompts written (01, 02, 03); 01 landed
 (`6733447`), reviewed, and CI green at both ends: `raypoolkit/rehearsal_lock.py`, the lock at
 `~/.raypoolkit/rehearsal-lock` with the old-location refusal, the owner file, the five commands
 and the process rule by temp dir, standard library only; its 103 tests and two guard tests. 02
-landed (`722466a`) and reviewed: `docs/rehearsal-lock/ray_proof.py`, run under real Ray holding
-the real shared lock, exits 0 at 3.12.15 / Ray 2.43.0 and 3.13.16 / Ray 2.55.1 (`ray[default]`
-scratch venvs, the user's choice of 2026-10-24), 31 checks each, for the agent and again for the
-orchestrator; its offline replay fails under M10 and M12 at both ends; nothing under
-`raypoolkit/` changed.** G1 holds at SGK `216e44d`, CPBH `807f175` and
-SI `8b4f615`. The user took D1–D4 (README §6.1) and U1–U6 (README §6.2), all on 2026-10-23 and
+landed (`722466a`), reviewed, and CI green at both ends: `docs/rehearsal-lock/ray_proof.py`, run
+under real Ray holding the real shared lock, exits 0 at 3.12.15 / Ray 2.43.0 and 3.13.16 / Ray
+2.55.1 (`ray[default]` scratch venvs, the user's choice of 2026-10-24), 31 checks each, for the
+agent and again for the orchestrator; its offline replay fails under M10 and M12 at both ends;
+nothing under `raypoolkit/` changed. 03, the release `v0.3.0`, is written.** G1 holds at SGK `216e44d`, CPBH
+`807f175` and SI `8b4f615` (SI's `HEAD` is now `7071bb8`, its `ray_cluster.sh` still blob
+`6c8eada`). The user took D1–D4 (README §6.1) and U1–U6 (README §6.2), all on 2026-10-23 and
 U1–U6 as recommended. The package is at `0.2.0`; the suite is 226 tests (121 before 01), at
 3.12.15 / Ray 2.43.0 and 3.13.16 / Ray 2.55.1. No issue is open.
 
@@ -49,8 +50,8 @@ StochasticInstantons' `ray_cluster.sh`, blobs `eaae1e7` and `6c8eada` (G1) ·
 | # | Prompt | Status | Commit | Suite |
 |---|---|---|---|---|
 | 01 | [`01-the-lock-module.md`](01-the-lock-module.md) | **landed** 2026-10-23 ([log](logs/01-the-lock-module.md)), reviewed | `6733447` | 121 → 226 |
-| 02 | [`02-prove-it-under-real-ray.md`](02-prove-it-under-real-ray.md) | **landed** 2026-10-24 ([log](logs/02-prove-it-under-real-ray.md)), reviewed | `722466a` | 226 → 226 |
-| 03 | `03-release-v0.3.0.md` | not written | — | — |
+| 02 | [`02-prove-it-under-real-ray.md`](02-prove-it-under-real-ray.md) | **landed** 2026-10-24 ([log](logs/02-prove-it-under-real-ray.md)), reviewed; CI green | `722466a` | 226 → 226 |
+| 03 | [`03-release-v0.3.0.md`](03-release-v0.3.0.md) | written 2026-10-24 | — | 226 → |
 | 04 | `04-the-switch-over-checklists.md` | not written | — | — |
 | 05 | `05-verification-and-close-out.md` | not written | — | — |
 
@@ -218,6 +219,13 @@ test seam (for 03's contract document), and `ray[default]` venvs for 05.
 
 *Residue fixed in the review's own commit:* "this commit" → `722466a` on this board, in the log
 and in `prompts/INDEX.md`; README's header and §2 status for 02; this notes line.
+
+*CI on 02's work (2026-10-24).* The user pushed `main` from `2e561e2` to `cc5f2d6`, carrying
+`3f1620e`, `ae1e064`, `722466a` and `cc5f2d6` in one push, so the `tests` workflow ran once, on
+`cc5f2d6`: run 40086680695 passed both jobs (`suite (high)` 24 s, `suite (low)` 26 s). `722466a`
+has no run of its own; the run on `cc5f2d6` covers its tree, since `cc5f2d6` touches only
+`prompts/`. It is the first CI run of `black --check` over `docs/rehearsal-lock/ray_proof.py`. The
+proof itself does not run in CI.
 
 ## 2. Gates outside this repository (README §7)
 
