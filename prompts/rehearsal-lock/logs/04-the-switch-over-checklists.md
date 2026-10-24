@@ -1,6 +1,6 @@
 # Log — rehearsal-lock prompt 04: the switch-over checklists
 
-**Subject:** Write the rehearsal lock's switch-over checklists · **Commit:** this commit ·
+**Subject:** Write the rehearsal lock's switch-over checklists · **Commit:** `127b2b4` ·
 **Date:** 2026-10-24 · **Agent:** Claude Opus 5.5
 
 **Result: landed.** `docs/adoption/rehearsal-lock/` holds four new documents: a switch-over

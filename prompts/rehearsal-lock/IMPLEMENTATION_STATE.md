@@ -17,7 +17,7 @@ check) and §6 item 4 (pid 1 is not kept out of the listing) corrected to what t
 each with its caller advice and a probe; nothing under `raypoolkit/` or `pyproject.toml` changed;
 the suite 226 → 226. **`v0.3.0` is tagged** (2026-10-24, annotated, on `67a75b9`) after CI
 passed at both ends there, and a client's install from the tag is checked (below). 04 landed
-(this commit): `docs/adoption/rehearsal-lock/`, a switch-over checklist for each client, measured
+(`127b2b4`), reviewed: `docs/adoption/rehearsal-lock/`, a switch-over checklist for each client, measured
 read-only at SGK `216e44d`, CPBH `807f175` and SI `7071bb8` against `v0.3.0`, and `switch-over.md`,
 the procedure for the day; every command run against a scratch `HOME`, no Ray started; nothing
 under `raypoolkit/` changed; the suite 226 → 226; one issue opened, for 05.** G1 holds at SGK `216e44d`, CPBH
@@ -67,13 +67,14 @@ StochasticInstantons' `ray_cluster.sh`, blobs `eaae1e7` and `6c8eada` (G1) ·
 | 02 | [`02-prove-it-under-real-ray.md`](02-prove-it-under-real-ray.md) | **landed** 2026-10-24 ([log](logs/02-prove-it-under-real-ray.md)), reviewed; CI green | `722466a` | 226 → 226 |
 | 03 | [`03-release-v0.3.0.md`](03-release-v0.3.0.md) | **landed** 2026-10-24 ([log](logs/03-release-v0.3.0.md)), reviewed; released in `v0.3.0` with 03a | `89d6875` | 226 → 226 |
 | 03a | [`03a-correct-two-clauses-of-the-contract.md`](03a-correct-two-clauses-of-the-contract.md) | **landed** 2026-10-24 ([log](logs/03a-correct-two-clauses-of-the-contract.md)); reviewed; CI green; **tagged `v0.3.0`** | `67a75b9` | 226 → 226 |
-| 04 | [`04-the-switch-over-checklists.md`](04-the-switch-over-checklists.md) | **landed** 2026-10-24 ([log](logs/04-the-switch-over-checklists.md)) | this commit | 226 → 226 |
+| 04 | [`04-the-switch-over-checklists.md`](04-the-switch-over-checklists.md) | **landed** 2026-10-24 ([log](logs/04-the-switch-over-checklists.md)), reviewed | `127b2b4` | 226 → 226 |
 | 05 | `05-verification-and-close-out.md` | not written | — | — |
 
 **Orchestrator notes:** [`orchestrator/prompt-01.md`](orchestrator/prompt-01.md) (`10be4d5`),
 used for 01; [`orchestrator/prompt-02.md`](orchestrator/prompt-02.md) (`ae1e064`), used for 02;
 [`orchestrator/prompt-03.md`](orchestrator/prompt-03.md) (`8c0dfff`), used for 03. 03a has no note of
 its own: the prompt carries the orchestrator's measurements.
+[`orchestrator/prompt-04.md`](orchestrator/prompt-04.md) (`a2a8d37`), used for 04.
 
 **Orchestrator review of prompt 01 (2026-10-23).** Dispatched from `10be4d5` to one Opus
 subagent, with the note's §0: eleven clarifications and the measured facts. Reviewed against its
@@ -399,6 +400,72 @@ itself:
 
 This record is a commit of its own, made after the tag and not yet pushed when written. 04, the
 switch-over checklists, is measured against `v0.3.0` and can now be written.
+
+**Orchestrator review of prompt 04 (2026-10-24).** Dispatched from `a2a8d37` to one Opus
+subagent; reviewed against its commit `127b2b4`, with nothing landed after it. **Every check of
+the note's §3 passed**, and the prompt's acceptance 1–4 are met. No stop condition fired.
+
+*The checks.*
+1. **Scope.** `127b2b4` touches eight files: the four under `docs/adoption/rehearsal-lock/`, the
+   log, this board, `docs/OPEN_ISSUES.md` and `prompts/INDEX.md`. `git diff b7c8200 127b2b4` over
+   `raypoolkit/`, `docs/rehearsal-lock/`, `docs/rehearsal-lock.md`, `docs/adoption/`'s existing
+   files, `README.md`, `PROVENANCE.md`, `CLAUDE.md`, the campaign README and `.github/` is empty.
+   No tag; `origin/main` still `2c518ee`. Each client's `HEAD`, `status --porcelain | shasum` and
+   stash count equal the values taken before dispatch. No Ray process; neither lock location under
+   the real `HOME`; `/tmp/ray-sgk` absent.
+2. **The suite and `black`.** `venv/`: `Ran 226 tests … OK`; `black --check raypoolkit docs`: 20
+   files unchanged.
+3. **Every Ray start.** The SGK grep finds the three wrappers' calls and the seven `ray.init`
+   calls, each a row of the SGK checklist's item 4, `run_child`'s (no address) among them, with
+   the forms that keep `test_ray_address_default.py:138-145`, `test_killed_handler.py:476-517` and
+   `test_build_rehearsal_scope.py:337-344` passing. CPBH's and SI's `ray.init` calls are in their
+   item 4, with `--ray-address local` named.
+4. **The commands, by running.** The orchestrator's own script, written from the checklists' text
+   and run with `venv/` against a fresh scratch `HOME`: for each client `acquire` 0, again 3,
+   `set-pid` 0, `status` 0, `release` 1 while the pid lived and 0 after, 0 with no lock, `set-pid`
+   with no lock 1, the held-port `release` 0, `ray-processes` 0; SGK's two usage errors 2; the
+   cross-check 0, 3, 3, then CPBH's `release` of SGK's lock 1, SGK's 0; with a directory at the old
+   location, `acquire` 3 and `old location: PRESENT`. Every code is the documents'. The `HOME` was
+   empty afterwards.
+5. **Against the contract.** Each checklist's items 3 and 5 read with `docs/rehearsal-lock.md`
+   open: the commands, exit codes and `status` lines are the contract's.
+6. **The greps bite.** Re-run at the clients' commits: SGK 18 lines, CPBH 5 and SI 5, all of
+   CPBH's and SI's in `ray_cluster.sh` (`LOCK_PARENT` and `LOCK_DIR` among them), as the
+   documents say.
+7. **The `path:line`s.** Fifteen read through `git show`, at least three per client (SGK
+   `CLAUDE.md:53`, `:169-175`, `main.py:99`, `prompts/runregistry-extraction/README.md:445-450`,
+   `tools/tests/` counts 11/19/19/42; CPBH `RunDrivers/registered_run.py:816-824`,
+   `config/argument_parser.py:330-332`, `CLAUDE.md:61-62`, the script `:244-251`; SI
+   `CLAUDE.md:16-18`, `:142-143`, the script `:163`, `:278`, `:329`; Ray 2.43.0's
+   `scripts.py:1072` and `services.py:549`): each is what the documents say.
+8. **The procedure.** `switch-over.md` has the prompt's five sections; its preconditions are
+   commands; each client pins `runregistrykit` `v0.2.0`, whose `list` command §2 uses; §4 names
+   both of the prompt's options, adds (a′), and gives an **Advice:**.
+9. **Links.** Every relative link in the four documents resolves to a file tracked at `127b2b4`.
+10. **The records.** The log has every section of README §5.1; the issue is in §3 with its
+    **Assigned (2026-10-24)** line; the index counts 1, matching its header.
+
+*Two of the note's clarifications were wrong, and the agent's corrections are right* (its
+deviations 2 and 8, both STRUCTURALLY REQUIRED). Clarification 1 said a comment naming
+"rehearsal" in `run_child` fails `test_build_rehearsal_scope`: `ast.unparse` drops comments, and
+the match is case-sensitive (the orchestrator's probe: `False` for a comment). Clarification 6
+gave `tools/tests/test_inventory_consumers.py` as an SGK test that starts Ray: it replaces
+`ray.init` with a function that raises (`:48-60`), and no SGK test starts Ray.
+
+*The agent's own choices, accepted.* The log's deviations, including the extended greps (CPBH's
+and SI's pattern matches the scripts' citations of the brief's §2, not the brief's name, whose §3
+still governs the cluster), the positive check that each script calls the module, the
+"`set-pid` refused" path, option (a′) and its advice, and record counts by the lock's names.
+Deviation 21, UNINTENDED DRIFT: a grep for `/tmp/ray-sgk` over this repository printed four
+lines of the orchestrator's note, which the agent was not to read; nothing rests on them.
+
+*Observed, not opened.* The log's §5: `docs/adoption/README.md` describes `v0.2.0`'s checklists;
+four SGK record scripts under `docs/handover/a3-v2/` call the old helper and stop working when it
+is deleted; CPBH's Ray 2.53.0 source was not read; a bare `status` with no lock shows no client's
+processes. None is this repository's to change.
+
+*Residue fixed in the review's own commit:* "this commit" → `127b2b4` on this board, in the log
+and in `prompts/INDEX.md`; README's header and §2 status for 04; the notes line.
 
 ## 2. Gates outside this repository (README §7)
 
