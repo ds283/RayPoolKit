@@ -15,11 +15,11 @@ check passes with and without the stale manifest (10 entries, none under `raypoo
 03a landed (`67a75b9`), reviewed: `docs/rehearsal-lock.md` §4 (a leading `//` passes the `ray_temp_dir`
 check) and §6 item 4 (pid 1 is not kept out of the listing) corrected to what the module does,
 each with its caller advice and a probe; nothing under `raypoolkit/` or `pyproject.toml` changed;
-the suite 226 → 226. `v0.3.0` is ready to be tagged on 03a's commit once CI passes there, not on
-03's; no tag was made, and nothing was pushed.** G1 holds at SGK `216e44d`, CPBH
+the suite 226 → 226. **`v0.3.0` is tagged** (2026-10-24, annotated, on `67a75b9`) after CI
+passed at both ends there, and a client's install from the tag is checked (below).** G1 holds at SGK `216e44d`, CPBH
 `807f175` and SI `8b4f615` (SI's `HEAD` is now `7071bb8`, its `ray_cluster.sh` still blob
 `6c8eada`). The user took D1–D4 (README §6.1) and U1–U6 (README §6.2), all on 2026-10-23 and
-U1–U6 as recommended. The package is at `0.3.0` (untagged); the suite is 226 tests (121 before
+U1–U6 as recommended. The package is at `0.3.0`, tagged `v0.3.0` on `67a75b9`; the suite is 226 tests (121 before
 01), at 3.12.15 / Ray 2.43.0 and 3.13.16 / Ray 2.55.1. No issue is open: the one the review of 03
 found, two edge statements of the contract not true of the module, was closed by 03a (§4).
 
@@ -60,8 +60,8 @@ StochasticInstantons' `ray_cluster.sh`, blobs `eaae1e7` and `6c8eada` (G1) ·
 |---|---|---|---|---|
 | 01 | [`01-the-lock-module.md`](01-the-lock-module.md) | **landed** 2026-10-23 ([log](logs/01-the-lock-module.md)), reviewed | `6733447` | 121 → 226 |
 | 02 | [`02-prove-it-under-real-ray.md`](02-prove-it-under-real-ray.md) | **landed** 2026-10-24 ([log](logs/02-prove-it-under-real-ray.md)), reviewed; CI green | `722466a` | 226 → 226 |
-| 03 | [`03-release-v0.3.0.md`](03-release-v0.3.0.md) | **landed** 2026-10-24 ([log](logs/03-release-v0.3.0.md)), reviewed; `v0.3.0` not yet tagged | `89d6875` | 226 → 226 |
-| 03a | [`03a-correct-two-clauses-of-the-contract.md`](03a-correct-two-clauses-of-the-contract.md) | **landed** 2026-10-24 ([log](logs/03a-correct-two-clauses-of-the-contract.md)); reviewed; `v0.3.0` to be tagged here once CI passes | `67a75b9` | 226 → 226 |
+| 03 | [`03-release-v0.3.0.md`](03-release-v0.3.0.md) | **landed** 2026-10-24 ([log](logs/03-release-v0.3.0.md)), reviewed; released in `v0.3.0` with 03a | `89d6875` | 226 → 226 |
+| 03a | [`03a-correct-two-clauses-of-the-contract.md`](03a-correct-two-clauses-of-the-contract.md) | **landed** 2026-10-24 ([log](logs/03a-correct-two-clauses-of-the-contract.md)); reviewed; CI green; **tagged `v0.3.0`** | `67a75b9` | 226 → 226 |
 | 04 | `04-the-switch-over-checklists.md` | not written | — | — |
 | 05 | `05-verification-and-close-out.md` | not written | — | — |
 
@@ -364,6 +364,36 @@ either corrected edge; both rest on the probes. The log's §5 lists the rest.
 
 *Residue fixed in the review's own commit:* "this commit" → `67a75b9` on this board, in the log
 and in `prompts/INDEX.md`; README's header and §2 status for 03 and 03a.
+
+**Release of `v0.3.0` (2026-10-24).** Put to the user after the review of 03a, and done on the
+user's instruction, in the order the review recommended, so that CI ran on the tagged commit
+itself:
+1. **Push.** `git push origin 67a75b9:main` moved `origin/main` from `cc5f2d6` to `67a75b9`,
+   carrying `6e0ba38`, `8c0dfff`, `89d6875`, `b4edd2c`, `b2ee2b3` and `67a75b9` in one push.
+2. **CI on `67a75b9`.** The `tests` workflow's run 40121254667 passed both jobs: `suite (low)`,
+   Python 3.12.15 / Ray 2.43.0 (25 s), and `suite (high)`, Python 3.13.16 / Ray 2.55.1 (39 s). It
+   is the first CI run over `pyproject.toml` at `0.3.0`, `docs/rehearsal-lock.md` and 03's
+   documents. `89d6875` has no run of its own; `67a75b9`'s tree differs from it only in `docs/` and
+   `prompts/`.
+3. **The review's follow-up.** `git push origin c1164a5:main`, once run 40121254667 had passed:
+   run 40121340908 on `c1164a5` passed both jobs (`suite (low)` 19 s, `suite (high)` 23 s).
+4. **The tag.** `v0.3.0`, annotated (tag object `caf0076`, message "raypoolkit 0.3.0", as
+   `v0.2.0`'s), on `67a75b9`, made and pushed on the user's instruction. `git ls-remote origin`
+   shows it, peeling to `67a75b9`.
+5. **A client's install, checked.** `uv pip install --no-cache "raypoolkit @
+   git+https://github.com/ds283/RayPoolKit@v0.3.0" "ray==2.55.1"` into a fresh 3.13.16 venv in
+   the scratchpad:
+   - `direct_url.json` records `requested_revision` `v0.3.0` and `commit_id` `67a75b9…`;
+   - the installed package is the five modules, each byte-equal to the tag's, with no `tests/`;
+   - from an empty directory with `-I`, `version` is `0.3.0`, `requires` is `['ray>=2.43']`, the
+     two public names import from `site-packages`, `ray.is_initialized()` is false, and `import
+     raypoolkit.tests` raises `ModuleNotFoundError`;
+   - `python -I -m raypoolkit.rehearsal_lock status`, with `HOME` an empty scratch directory,
+     prints `lock: free (…)` and `Ray processes: no temp dir given`, exits 0, and leaves `HOME`
+     empty.
+
+This record is a commit of its own, made after the tag and not yet pushed when written. 04, the
+switch-over checklists, is measured against `v0.3.0` and can now be written.
 
 ## 2. Gates outside this repository (README §7)
 
