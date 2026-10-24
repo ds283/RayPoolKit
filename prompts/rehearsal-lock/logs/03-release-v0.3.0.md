@@ -1,9 +1,9 @@
 # Log — rehearsal-lock prompt 03: release `v0.3.0`
 
-**Subject:** Make the release v0.3.0 with the rehearsal lock's contract · **Commit:** this commit ·
+**Subject:** Make the release v0.3.0 with the rehearsal lock's contract · **Commit:** `89d6875` ·
 **Date:** 2026-10-24 · **Agent:** Claude Opus 5.5
 
-**Result: landed; `v0.3.0` is ready to be tagged once CI passes on this commit. No tag was made,
+**Result: landed; `v0.3.0` is ready to be tagged once CI passes on `89d6875`. No tag was made,
 and nothing was pushed.**
 - `pyproject.toml` says `0.3.0`, with the new description: two lines, nothing else.
 - `docs/rehearsal-lock.md` is new: the contract of the lock, in the prompt's eleven sections, naming
@@ -821,8 +821,8 @@ None opened, narrowed or closed. `docs/OPEN_ISSUES.md` is unchanged: 0 open.
 
 ## 7. State handed to the next prompt
 
-- **`v0.3.0` is ready to be tagged once CI passes on this commit.** The tag is made, annotated, on
-  this commit, and pushed, by the user or on the user's instruction (README §5 rule 10). If CI
+- **`v0.3.0` is ready to be tagged once CI passes on `89d6875`.** The tag is made, annotated, on
+  `89d6875`, and pushed, by the user or on the user's instruction (README §5 rule 10). If CI
   fails, no tag is made. Nothing is pushed: local `main` is three commits ahead of `origin/main`
   (`cc5f2d6`) with this one.
 - `docs/rehearsal-lock.md` is the statement of the lock. 04's checklists are measured against

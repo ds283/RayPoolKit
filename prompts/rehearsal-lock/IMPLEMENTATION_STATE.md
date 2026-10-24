@@ -8,7 +8,7 @@ landed (`722466a`), reviewed, and CI green at both ends: `docs/rehearsal-lock/ra
 under real Ray holding the real shared lock, exits 0 at 3.12.15 / Ray 2.43.0 and 3.13.16 / Ray
 2.55.1 (`ray[default]` scratch venvs, the user's choice of 2026-10-24), 31 checks each, for the
 agent and again for the orchestrator; its offline replay fails under M10 and M12 at both ends;
-nothing under `raypoolkit/` changed. 03 landed (this commit): `pyproject.toml` at `0.3.0`,
+nothing under `raypoolkit/` changed. 03 landed (`89d6875`), reviewed: `pyproject.toml` at `0.3.0`,
 the contract `docs/rehearsal-lock.md` (98 statements, each checked), and `README.md`,
 `PROVENANCE.md` and `CLAUDE.md` true of `v0.3.0`; the suite 226 → 226 at both ends; the release
 check passes with and without the stale manifest (10 entries, none under `raypoolkit/tests/`).
@@ -17,7 +17,8 @@ pushed.** G1 holds at SGK `216e44d`, CPBH
 `807f175` and SI `8b4f615` (SI's `HEAD` is now `7071bb8`, its `ray_cluster.sh` still blob
 `6c8eada`). The user took D1–D4 (README §6.1) and U1–U6 (README §6.2), all on 2026-10-23 and
 U1–U6 as recommended. The package is at `0.3.0` (untagged); the suite is 226 tests (121 before
-01), at 3.12.15 / Ray 2.43.0 and 3.13.16 / Ray 2.55.1. No issue is open.
+01), at 3.12.15 / Ray 2.43.0 and 3.13.16 / Ray 2.55.1. One issue is open (§3), found by the review
+of 03: two edge statements of the contract are not true of the module, and the tag waits on it.
 
 **Campaign:** [`README.md`](README.md) ·
 **Sources:** SecondaryGWKit's `tools/rehearsal_lock.py`, blob `ea14336`; ChamPBH's and
@@ -56,12 +57,13 @@ StochasticInstantons' `ray_cluster.sh`, blobs `eaae1e7` and `6c8eada` (G1) ·
 |---|---|---|---|---|
 | 01 | [`01-the-lock-module.md`](01-the-lock-module.md) | **landed** 2026-10-23 ([log](logs/01-the-lock-module.md)), reviewed | `6733447` | 121 → 226 |
 | 02 | [`02-prove-it-under-real-ray.md`](02-prove-it-under-real-ray.md) | **landed** 2026-10-24 ([log](logs/02-prove-it-under-real-ray.md)), reviewed; CI green | `722466a` | 226 → 226 |
-| 03 | [`03-release-v0.3.0.md`](03-release-v0.3.0.md) | **landed** 2026-10-24 ([log](logs/03-release-v0.3.0.md)); `v0.3.0` not yet tagged | this commit | 226 → 226 |
+| 03 | [`03-release-v0.3.0.md`](03-release-v0.3.0.md) | **landed** 2026-10-24 ([log](logs/03-release-v0.3.0.md)), reviewed; `v0.3.0` not yet tagged | `89d6875` | 226 → 226 |
 | 04 | `04-the-switch-over-checklists.md` | not written | — | — |
 | 05 | `05-verification-and-close-out.md` | not written | — | — |
 
 **Orchestrator notes:** [`orchestrator/prompt-01.md`](orchestrator/prompt-01.md) (`10be4d5`),
-used for 01; [`orchestrator/prompt-02.md`](orchestrator/prompt-02.md) (`ae1e064`), used for 02.
+used for 01; [`orchestrator/prompt-02.md`](orchestrator/prompt-02.md) (`ae1e064`), used for 02;
+[`orchestrator/prompt-03.md`](orchestrator/prompt-03.md) (`8c0dfff`), used for 03.
 
 **Orchestrator review of prompt 01 (2026-10-23).** Dispatched from `10be4d5` to one Opus
 subagent, with the note's §0: eleven clarifications and the measured facts. Reviewed against its
@@ -232,6 +234,87 @@ has no run of its own; the run on `cc5f2d6` covers its tree, since `cc5f2d6` tou
 `prompts/`. It is the first CI run of `black --check` over `docs/rehearsal-lock/ray_proof.py`. The
 proof itself does not run in CI.
 
+**Orchestrator review of prompt 03 (2026-10-24).** Dispatched from `8c0dfff` to one Opus
+subagent, with the note's §0: twelve clarifications and the measured facts. Reviewed against its
+commit `89d6875`, with nothing landed after it. **Every check of the note's §3 passed but one
+part of check 6**: two statements of the contract are not true of the module at an edge, and are
+opened as `[03-the-contract-overstates-two-edges-of-the-module]` (§3). No stop condition fired.
+
+*Before dispatch.* Read against the module, the prompt's account of the lock was short of it in
+six places (the note's clarifications 1–6). The Python API's fifth command function is
+`ray_processes_command`, and a bad argument raises `ValueError`, not 2 (clarification 1,
+STRUCTURALLY REQUIRED). A Ray driver calling the Python API sees nothing of its own in-process
+instance, since every process of it descends from the driver (clarification 2, from 02's records
+at both ends and a probe). The others give the exit conditions README §4 leaves out, the match's
+missing leading boundary, identity by spelling, and where each line goes.
+
+*At dispatch.* The note's gate held at `8c0dfff`: the tree clean, this checkout the only worktree,
+`Ran 226 tests … OK`, `black` 20 files, no Ray process, neither lock location under the real
+`HOME`, no `RAY_*` variable.
+
+*The checks.*
+1. **Scope.** `89d6875` touches eight files: `pyproject.toml`, `docs/rehearsal-lock.md` (new),
+   `README.md`, `PROVENANCE.md`, `CLAUDE.md`, the log, this board and `prompts/INDEX.md`.
+   `raypoolkit/`, `docs/rehearsal-lock/`, `docs/adoption/`, `docs/extraction/`, `.github/`,
+   `LICENSE`, `.gitignore` and the campaign README are unchanged from `6e0ba38`. No tag;
+   `origin/main` still `cc5f2d6`; no `build/` or `dist/`. No Ray process; neither lock location.
+2. **`pyproject.toml`.** The version and the description, and nothing else.
+3. **The suite.** `venv/`: `Ran 226 tests … OK`, reporting `0.3.0` and `['ray>=2.43']`. The
+   orchestrator's own fresh 3.13.16 / 2.55.1 venv (editable): `Ran 226 tests … OK`.
+4. **The distribution, re-built** from fresh exports of `89d6875`, without `-q`: (R1') and (R2')
+   (the manifest then `Version: 0.3.0`, 10 files under `tests/`) are each 21,368 bytes, 10
+   entries, none under `raypoolkit/tests/`, 0 "absent from"; the five modules byte-equal to the
+   commit's. (R2') in a fresh 3.13.16 / `ray==2.55.1` venv passed the prompt's §3.3 from an empty
+   directory with `-I`: the imports from `site-packages`, `0.3.0` and `['ray>=2.43']`, Ray not
+   initialized, `raypoolkit.tests` absent, `--help`, `status` and `ray-processes` (from a script
+   file), the scratch `HOME` left empty.
+5. **The breakage, by replaying.** (a) and (b) extracted from the log's text (SHA-256 as the log
+   gives them) and applied in fresh exports: (a) gives a `0.2.0` wheel; (b) 63,134 bytes, 21
+   entries, 11 under `raypoolkit/tests/`, and `raypoolkit.tests.test_rehearsal_lock` imports from
+   a throwaway venv's `site-packages`. The orchestrator's (o1), `include-package-data = true` with
+   the manifest: 51,047 bytes, 20 entries, 10 under `raypoolkit/tests/`, 2 "absent from", so the
+   setting still guards a stale manifest. `git status` clean throughout.
+6. **The contract, read against the module.** Read whole with `rehearsal_lock.py` beside it. Its
+   eleven sections are §2.2's, in order, and carry clarifications 1–6: the API, every exit
+   condition, the rule exactly (no leading boundary; the client server's two parts), identity by
+   spelling, the driver paragraph, every `status` line and its condition, the streams. The log's
+   eleven probe-only statements (S4, S5, S8, S16, S18, S30, S40, S46, S66, S74, S90) agree with
+   the orchestrator's own probes of the note's §0. **Two statements are not true at an edge**,
+   each found by a probe against a fixed table and a scratch `HOME`:
+   - §4 says a `ray_temp_dir` in normal form has no `//`. POSIX's `os.path.normpath` keeps a
+     leading `//`, so `//tmp/ray-a` passes the check (`/tmp//ray-a` and `///tmp/ray-a` do not).
+   - §6 item 4 says this process's ancestors are never listed. The ancestor walk stops before pid
+     1 (`rehearsal_lock.py:376`), so pid 1 is listed when its command names the temp dir: with
+     `1 0 /init --temp-dir=/tmp/ray-a` an ancestor of the reading process, `ray_processes` returns
+     `[1]`. 01's log §5 records the module's behaviour; the contract does not.
+   Each over-states what the module promises in a case no project meets today, and each is a
+   one-clause correction of the document; nothing under `raypoolkit/` need change.
+7. **No client.** The grep finds nothing in `docs/rehearsal-lock.md` or in the README's added lines.
+8. **The README.** Status describes `v0.3.0` and keeps `v0.2.0`, `v0.1.0` and DatastoreKit;
+   "Changes in `v0.3.0`" precedes "Changes in `v0.2.0`" and says nothing of when a project moves
+   its pin; the pin is `@v0.3.0`; "The rehearsal lock" sits between "Using it" and "Developing",
+   its table matching the module and not copying the contract; Licence says five. Every relative
+   link in the four documents resolves to a file tracked at `89d6875`.
+9. **`PROVENANCE.md` and `CLAUDE.md`.** As §2.4 and §2.5, every blob and commit as the note's facts
+   have them; the exceptions of "What this repository is" unchanged (clarification 10).
+10. **`black`.** 20 files unchanged.
+11. **The records.** The log has every section of README §5.1 and the prompt's §4.5 additions,
+    with clarification 1 recorded as STRUCTURALLY REQUIRED and no UNINTENDED DRIFT.
+
+*The agent's own choices, accepted.* Deviations 13–20 of the log. Two were looked at closely:
+- **The import cost (13)**, "0.3–0.6 s at Ray 2.43.0" in place of "about 0.3 s": measured on the
+  day, and 01's log §5 had 0.62 s. Accepted.
+- **The added behaviours (16)**, among them the order of `release`'s checks and a failed `rmdir`
+  leaving a lock with no owner file: each was read against the module and is right.
+
+*Observed, not opened.* `CLAUDE.md`'s first exception reads "imported from", and the lock module was
+modelled on its sources, not imported; the exceptions are the user's, and the wording is put to
+them. `docs/rehearsal-lock/ray_proof.py` takes the lock at `old_lock_dir()`, so a re-run after the
+switch-over holds a lock no project looks at (for 04 and 05). The log's §5 lists the rest.
+
+*Residue fixed in the review's own commit:* "this commit" → `89d6875` on this board, in the log
+and in `prompts/INDEX.md`; README's header and §2 status for 03; this notes line.
+
 ## 2. Gates outside this repository (README §7)
 
 | Gate | Status |
@@ -241,7 +324,30 @@ proof itself does not run in CI.
 
 ## 3. Active and unresolved issues
 
-None.
+### `[03-the-contract-overstates-two-edges-of-the-module]`
+
+**Opened:** 2026-10-24, by the orchestrator's review of 03. **Owner:** a fix before the tag.
+
+**Where:** `docs/rehearsal-lock.md` at `89d6875`, §4 ("The argument rules", the `ray_temp_dir`
+bullet) and §6 item 4.
+
+Two statements of the contract say more than the module does:
+- §4: "in normal form (`os.path.normpath` leaves it as it is, so no trailing `/`, `.`, `..` or
+  `//`)". POSIX's `normpath` keeps a leading `//`, so `//tmp/ray-a` passes
+  `_check_ray_temp_dir` (`raypoolkit/rehearsal_lock.py:126-135`).
+- §6 item 4: "This process is never listed: the process reading the table, its ancestors, and its
+  own descendants." The ancestor walk stops before pid 1 (`rehearsal_lock.py:376`, `pid > 1`), so
+  pid 1 is listed when its command names the temp dir. Probe: a fixed table in which pid 1's
+  command is `/init --temp-dir=/tmp/ray-a`, an ancestor of the reading process, gives `[1]`. 01's
+  log §5 records this behaviour.
+
+*Impact.* None on any project today: no caller passes a temp dir starting `//`, and pid 1 is
+`launchd` on macOS. But the document is the contract three projects keep, and the tag `v0.3.0`
+cannot be moved once made, so a statement untrue of the module is not released in it.
+
+*Next step.* Correct the two clauses in `docs/rehearsal-lock.md`, saying what the module does (a
+leading `//` is kept; pid 1 is not exempt), each with its probe recorded, and change nothing under
+`raypoolkit/`. Then CI on that commit, then the tag.
 
 ## 4. Resolved issues
 
