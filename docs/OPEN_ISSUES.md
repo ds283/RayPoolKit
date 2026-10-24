@@ -13,4 +13,4 @@ None open. The board's §4 records the resolved issues.
 
 ### 1.2 `rehearsal-lock` ([board](../prompts/rehearsal-lock/IMPLEMENTATION_STATE.md)) — planned 2026-10-23
 
-- `[04-the-proof-takes-the-old-lock]` — `docs/rehearsal-lock/ray_proof.py` holds the lock at `old_lock_dir()`, where no project looks after the switch-over. Assigned to 05.
+- `[04-the-proof-takes-the-old-lock]` — `docs/rehearsal-lock/ray_proof.py` holds the lock at `old_lock_dir()`, where no project looks after the switch-over. Assigned to 05, which holds both locations (U7).

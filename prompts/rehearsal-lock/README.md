@@ -7,7 +7,7 @@ recommended. **Prompt 01 has landed (`6733447`) and been reviewed, with CI green
 prompt 02 has landed (`722466a`) and been reviewed, run in `ray[default]` scratch venvs (the
 user's choice of 2026-10-24), with CI green; prompt 03 has landed (`89d6875`) and been reviewed; the issue its review opened was
 closed by prompt 03a, which has landed (`67a75b9`) and been reviewed; CI passed at both ends on
-`67a75b9`, and **`v0.3.0` is tagged** on it (2026-10-24); prompt 04 has landed (`127b2b4`) and been reviewed**; each later prompt is written after the one before it has landed
+`67a75b9`, and **`v0.3.0` is tagged** on it (2026-10-24); prompt 04 has landed (`127b2b4`) and been reviewed; prompt 05 is written, with U7 taken by the user on 2026-10-24**; each later prompt is written after the one before it has landed
 and been reviewed, against the tree it left, as in `extraction`.
 
 ## 0. Why this campaign exists
@@ -148,7 +148,7 @@ so any `python -m raypoolkit.<module>` pays this (U3).
 | 03 | `03-release-v0.3.0.md` | `pyproject.toml` at `0.3.0`; `README.md` (usage of the lock; "Changes in `v0.3.0`"); `PROVENANCE.md` ("Since `v0.2.0`": what came from SGK's module at blob `ea14336`, and from CPBH's and SI's scripts); `docs/rehearsal-lock.md`, the contract, written without naming a client; `CLAUDE.md` ("What this repository is"; the command line's exit codes and `status` layout are an interface). Both ends locally and in CI; **`v0.3.0`** tagged on its commit after green CI (U6). | landed 2026-10-24 (`89d6875`), reviewed; its review's issue closed by 03a; released in `v0.3.0` |
 | 03a | `03a-correct-two-clauses-of-the-contract.md` | A fix, written 2026-10-24 after 03's review: `docs/rehearsal-lock.md` §4 (a leading `//` passes the `ray_temp_dir` check) and §6 item 4 (pid 1 is not kept out of the listing) corrected to what the module does, with the caller advice each implies; closes `[03-the-contract-overstates-two-edges-of-the-module]`. Nothing under `raypoolkit/`. **`v0.3.0`** is tagged on 03a's commit after green CI. | landed 2026-10-24 (`67a75b9`), reviewed; CI green at both ends (run 40121254667); **tagged `v0.3.0`** |
 | 04 | `04-the-switch-over-checklists.md` | `docs/adoption/rehearsal-lock/`: one checklist per client, measured read-only at a named client commit against `v0.3.0`, and `switch-over.md`, the procedure for the day. SGK: delete `tools/rehearsal_lock.py` and its tests; give each in-process `ray.init` a `_temp_dir` (and measure what Ray does when `_temp_dir` is passed with a cluster address); its owner values; its `CLAUDE.md` section. CPBH and SI: replace `acquire_lock`, `release_lock`, the owner functions and the lock half of `status` in `ray_cluster.sh` with calls to the command line, keeping the cluster code; their `CLAUDE.md` and README lines. Each: the pin. The procedure: the preconditions (no lock at either location, no Ray process of any client), the order, and what each client checks afterwards. | landed 2026-10-24 (`127b2b4`), reviewed; one issue opened, for 05 |
-| 05 | `05-verification-and-close-out.md` | `docs/rehearsal-lock-verification.md`, from the package at `v0.3.0` and the records of 01–04; the campaign closed, with G2 open. | not written |
+| 05 | `05-verification-and-close-out.md` | `docs/rehearsal-lock/ray_proof.py` made to hold the lock at both locations (U7), closing `[04-the-proof-takes-the-old-lock]`, and re-run under real Ray at both ends; `docs/rehearsal-lock-verification.md`, from the package at `v0.3.0` and the records of 01–04 and 05; the campaign closed, with G2 open. | written 2026-10-24 ([`05-verification-and-close-out.md`](05-verification-and-close-out.md)) |
 
 **Order.** 01 → 02 → 03 → 03a → 04 → 05. 02 precedes the release so that `v0.3.0` is a module that has
 held a real lock over real Ray at both ends. 04 is measured against `v0.3.0`, the release the
@@ -211,7 +211,8 @@ code (04) reads source files through `git`; it does not import a client or run a
   names any helper beyond these.
 - **After 01:** the module and its tests; the guard covers it. **After 02:** the proof script.
   **After 03:** `docs/rehearsal-lock.md`; the tag `v0.3.0`. **After 04:**
-  `docs/adoption/rehearsal-lock/`.
+  `docs/adoption/rehearsal-lock/`. **After 05:** the proof holding both locations;
+  `docs/rehearsal-lock-verification.md`.
 
 ## 5. The rules this campaign runs under
 
@@ -237,7 +238,8 @@ The project-wide ones in `CLAUDE.md`, plus:
 9. **Real Ray only in 02 and 05, and only under the shared lock.** A prompt that starts Ray first
    takes the shared lock where the clients look for it on that day (the old location until the
    switch), through the module's own `acquire` with an explicit `lock_dir`, as project
-   `RayPoolKit`. If it is held, stop and ask the user. It releases it before it ends, and it never
+   `RayPoolKit`. From 05 on, the proof holds it at both locations (U7), which is right before the
+   switch and after it. If it is held, stop and ask the user. It releases it before it ends, and it never
    runs `ray stop`.
 10. **No tag except where a prompt says so** (03: `v0.3.0`), made on the prompt's commit once CI
     passes there, by the user or on the user's instruction; none is moved or deleted.
@@ -267,8 +269,8 @@ The project-wide ones in `CLAUDE.md`, plus:
 
 ### 6.2 Decisions this campaign needs
 
-Each was put with a recommendation. **U1–U6 were taken by the user on 2026-10-23, each as
-recommended**; the recommendation below is the decision.
+Each was put with a recommendation. **U1–U6 were taken by the user on 2026-10-23, and U7 on
+2026-10-24, each as recommended**; the recommendation below is the decision.
 
 - **U1: the module and how it is run** *(for 01)*. *Taken 2026-10-23:* `raypoolkit/rehearsal_lock.py`,
   run as `python -m raypoolkit.rehearsal_lock` with the client's venv's interpreter, and no
@@ -314,6 +316,17 @@ recommended**; the recommendation below is the decision.
 - **U6: the release** *(for 03)*. *Taken 2026-10-23:* `v0.3.0`, a new minor version: a new module and a
   new command-line interface, with `RayWorkPool` unchanged. A client moving its pin from `v0.2.0`
   changes nothing else.
+- **U7: where the proof takes the lock** *(for 05; put 2026-10-24, when 05 was written)*. 04 opened
+  `[04-the-proof-takes-the-old-lock]`, whose next step was to move the proof to the default
+  location. 05 runs before the switch-over, when the clients still look at the old location
+  (rule 9), so a proof holding only the default location would be invisible to them; one holding
+  only the old location is invisible, after the switch, to a client holding the new lock. The
+  options: **hold both**; a `--lock-location` option, 05 passing `old`; or no re-run in 05, the
+  issue staying open. *Taken 2026-10-24:* **hold both**. The proof acquires the default location
+  first (the module refuses it while the old one exists), then the old one, and releases the old
+  one first. Before the switch the old location stops every client (U4 stops the switched ones);
+  after it the default location does; and once U4's refusal is dropped (§8) the default one still
+  does. The issue closes in 05.
 
 ## 7. Gates outside this repository
 

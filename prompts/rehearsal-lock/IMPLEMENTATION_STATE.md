@@ -1,6 +1,6 @@
 # rehearsal-lock campaign — implementation state
 
-**Last updated:** 2026-10-24 · **Status: ACTIVE — 5 prompts written (01, 02, 03, the fix 03a, and 04), of 6; 01 landed
+**Last updated:** 2026-10-24 · **Status: ACTIVE — 6 prompts written (01, 02, 03, the fix 03a, 04 and 05), of 6; 01 landed
 (`6733447`), reviewed, and CI green at both ends: `raypoolkit/rehearsal_lock.py`, the lock at
 `~/.raypoolkit/rehearsal-lock` with the old-location refusal, the owner file, the five commands
 and the process rule by temp dir, standard library only; its 103 tests and two guard tests. 02
@@ -23,7 +23,7 @@ the procedure for the day; every command run against a scratch `HOME`, no Ray st
 under `raypoolkit/` changed; the suite 226 → 226; one issue opened, for 05.** G1 holds at SGK `216e44d`, CPBH
 `807f175` and SI `8b4f615` (SI's `HEAD` is now `7071bb8`, its `ray_cluster.sh` still blob
 `6c8eada`). The user took D1–D4 (README §6.1) and U1–U6 (README §6.2), all on 2026-10-23 and
-U1–U6 as recommended. The package is at `0.3.0`, tagged `v0.3.0` on `67a75b9`; the suite is 226 tests (121 before
+U1–U6 as recommended; U7 (the proof holds both lock locations) on 2026-10-24, as recommended, for 05. The package is at `0.3.0`, tagged `v0.3.0` on `67a75b9`; the suite is 226 tests (121 before
 01), at 3.12.15 / Ray 2.43.0 and 3.13.16 / Ray 2.55.1. **One issue is open**,
 `[04-the-proof-takes-the-old-lock]`, assigned to 05 (§3). The one the review of 03 found, two edge
 statements of the contract not true of the module, was closed by 03a (§4).
@@ -58,6 +58,7 @@ StochasticInstantons' `ray_cluster.sh`, blobs `eaae1e7` and `6c8eada` (G1) ·
 | **U4** old location | `acquire` refuses while `~/ScienceData/.rehearsal-lock` exists, in `0.3.x` | **taken** 2026-10-23, for 01 |
 | **U5** override | no environment variable; `lock_dir` keyword for tests and 02 only | **taken** 2026-10-23, for 01 |
 | **U6** release | `v0.3.0` | **taken** 2026-10-23, for 03 |
+| **U7** the proof's lock | hold both locations: the default first, then the old | **taken** 2026-10-24, for 05 |
 
 ## 1. Prompts
 
@@ -68,7 +69,7 @@ StochasticInstantons' `ray_cluster.sh`, blobs `eaae1e7` and `6c8eada` (G1) ·
 | 03 | [`03-release-v0.3.0.md`](03-release-v0.3.0.md) | **landed** 2026-10-24 ([log](logs/03-release-v0.3.0.md)), reviewed; released in `v0.3.0` with 03a | `89d6875` | 226 → 226 |
 | 03a | [`03a-correct-two-clauses-of-the-contract.md`](03a-correct-two-clauses-of-the-contract.md) | **landed** 2026-10-24 ([log](logs/03a-correct-two-clauses-of-the-contract.md)); reviewed; CI green; **tagged `v0.3.0`** | `67a75b9` | 226 → 226 |
 | 04 | [`04-the-switch-over-checklists.md`](04-the-switch-over-checklists.md) | **landed** 2026-10-24 ([log](logs/04-the-switch-over-checklists.md)), reviewed | `127b2b4` | 226 → 226 |
-| 05 | `05-verification-and-close-out.md` | not written | — | — |
+| 05 | [`05-verification-and-close-out.md`](05-verification-and-close-out.md) | written 2026-10-24 | — | 226 → |
 
 **Orchestrator notes:** [`orchestrator/prompt-01.md`](orchestrator/prompt-01.md) (`10be4d5`),
 used for 01; [`orchestrator/prompt-02.md`](orchestrator/prompt-02.md) (`ae1e064`), used for 02;
@@ -501,6 +502,15 @@ verification document: it is the next prompt to run it, so it moves the lock fir
 *Next step.* 05 moves the proof's lock calls and preflight to the default location (no
 `lock_dir`) before it re-runs it, or says why not. Part (c)'s default-location `acquire`, refused
 today as the old location, then needs a new expectation.
+
+**Decided (2026-10-24, U7):** not moved but doubled. 05 runs before the switch-over, while the
+clients look at the old location (README §5 rule 9), so a proof at the default location alone would
+be invisible to them. The user took U7: the proof holds both locations, the default first (the
+module refuses it while the old one exists) and then the old, and releases the old first; its
+preflight refuses while either exists. Part (c)'s two expectations stand (the default-location
+`acquire` is still refused by the old location); its `~/.raypoolkit` comparison goes, since the
+default `acquire` creates `~/.raypoolkit`. 05 makes the change and re-runs the proof at both ends
+([`05-verification-and-close-out.md`](05-verification-and-close-out.md) §2.2–§2.3).
 
 ## 4. Resolved issues
 
