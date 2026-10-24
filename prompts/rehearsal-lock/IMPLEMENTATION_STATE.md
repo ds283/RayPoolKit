@@ -1,6 +1,6 @@
 # rehearsal-lock campaign — implementation state
 
-**Last updated:** 2026-10-24 · **Status: CLOSED (2026-10-24, by prompt 05) — all 6 prompts landed (01, 02, 03, the fix 03a, 04 and 05); 01 landed
+**Last updated:** 2026-10-25 · **Status: CLOSED (2026-10-24, by prompt 05) — all 6 prompts landed (01, 02, 03, the fix 03a, 04 and 05); 01 landed
 (`6733447`), reviewed, and CI green at both ends: `raypoolkit/rehearsal_lock.py`, the lock at
 `~/.raypoolkit/rehearsal-lock` with the old-location refusal, the owner file, the five commands
 and the process rule by temp dir, standard library only; its 103 tests and two guard tests. 02
@@ -20,8 +20,8 @@ passed at both ends there, and a client's install from the tag is checked (below
 (`127b2b4`), reviewed: `docs/adoption/rehearsal-lock/`, a switch-over checklist for each client, measured
 read-only at SGK `216e44d`, CPBH `807f175` and SI `7071bb8` against `v0.3.0`, and `switch-over.md`,
 the procedure for the day; every command run against a scratch `HOME`, no Ray started; nothing
-under `raypoolkit/` changed; the suite 226 → 226; one issue opened, for 05. 05 landed (this
-commit): `docs/rehearsal-lock/ray_proof.py` holds the lock at both locations (U7), and under real
+under `raypoolkit/` changed; the suite 226 → 226; one issue opened, for 05. 05 landed
+(`41cc35e`), reviewed: `docs/rehearsal-lock/ray_proof.py` holds the lock at both locations (U7), and under real
 Ray, holding the real shared lock at both, exits 0 with 46 checks of 46 at 3.12.15 / Ray 2.43.0
 and 3.13.16 / Ray 2.55.1; its records and 02's fail under M10 and M12 by replay; the breakage P1–P4
 as the prompt says; `docs/rehearsal-lock-verification.md` verifies the campaign from `v0.3.0`;
@@ -74,13 +74,14 @@ StochasticInstantons' `ray_cluster.sh`, blobs `eaae1e7` and `6c8eada` (G1) ·
 | 03 | [`03-release-v0.3.0.md`](03-release-v0.3.0.md) | **landed** 2026-10-24 ([log](logs/03-release-v0.3.0.md)), reviewed; released in `v0.3.0` with 03a | `89d6875` | 226 → 226 |
 | 03a | [`03a-correct-two-clauses-of-the-contract.md`](03a-correct-two-clauses-of-the-contract.md) | **landed** 2026-10-24 ([log](logs/03a-correct-two-clauses-of-the-contract.md)); reviewed; CI green; **tagged `v0.3.0`** | `67a75b9` | 226 → 226 |
 | 04 | [`04-the-switch-over-checklists.md`](04-the-switch-over-checklists.md) | **landed** 2026-10-24 ([log](logs/04-the-switch-over-checklists.md)), reviewed | `127b2b4` | 226 → 226 |
-| 05 | [`05-verification-and-close-out.md`](05-verification-and-close-out.md) | **landed** 2026-10-24 ([log](logs/05-verification-and-close-out.md)); the campaign closed | this commit | 226 → 226 |
+| 05 | [`05-verification-and-close-out.md`](05-verification-and-close-out.md) | **landed** 2026-10-24 ([log](logs/05-verification-and-close-out.md)); reviewed; the campaign closed | `41cc35e` | 226 → 226 |
 
 **Orchestrator notes:** [`orchestrator/prompt-01.md`](orchestrator/prompt-01.md) (`10be4d5`),
 used for 01; [`orchestrator/prompt-02.md`](orchestrator/prompt-02.md) (`ae1e064`), used for 02;
 [`orchestrator/prompt-03.md`](orchestrator/prompt-03.md) (`8c0dfff`), used for 03. 03a has no note of
 its own: the prompt carries the orchestrator's measurements.
 [`orchestrator/prompt-04.md`](orchestrator/prompt-04.md) (`a2a8d37`), used for 04.
+[`orchestrator/prompt-05.md`](orchestrator/prompt-05.md) (`636a02a`), used for 05.
 
 **Orchestrator review of prompt 01 (2026-10-23).** Dispatched from `10be4d5` to one Opus
 subagent, with the note's §0: eleven clarifications and the measured facts. Reviewed against its
@@ -473,6 +474,91 @@ processes. None is this repository's to change.
 *Residue fixed in the review's own commit:* "this commit" → `127b2b4` on this board, in the log
 and in `prompts/INDEX.md`; README's header and §2 status for 04; the notes line.
 
+**Orchestrator review of prompt 05 (2026-10-25).** Dispatched from `636a02a` to one Opus
+subagent, with the note's §0: thirteen clarifications and the measured facts. Reviewed against its
+commit `41cc35e`, with nothing landed after it. **Every check of the note's §3 passed**, and the
+prompt's acceptance 1–6 are met. No stop condition fired.
+
+*Before dispatch.* The note's gate held at `636a02a`: the tree clean, this checkout the only
+worktree, `Ran 226 tests … OK`, `black` 20 files, no Ray process, the five ports free, neither lock
+location and no `~/.raypoolkit` under the real `HOME`, no `RAY_*` variable. One fact of the prompt
+did not hold: its §0.4 asks for a CI run on the commit that adds it, and `2861b38` was not pushed.
+The note recorded it as local with no run (clarification 1, the log's deviation 1, STRUCTURALLY
+REQUIRED), which makes the document's commit count 25. 02's two records and its M10/M12 diffs
+survived in 02's scratch directory; their hashes equal log 02 §4's, and they were handed to the
+agent.
+
+*The checks.*
+1. **Scope.** `41cc35e` touches eight files, all on the prompt's §7 list. `git diff 2861b38
+   41cc35e` over `raypoolkit/`, `pyproject.toml`, `README.md`, `PROVENANCE.md`, `CLAUDE.md`,
+   `docs/rehearsal-lock.md`, `docs/adoption/` and `.github/` is `switch-over.md`'s eight added
+   lines and nothing else. No tag; `origin/main` still `6284b3b`. Each client's `HEAD`, `status
+   --porcelain | shasum` and stash count equal the values taken before dispatch.
+2. **The machine after the agent.** No Ray process; ports 6420, 6421, 8270, 52370 and 8265 free;
+   neither lock location; `~/.raypoolkit` exists, empty; `/tmp/ray-rpk02a` and `…b` exist, `…c`
+   does not.
+3. **The change, by reading.** `git diff 722466a 41cc35e -- docs/rehearsal-lock/ray_proof.py` is
+   §2.2 items 1–11 and nothing else: `LOCK_CODE` always passes `lock_dir` from the payload's
+   location and exits on an unknown one; the preflight refuses on either location; the default
+   acquired first, then the old, and on an `acquire` exiting 3 what is held is released through the
+   module before exit 3 (`LeftHeld`, exit 4, if refused); the owner-files check before any Ray
+   start; `set_pid`, every refused release and every release at both locations, old first; the
+   cleanup per location, old first, stopping at a refusal; part (c) without its `~/.raypoolkit`
+   comparison; the docstring. The witness, checkpoints, `signal_if_same`, `stop` and the replay's
+   evaluation are untouched; there is still one `os.kill`, and no `ray stop`, `killpg` or `pkill`.
+4. **The proof, by running.** In the orchestrator's own offline `ray[default]` venvs, from a
+   script naming no temp dir, in the background, nothing else running: **exit 0 at both ends, 46
+   checks of 46**, 69.8 s at 3.12.15 / 2.43.0 and 75.2 s at 3.13.16 / 2.55.1. Before and after
+   each: no Ray process, neither lock location, `~/.raypoolkit` empty, the five ports free, `git
+   diff -- raypoolkit` empty. The stop: 8 listed, 8 `SIGTERM`, `gcs_server` and `monitor.py`
+   `SIGKILL`ed at the low end; 18 listed, 2 gone by their turn, 16 `SIGTERM`, the same two
+   `SIGKILL`ed at the high end (the number gone varies run to run, as in 02).
+5. **The replays.** Six records (the orchestrator's two, the agent's two, 02's two), each with a
+   fresh scratch `HOME` that stayed empty: unmutated, all exit 0; **M10** fails a1 and b2 at
+   2.43.0, and a1, b1, b2 and b3 at 2.55.1; **M12** fails b1, b2 and b3 at both: log 02 §4's
+   failures, on 02's records and 05's alike. The module's SHA-256 (`92754f2e…`) and `git status`
+   restored after each.
+6. **The breakage of the change.** The log's P1 and P2 applied with `git apply` (`--check` before,
+   `-R --check` after), each with a fresh scratch `HOME` whose path the run printed: each exits 1 at
+   `a1-acquire-owner-files` before any Ray start, its cleanup releasing the one location taken; the
+   scratch `HOME` holds only the empty parent. P3 and P4: exit 3 from the preflight, nothing made at
+   the other location. `ray_proof.py` and `git status` restored after each.
+7. **The suite and `black`.** `venv/`: `Ran 226 tests … OK`; the high-end venv: 226, OK. `black
+   --check raypoolkit docs`: 20 files unchanged.
+8. **The document's counts, recounted from the logs.** The 25 commits by class; the entries of
+   each log's §2 (21, 24, 20, 8, 21 and 23: 117), log 04 and log 05 classed item by item (6 / 13 /
+   1 and one "no deviation"; 1 / 21 / 1); the items of each log's §5 (8, 8, 9, 5, 9: 39); the
+   open count at each commit of §2.1; 46 checks per run.
+9. **Links and lines.** The document's six relative links resolve to tracked files at `41cc35e`;
+   its seven external links are runs under `github.com/ds283/RayPoolKit`. Read at their trees and
+   found as cited: `rehearsal_lock.py:102`, `:112`, `:331`, `:374-379` at `67a75b9`;
+   `test_inherited_faults.py:35`; `tests.yml:48-52`; `ray_proof.py:138-142`, `:164-176`,
+   `:1082`, `:1221-1228`, `:1398`, `:1504` at `41cc35e`; the import guard's five tests; the macOS
+   build. §11.1's client greps, run as written: 18, 5 and 5.
+10. **What the document claims.** Its known gaps are those of the prompt's §2.1 row 10, G2 open,
+    and clarification 1's two local commits; nothing is claimed that a record does not show.
+11. **The records.** The log has every section of README §5.1 and the prompt's §5 item 6
+    additions, clarification 1 as STRUCTURALLY REQUIRED. This board's header **CLOSED**, 05's row,
+    §2's dated line, §3 empty and the issue in §4 with its **Resolved (05, 2026-10-24)** line; the
+    README's header, §2 row and §7 line; `prompts/INDEX.md` closed; the index at 0, matching its
+    header; `switch-over.md`'s two dated lines, nothing else of it changed.
+
+*The agent's own choices, accepted.* Deviations 14–22 of the log: P1 and P2 as one-line diffs of
+`ACQUIRE_ORDER`; the unabbreviated `~ is <HOME>` line, which lets a scratch `HOME` be seen; each
+check comparing both owner files; the stricter status and after-both checks; the offline harness
+S1–S3 for clarification 4's path, beyond the prompt; P1–P4 at both ends. Deviation 23, UNINTENDED
+DRIFT: a `date` and a `cat` ran during the low-end real run, where the note asked that nothing
+run; neither reads the process table, names a temp dir or touches the lock, and the orchestrator's
+own runs, with nothing beside them, give the same result.
+
+*Observed, not opened.* The log's §5: the owner files of a run still say "rehearsal-lock 02 proof"
+(the purpose strings are 02's, as the prompt asked); `/tmp/ray-rpk02a` and `…b` gain two session
+directories a run; CI has not yet run `black` over the changed script. None is an issue.
+
+*Residue fixed in the review's own commit:* "this commit" → `41cc35e` on this board, in the log's
+head, in the README and in `prompts/INDEX.md`; the notes line. The verification document says "the
+commit that adds this document" and is left as it is (`CLAUDE.md` rule 6).
+
 ## 2. Gates outside this repository (README §7)
 
 | Gate | Status |
@@ -524,7 +610,7 @@ preflight refuses while either exists. Part (c)'s two expectations stand (the de
 default `acquire` creates `~/.raypoolkit`. 05 makes the change and re-runs the proof at both ends
 ([`05-verification-and-close-out.md`](05-verification-and-close-out.md) §2.2–§2.3).
 
-**Resolved (05, 2026-10-24):** in this commit. `docs/rehearsal-lock/ray_proof.py` now holds the
+**Resolved (05, 2026-10-24):** in `41cc35e`. `docs/rehearsal-lock/ray_proof.py` now holds the
 lock at both locations: every lock call names its location and passes it as `lock_dir`; the
 default location is acquired first and then the old one, and the old one is released first; the
 preflight refuses (exit 3) while either exists; a new check after the two acquires, before any Ray

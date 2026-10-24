@@ -1,7 +1,7 @@
 # Log — rehearsal-lock prompt 05: verification and close-out
 
 **Subject:** Verify the rehearsal-lock campaign and hold the proof's lock at both locations ·
-**Commit:** this commit · **Date:** 2026-10-24 · **Agent:** Claude Opus 5.5
+**Commit:** `41cc35e` · **Date:** 2026-10-24 · **Agent:** Claude Opus 5.5
 
 **Result: landed; the campaign is closed, with G2 open.**
 - `docs/rehearsal-lock/ray_proof.py` holds the shared lock at **both** its locations (U7): the
