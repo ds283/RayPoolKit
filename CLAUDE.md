@@ -6,14 +6,16 @@ file is right for this repository.
 
 ## What this repository is
 
-RayPoolKit is the `RayWorkPool` work-queue layer shared by three client projects, all under
-`/Users/ds283/Documents/Code/`:
+RayPoolKit holds the `RayWorkPool` work-queue layer and the shared rehearsal lock, both shared by
+three client projects, all under `/Users/ds283/Documents/Code/`:
 
-| Client | Repository | Its copy today |
+| Client | Repository | What it has today (2026-10-24) |
 |---|---|---|
-| SecondaryGWKit (SGK) | `SecondaryGWKit/` | `RayTools/RayWorkPool.py`, the source of the import |
-| ChamPBH (CPBH) | `ChamPBH/` | `RayTools/RayWorkPool.py`, without the store/persist split |
-| StochasticInstantons (SI) | `StochasticInstantons/` | `RayTools/RayWorkPool.py` |
+| SecondaryGWKit (SGK) | `SecondaryGWKit/` | the pin `v0.2.0` (at SGK `216e44d`); its own rehearsal lock, `tools/rehearsal_lock.py`, until the switch-over |
+| ChamPBH (CPBH) | `ChamPBH/` | the pin `v0.2.0` (at CPBH `807f175`); its own rehearsal lock in `ray_cluster.sh`, until the switch-over |
+| StochasticInstantons (SI) | `StochasticInstantons/` | the pin `v0.2.0` (at SI `7071bb8`); its own rehearsal lock in `ray_cluster.sh`, until the switch-over |
+
+Each client's `RayTools/` copy of the pool is gone.
 
 **The package knows nothing about any client.** It imports only the standard library, `ray` and
 itself. It does not import `datastorekit` either: the pool it is handed is duck-typed, described
@@ -91,6 +93,14 @@ and completion lines `RayWorkPool` writes to stdout. A change to their wording o
 change to the interface, made only by a prompt that says so and released under a new minor
 version.
 
+**The rehearsal lock is an interface shared by every project on the machine.**
+- Its location and its owner file are a contract between projects. A change to either silently
+  stops one project seeing another's lock. So it is made only by a prompt that says so, released
+  under a new minor version, and adopted by every project on one day.
+- Its command line (its commands, options and exit codes) and `status`'s layout are an interface,
+  like the pool's printed lines.
+- [`docs/rehearsal-lock.md`](docs/rehearsal-lock.md) is its statement.
+
 ## Repository mechanics
 
 - **Tests** live in `raypoolkit/tests/` as `unittest` modules and run from the repository root:
@@ -102,6 +112,9 @@ version.
   are replaced in-process by the suite's stand-in. Record the test count before and after every
   prompt; a count that falls is a stop.
 - **No test imports a client**, or `datastorekit`.
+- **No test reads the real `ps` or reaches the real `HOME`**: the lock's tests patch both. The
+  lock's proof under real Ray, `docs/rehearsal-lock/ray_proof.py`, is run locally only, in a
+  `ray[default]` venv, under the real lock.
 - **Format with `black`** (`black==25.1.0`, no configuration) the files you change, before
   committing.
 - **Supported versions** are stated in `pyproject.toml`. The clients run Python 3.12 (SGK) and

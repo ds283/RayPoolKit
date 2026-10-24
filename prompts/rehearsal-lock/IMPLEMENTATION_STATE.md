@@ -8,11 +8,16 @@ landed (`722466a`), reviewed, and CI green at both ends: `docs/rehearsal-lock/ra
 under real Ray holding the real shared lock, exits 0 at 3.12.15 / Ray 2.43.0 and 3.13.16 / Ray
 2.55.1 (`ray[default]` scratch venvs, the user's choice of 2026-10-24), 31 checks each, for the
 agent and again for the orchestrator; its offline replay fails under M10 and M12 at both ends;
-nothing under `raypoolkit/` changed. 03, the release `v0.3.0`, is written.** G1 holds at SGK `216e44d`, CPBH
+nothing under `raypoolkit/` changed. 03 landed (this commit): `pyproject.toml` at `0.3.0`,
+the contract `docs/rehearsal-lock.md` (98 statements, each checked), and `README.md`,
+`PROVENANCE.md` and `CLAUDE.md` true of `v0.3.0`; the suite 226 → 226 at both ends; the release
+check passes with and without the stale manifest (10 entries, none under `raypoolkit/tests/`).
+`v0.3.0` is ready to be tagged once CI passes on 03's commit; no tag was made, and nothing was
+pushed.** G1 holds at SGK `216e44d`, CPBH
 `807f175` and SI `8b4f615` (SI's `HEAD` is now `7071bb8`, its `ray_cluster.sh` still blob
 `6c8eada`). The user took D1–D4 (README §6.1) and U1–U6 (README §6.2), all on 2026-10-23 and
-U1–U6 as recommended. The package is at `0.2.0`; the suite is 226 tests (121 before 01), at
-3.12.15 / Ray 2.43.0 and 3.13.16 / Ray 2.55.1. No issue is open.
+U1–U6 as recommended. The package is at `0.3.0` (untagged); the suite is 226 tests (121 before
+01), at 3.12.15 / Ray 2.43.0 and 3.13.16 / Ray 2.55.1. No issue is open.
 
 **Campaign:** [`README.md`](README.md) ·
 **Sources:** SecondaryGWKit's `tools/rehearsal_lock.py`, blob `ea14336`; ChamPBH's and
@@ -51,7 +56,7 @@ StochasticInstantons' `ray_cluster.sh`, blobs `eaae1e7` and `6c8eada` (G1) ·
 |---|---|---|---|---|
 | 01 | [`01-the-lock-module.md`](01-the-lock-module.md) | **landed** 2026-10-23 ([log](logs/01-the-lock-module.md)), reviewed | `6733447` | 121 → 226 |
 | 02 | [`02-prove-it-under-real-ray.md`](02-prove-it-under-real-ray.md) | **landed** 2026-10-24 ([log](logs/02-prove-it-under-real-ray.md)), reviewed; CI green | `722466a` | 226 → 226 |
-| 03 | [`03-release-v0.3.0.md`](03-release-v0.3.0.md) | written 2026-10-24 | — | 226 → |
+| 03 | [`03-release-v0.3.0.md`](03-release-v0.3.0.md) | **landed** 2026-10-24 ([log](logs/03-release-v0.3.0.md)); `v0.3.0` not yet tagged | this commit | 226 → 226 |
 | 04 | `04-the-switch-over-checklists.md` | not written | — | — |
 | 05 | `05-verification-and-close-out.md` | not written | — | — |
 

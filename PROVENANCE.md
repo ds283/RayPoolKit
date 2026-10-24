@@ -1,6 +1,6 @@
 # Provenance
 
-`raypoolkit` was imported from **SecondaryGWKit** (SGK):
+`RayWorkPool` was imported from **SecondaryGWKit** (SGK):
 
 - **Repository:** <https://github.com/ds283/SecondaryGWKit>, checked out at
   `/Users/ds283/Documents/Code/SecondaryGWKit`.
@@ -88,8 +88,42 @@ made by this repository's campaigns. `v0.2.0`'s changes are prompt 04's (`0b6ffd
 log, [`prompts/extraction/logs/04-fix-the-inherited-faults.md`](prompts/extraction/logs/04-fix-the-inherited-faults.md),
 and in §4 of the campaign's status board,
 [`prompts/extraction/IMPLEMENTATION_STATE.md`](prompts/extraction/IMPLEMENTATION_STATE.md); the
-README's "Changes in `v0.2.0`" ([`README.md`](README.md)) says what they mean for a caller. SGK's
-copy stays frozen until SGK adopts a release (below).
+README's "Changes in `v0.2.0`" ([`README.md`](README.md)) says what they mean for a caller. The
+freeze of the clients' copies (below) has ended: every client has adopted a release and deleted its
+copy.
+
+## Since `v0.2.0`
+
+`raypoolkit/rehearsal_lock.py`, the shared rehearsal lock, was written new for this package by
+`prompts/rehearsal-lock/01-the-lock-module.md` (`6733447`). It was not imported, and no client's
+history is carried here. Its models, as its docstring names them:
+
+- SGK's `tools/rehearsal_lock.py` at SGK `216e44d` (blob `ea14336`): the owner file's writing and
+  parsing, `pid_alive`, `_short_hostname`, the walk that keeps a process, its ancestors and its own
+  children out of the listing, `_ps_output` as the one reading of `ps`, and the commands'
+  structure, exit codes and messages;
+- ChamPBH's `.documents/dk-and-rpk-migration/rehearsal/ray_cluster.sh` at ChamPBH `807f175` (blob
+  `eaae1e7`): its `temp_dir_regex` and `list_cluster_pids`, the rule that finds a Ray instance's
+  processes by its temp dir and its Ray client server's address. StochasticInstantons'
+  `ray_cluster.sh` (blob `6c8eada` at `8b4f615`) is the one ChamPBH's was adapted from.
+
+SGK's tests of its module (`tools/tests/test_rehearsal_lock.py`, blob `cdeecd6`, 42 tests) were
+ported to `raypoolkit/tests/test_rehearsal_lock.py`: 41 of the 42, onto 39 tests, with neutral
+project names (prompt 01's log, §1.2). The specification was the brief at StochasticInstantons
+`8b4f615` (`.prompts/dk-and-rpk-migration/rehearsal-lock-brief.md`, blob `d86ad43`), §2, which
+[`docs/rehearsal-lock.md`](docs/rehearsal-lock.md) now replaces as the statement of the lock.
+
+Where the module departs from its models, each decided in
+[`prompts/rehearsal-lock/README.md`](prompts/rehearsal-lock/README.md) §6, with the detail in
+[prompt 01's log](prompts/rehearsal-lock/logs/01-the-lock-module.md):
+
+- **The location** (D2): `~/.raypoolkit/rehearsal-lock`, where the models used
+  `~/ScienceData/.rehearsal-lock`.
+- **The old location** (U4): in `0.3.x`, `acquire` refuses while `~/ScienceData/.rehearsal-lock`
+  exists.
+- **One process rule, by Ray temp dir** (U2), for every caller, in place of SGK's rule by venv,
+  which found Ray processes by this checkout's `venv/…/site-packages/ray/` and could not find the
+  venv once packaged.
 
 ## The freeze (decision U5)
 
@@ -99,3 +133,7 @@ pool is made here and reaches the client when it adopts a release. The clients a
 (`RayTools/RayWorkPool.py`, the source of this import), ChamPBH and StochasticInstantons.
 
 The freeze is recorded here. Prompt 01 does not edit any client to announce it.
+
+The freeze ended when the last client adopted: G2 held on 2026-10-12, G3 on 2026-10-12 and G4 on
+2026-10-20 (§2 of [`prompts/extraction/IMPLEMENTATION_STATE.md`](prompts/extraction/IMPLEMENTATION_STATE.md)),
+and each client has deleted its `RayTools/`.

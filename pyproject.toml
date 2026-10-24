@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "raypoolkit"
-version = "0.2.0"
-description = "A Ray work queue (RayWorkPool) that drives lookup, compute, store and validation tasks"
+version = "0.3.0"
+description = "A Ray work queue (RayWorkPool) that drives lookup, compute, store and validation tasks, and a shared rehearsal lock for Ray runs"
 requires-python = ">=3.12"
 dependencies = [
     "ray>=2.43",

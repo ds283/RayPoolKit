@@ -7,9 +7,20 @@ task), and if not it is computed, stored locally, persisted, and optionally vali
 post-processing hook at each exit. It caps the number of tasks in flight, so a long queue never
 floods Ray's object store, and reports progress and rates as it drains.
 
+The package also holds the shared rehearsal lock, `raypoolkit.rehearsal_lock`, which lets several
+projects on one machine run one Ray rehearsal or long build at a time. Its contract is
+[`docs/rehearsal-lock.md`](docs/rehearsal-lock.md).
+
 ## Status
 
-**`v0.2.0`** is the release the client projects adopt. It is `v0.1.0` with the faults inherited
+**`v0.3.0`** is `v0.2.0` with the shared rehearsal lock added, `raypoolkit.rehearsal_lock` (see
+[The rehearsal lock](#the-rehearsal-lock), below). `RayWorkPool` is unchanged: its module, its
+arguments and its printed lines are `v0.2.0`'s. The plan for the lock is
+[`prompts/rehearsal-lock/README.md`](prompts/rehearsal-lock/README.md), and the status of the work
+is on that campaign's board,
+[`prompts/rehearsal-lock/IMPLEMENTATION_STATE.md`](prompts/rehearsal-lock/IMPLEMENTATION_STATE.md).
+
+**`v0.2.0`** is `v0.1.0` with the faults inherited
 from SecondaryGWKit's copy fixed, and the constructor's arguments checked. Each fault's fix is
 guarded by a test that `v0.1.0`'s module fails, in a test suite that needs no Ray cluster. What
 changed for a caller is listed under [Changes in `v0.2.0`](#changes-in-v020), below; the issues,
@@ -25,6 +36,19 @@ its behaviour unchanged ([`PROVENANCE.md`](PROVENANCE.md)).
 RayPoolKit does not depend on [DatastoreKit](https://github.com/ds283/DatastoreKit), the
 datastore layer extracted from the same projects. A `RayWorkPool` is handed any pool object its
 handlers understand; the default persist handler calls only its `object_store` method.
+
+## Changes in `v0.3.0`
+
+For a project moving its pin from `v0.2.0`:
+
+- **`RayWorkPool` is unchanged**: its module, its arguments and the lines it prints are `v0.2.0`'s.
+  Moving the pin changes nothing else.
+- **A new module, `raypoolkit.rehearsal_lock`**, the shared rehearsal lock, run as `python -m
+  raypoolkit.rehearsal_lock`. Its contract is [`docs/rehearsal-lock.md`](docs/rehearsal-lock.md);
+  [The rehearsal lock](#the-rehearsal-lock), below, says how it is run.
+- **The lock lives at `~/.raypoolkit/rehearsal-lock`.** Every project that shares the lock moves to
+  it on the same day, since a project still on its own implementation cannot see the new location.
+  While the old location, `~/ScienceData/.rehearsal-lock`, exists, `acquire` refuses (exit 3).
 
 ## Changes in `v0.2.0`
 
@@ -70,13 +94,17 @@ For a client moving its pin from `v0.1.0`:
 - Ray has no ceiling, so that a client can move Ray without a release here. Newer releases inside
   the declared range (Python 3.14, and Ray up to 2.59.0 today) are allowed but not tested.
 - **A client pins its own Ray**, in its own `requirements.txt`.
+- **The rehearsal lock** (`raypoolkit/rehearsal_lock.py`) uses the standard library only. Its
+  process rule reads `ps` as macOS has it, and was proven under real Ray there, at both tested
+  ends ([`docs/rehearsal-lock.md`](docs/rehearsal-lock.md) §11). CI runs its tests, which read no
+  real `ps`, on Ubuntu.
 
 ## Installing
 
 A client depends on a tagged release, pinned in its `requirements.txt`:
 
 ```text
-raypoolkit @ git+https://github.com/ds283/RayPoolKit@v0.2.0
+raypoolkit @ git+https://github.com/ds283/RayPoolKit@v0.3.0
 ```
 
 An editable install (`pip install -e`) is for developing this package, never for a client's
@@ -232,6 +260,40 @@ and `store()`), `Blob` (an object without `available`) and `StandinDatastorePool
 `object_store` that returns the persisted object with its `store_id`). It is part of the test
 suite and is not installed with the package.
 
+## The rehearsal lock
+
+`raypoolkit.rehearsal_lock` lets several projects on one machine run one Ray rehearsal or long
+build at a time. It is run with the project's own venv:
+
+```bash
+./venv/bin/python -m raypoolkit.rehearsal_lock <command> [options]
+```
+
+| Command | Exit codes |
+|---|---|
+| `acquire --project P --purpose TEXT --ray-temp-dir D --ray-address A` | 0 held now; 3 held already, or the old location exists; 4 a process of `D` (or of `A`'s Ray client server) is alive, or the process table cannot be read, and the lock is released again; 1 the owner file could not be written |
+| `set-pid --project P --ray-temp-dir D PID` | 0 recorded; 1 refused |
+| `release --project P --ray-temp-dir D` | 0 released, or no lock; 1 refused |
+| `status [--ray-temp-dir D [--ray-address A]]` | 0 |
+| `ray-processes --ray-temp-dir D [--ray-address A]` | 0 none; 1 some, or the process table cannot be read |
+
+A usage error exits 2. `D` is the absolute path of the Ray instance's own temp dir, and `A` is
+`in-process` or the cluster's `host:port`.
+
+A caller:
+1. runs `acquire`, and on exit 3 stops and asks the user;
+2. starts Ray on its own temp dir: `ray.init(address="local", _temp_dir=D)` for an in-process
+   instance, or `ray start --head --temp-dir D …` for a cluster;
+3. runs `set-pid` with the driver's pid (in process) or the `gcs_server`'s (a cluster);
+4. does the work;
+5. stops Ray;
+6. runs `release`.
+
+The commands are run as the command line, in a process of their own, never through the Python API
+inside a Ray driver. Everything else is in the contract, [`docs/rehearsal-lock.md`](docs/rehearsal-lock.md):
+the owner file, whose lock it is, the process rule and what it asks of a caller, `status`'s layout,
+and the old location.
+
 ## Developing
 
 From the repository root, with Python 3.12 or later:
@@ -254,7 +316,12 @@ at a local path. It was retired at `v0.1.0`: it describes that tag, and fails by
 tree. It runs locally only, not in CI, from a `git worktree` of `v0.1.0`;
 [`PROVENANCE.md`](PROVENANCE.md) gives the commands.
 
+The rehearsal lock's proof under real Ray,
+[`docs/rehearsal-lock/ray_proof.py`](docs/rehearsal-lock/ray_proof.py), runs locally only, not in
+CI. It needs a venv with `ray[default]`, and it takes the real shared lock. Its docstring says how
+it is run.
+
 ## Licence
 
-Apache License 2.0; see [`LICENSE`](LICENSE). The four package modules carry the Apache 2.0
+Apache License 2.0; see [`LICENSE`](LICENSE). The five package modules carry the Apache 2.0
 header.
