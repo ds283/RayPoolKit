@@ -9,13 +9,14 @@ file is right for this repository.
 RayPoolKit holds the `RayWorkPool` work-queue layer and the shared rehearsal lock, both shared by
 three client projects, all under `/Users/ds283/Documents/Code/`:
 
-| Client | Repository | What it has today (2026-10-24) |
+| Client | Repository | What it has today (2026-10-25) |
 |---|---|---|
-| SecondaryGWKit (SGK) | `SecondaryGWKit/` | the pin `v0.2.0` (at SGK `216e44d`); its own rehearsal lock, `tools/rehearsal_lock.py`, until the switch-over |
-| ChamPBH (CPBH) | `ChamPBH/` | the pin `v0.2.0` (at CPBH `807f175`); its own rehearsal lock in `ray_cluster.sh`, until the switch-over |
-| StochasticInstantons (SI) | `StochasticInstantons/` | the pin `v0.2.0` (at SI `7071bb8`); its own rehearsal lock in `ray_cluster.sh`, until the switch-over |
+| SecondaryGWKit (SGK) | `SecondaryGWKit/` | the pin `v0.3.0` (at SGK `40d10b1`, on `handover-remedial`); the package's rehearsal lock |
+| ChamPBH (CPBH) | `ChamPBH/` | the pin `v0.3.0` (at CPBH `95ad91d`); the package's rehearsal lock, called from `ray_cluster.sh` |
+| StochasticInstantons (SI) | `StochasticInstantons/` | the pin `v0.3.0` (at SI `3d6328e`); the package's rehearsal lock, called from `ray_cluster.sh` (`6c60b81`) |
 
-Each client's `RayTools/` copy of the pool is gone.
+Each client's `RayTools/` copy of the pool is gone, and so is each client's own rehearsal lock
+(the switch-over, 2026-10-25).
 
 **The package knows nothing about any client.** It imports only the standard library, `ray` and
 itself. It does not import `datastorekit` either: the pool it is handed is duck-typed, described

@@ -25,7 +25,8 @@ under `raypoolkit/` changed; the suite 226 → 226; one issue opened, for 05. 05
 Ray, holding the real shared lock at both, exits 0 with 46 checks of 46 at 3.12.15 / Ray 2.43.0
 and 3.13.16 / Ray 2.55.1; its records and 02's fail under M10 and M12 by replay; the breakage P1–P4
 as the prompt says; `docs/rehearsal-lock-verification.md` verifies the campaign from `v0.3.0`;
-nothing under `raypoolkit/` changed; the suite 226 → 226; the issue closed. G2 is open.** G1 holds at SGK `216e44d`, CPBH
+nothing under `raypoolkit/` changed; the suite 226 → 226; the issue closed. G2 holds since
+2026-10-25, when all three clients switched to `v0.3.0` and the cross-check passed (§2).** G1 holds at SGK `216e44d`, CPBH
 `807f175` and SI `8b4f615` (SI's `HEAD` is now `7071bb8`, its `ray_cluster.sh` still blob
 `6c8eada`). The user took D1–D4 (README §6.1) and U1–U6 (README §6.2), all on 2026-10-23 and
 U1–U6 as recommended; U7 (the proof holds both lock locations) on 2026-10-24, as recommended, for 05. The package is at `0.3.0`, tagged `v0.3.0` on `67a75b9`; the suite is 226 tests (121 before
@@ -574,10 +575,18 @@ paragraph is the record.
 | Gate | Status |
 |---|---|
 | **G1** | **holds** 2026-10-23: SGK `tools/rehearsal_lock.py` is blob `ea14336` and `tools/tests/test_rehearsal_lock.py` blob `cdeecd6` at `216e44d`; CPBH's `.documents/dk-and-rpk-migration/rehearsal/ray_cluster.sh` is blob `eaae1e7` at `807f175`; SI's is blob `6c8eada` at `8b4f615` (the tip of its unmerged branch `dk-and-rpk-migration`). **Re-measured for 04** (2026-10-24): unchanged at SGK `216e44d`, CPBH `807f175` and SI `7071bb8` (SI's `HEAD`; `main` `1c223e8` its ancestor, the same blob) |
-| **G2** | not yet (the switch-over: all three on `v0.3.0`, on one day). The procedure is [`docs/adoption/rehearsal-lock/switch-over.md`](../../docs/adoption/rehearsal-lock/switch-over.md) (04), with a checklist per client beside it; G2 is recorded here, with each client's merged commit and the cross-check of its §3 |
+| **G2** | **holds** 2026-10-25: all three clients switched to `v0.3.0` on 2026-10-25, each in a campaign of its own named `rpk-v030-adoption`, and `switch-over.md` §3's cross-check passed. **SGK**: the switch is `40d10b1` (01:28 GMT), on `handover-remedial`, SGK's working branch since the checklist was measured there (SGK's local `main`, `d6afa05`, predates every `raypoolkit` pin); not pushed (7 commits ahead of `origin/handover-remedial`). **CPBH**: the switch is `95ad91d` (02:17 GMT), on `main` (`a144c83`), pushed to `github/main`. **SI**: the pin `3d6328e` (08:25 GMT) and the script `6c60b81` (08:38 GMT), on `main` (`c00a8ec`), fast-forwarded and not pushed. *Re-checked at recording, read-only, by each checklist's item 8:* the pin reads `v0.3.0` in all three (SGK at `4a3e848`, CPBH at `main` `a144c83`, SI at `main` `c00a8ec`), and each venv records `raypoolkit` 0.3.0 at `67a75b97…`, `requested_revision` `v0.3.0`, not editable; `python -m raypoolkit.rehearsal_lock --help` prints `usage: python -m raypoolkit.rehearsal_lock [-h]` in each. SGK: `tools/rehearsal_lock.py` and its tests are absent; the old-lock grep finds **1** line, not the checklist's 0: `CLAUDE.md:169`, the sentence SGK's prompt 01 added (its §2.6) saying `acquire` exits 3 while the old location exists (contract §9), which names the location as the refusal's cause, not as SGK's lock; SGK's prompt expected exactly that one line. CPBH: the grep finds 0, and the script calls the module (10 lines). SI: the grep finds 0, the script 7 lines. *The clients' suites, as their records give them (not re-run here):* SGK, its seven roots unchanged but `tools` 91 → 49 (−42, the helper's tests) and `RunDrivers` 115 → 120 (+5), with the known wall-clock test `test_tk_wkb_phase.TestCost.test_wall_time_per_object` failing before and after; CPBH, its five roots unchanged but `tools/tests` 84 → 93 (+9, the new `test_ray_cluster_lock.py`); SI, 732 and 67 before and after. *The day's preconditions* (2026-10-25, 08:53 GMT): `pgrep -lf 'gcs_server\|raylet\|ray::'` exit 1; neither lock location exists (`~/.raypoolkit` exists, empty); `runregistrykit list` shows no run running or stale in SGK (52 runs: 50 finished, 2 `unknown`, from before the registry) and no runs in CPBH or SI. *The cross-check* (08:54 GMT, SGK at `4a3e848`, CPBH at `b58f6a5` on `jordan-normalization`, SI at `24e641f` on `rrk-adoption`, each with its own venv from its root): `status` in SGK, exit **0**, `lock: free (<home>/.raypoolkit/rehearsal-lock does not exist)` and no `old location` line; `acquire` in SGK, exit **0**; `acquire` in CPBH, exit **3**, and in SI, exit **3**, each printing SGK's owner file (`project: SecondaryGWKit`, `purpose: switch-over cross-check`); `release` in SGK, exit **0**; `status`, exit **0**, the lock free. 0, 0, 3, 3, 0, 0, as §3 expects. Ray may be run under the new lock from here. The procedure is [`docs/adoption/rehearsal-lock/switch-over.md`](../../docs/adoption/rehearsal-lock/switch-over.md) (04), with a checklist per client beside it |
 
 *2026-10-24, at the close (05):* the campaign closed with G2 open. G1 and G2 are unchanged by 05.
 After the close, G2 is recorded on this board when it holds, in a records commit of its own.
+
+**G2 recorded (2026-10-25).** The three clients switched on 2026-10-25, and the cross-check of
+`switch-over.md` §3 was run for this record the same morning, after the last of them had
+landed. Every project on the machine now takes the lock at
+`~/.raypoolkit/rehearsal-lock`. The two items of README §8 that waited on G2 may now go ahead,
+each in a campaign of its own: dropping U4's old-location refusal in a later release, and phase 2,
+the cluster. SGK's `CLAUDE.md:169` describes that refusal, so it goes stale when the refusal is
+dropped; changing it is SGK's, in its own repository. SGK's and SI's switches are not yet pushed.
 
 ## 3. Active and unresolved issues
 

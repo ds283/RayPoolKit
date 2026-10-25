@@ -7,7 +7,7 @@ recommended. **Prompt 01 has landed (`6733447`) and been reviewed, with CI green
 prompt 02 has landed (`722466a`) and been reviewed, run in `ray[default]` scratch venvs (the
 user's choice of 2026-10-24), with CI green; prompt 03 has landed (`89d6875`) and been reviewed; the issue its review opened was
 closed by prompt 03a, which has landed (`67a75b9`) and been reviewed; CI passed at both ends on
-`67a75b9`, and **`v0.3.0` is tagged** on it (2026-10-24); prompt 04 has landed (`127b2b4`) and been reviewed; prompt 05 is written, with U7 taken by the user on 2026-10-24, and has landed (`41cc35e`) and been reviewed: the proof holds the lock at both locations and passed again under real Ray at both ends, and `docs/rehearsal-lock-verification.md` verifies the campaign**. **The campaign closed at 05 on 2026-10-24, with G2 open.** Each prompt was written after the one before it had landed
+`67a75b9`, and **`v0.3.0` is tagged** on it (2026-10-24); prompt 04 has landed (`127b2b4`) and been reviewed; prompt 05 is written, with U7 taken by the user on 2026-10-24, and has landed (`41cc35e`) and been reviewed: the proof holds the lock at both locations and passed again under real Ray at both ends, and `docs/rehearsal-lock-verification.md` verifies the campaign**. **The campaign closed at 05 on 2026-10-24, with G2 open; G2 holds since 2026-10-25.** Each prompt was written after the one before it had landed
 and been reviewed, against the tree it left, as in `extraction`.
 
 ## 0. Why this campaign exists
@@ -333,12 +333,15 @@ Each was put with a recommendation. **U1–U6 were taken by the user on 2026-10-
 | Gate | Holds when | Needed by |
 |---|---|---|
 | **G1** | The clients' lock code is still what §0.2 measured: SGK `tools/rehearsal_lock.py` blob `ea14336` and its tests `cdeecd6` when 01 is written; CPBH's and SI's `ray_cluster.sh` blobs `eaae1e7` and `6c8eada` (or their successors, re-measured) when 04 is written. If a client changed its lock, the plan is re-measured first. **Holds (2026-10-23)** at SGK `216e44d`, CPBH `807f175`, SI `8b4f615`. | 01, 04 |
-| **G2** | The switch-over (D3): all three clients pin `v0.3.0`, each has removed its own lock code as its checklist says, and no client names `~/ScienceData/.rehearsal-lock` outside its historical records; done on one day, in the order `switch-over.md` gives. Each client does its part in a campaign of its own. | — |
+| **G2** | The switch-over (D3): all three clients pin `v0.3.0`, each has removed its own lock code as its checklist says, and no client names `~/ScienceData/.rehearsal-lock` outside its historical records; done on one day, in the order `switch-over.md` gives. Each client does its part in a campaign of its own.  **Holds (2026-10-25)**: all three switched that day, and the cross-check of `switch-over.md` §3 passed (board §2). One live line still names the old location, SGK's `CLAUDE.md:169`, as the cause of U4's refusal rather than as SGK's lock. | — |
 
 The campaign closes at 05. G2 is recorded on this board when it holds, but the campaign does not
 wait for it.
 
 *2026-10-24:* the campaign closed at 05, with G2 open.
+
+*2026-10-25:* G2 holds, recorded on the board (§2). The two items of §8 that wait for G2 may now
+go ahead.
 
 ## 8. Later units of work
 
